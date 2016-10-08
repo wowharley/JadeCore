@@ -47,7 +47,7 @@ enum ColossusActions
     ACTION_SUMMON_ELEMENTAL     = 1,
     ACTION_FREEZE_COLOSSUS      = 2,
     ACTION_UNFREEZE_COLOSSUS    = 3,
-	ACTION_DIE                  = 4,
+    ACTION_DIE                  = 4,
 };
 
 enum ColossusPhases
@@ -84,7 +84,7 @@ class boss_drakkari_colossus : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 introDone = false;
-				AllowDie = false;
+		AllowDie = false;
             }
 
             void InitializeAI()
@@ -106,7 +106,7 @@ class boss_drakkari_colossus : public CreatureScript
 
                 //events.Reset(); -> done in _Reset();
                 events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(10000, 30000));
-				AllowDie = false;
+		AllowDie = false;
 
                 phase = COLOSSUS_PHASE_NORMAL;
 
