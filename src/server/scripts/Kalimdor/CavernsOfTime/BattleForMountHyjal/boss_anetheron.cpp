@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2013-1016 JadeCore <https://www.jadecore.tk/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,7 +51,7 @@ public:
         return new boss_anetheronAI (creature);
     }
 
-    struct boss_anetheronAI : public hyjal_trashAI
+struct boss_anetheronAI : public hyjal_trashAI
     {
         boss_anetheronAI(Creature* creature) : hyjal_trashAI(creature)
         {
@@ -64,7 +65,7 @@ public:
         uint32 InfernoTimer;
         bool go;
 
-        void Reset()
+void Reset()
         {
             damageTaken = 0;
             SwarmTimer = 45000;
@@ -76,19 +77,19 @@ public:
                 instance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+void EnterCombat(Unit* /*who*/)
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+void KilledUnit(Unit* /*victim*/)
         {
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId)
+void WaypointReached(uint32 waypointId)
         {
             if (waypointId == 7 && instance)
             {
@@ -98,7 +99,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+void JustDied(Unit* killer)
         {
             hyjal_trashAI::JustDied(killer);
             if (instance && IsEvent)
@@ -106,7 +107,7 @@ public:
             Talk(SAY_ONDEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+void UpdateAI(const uint32 diff)
         {
             if (IsEvent)
             {
@@ -131,11 +132,11 @@ public:
                 }
             }
 
-            //Return since we have no target
-            if (!UpdateVictim())
+//Return since we have no target
+if (!UpdateVictim())
                 return;
 
-            if (SwarmTimer <= diff)
+if (SwarmTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_CARRION_SWARM);
@@ -204,32 +205,32 @@ public:
         uint64 AnetheronGUID;
         InstanceScript* instance;
 
-        void Reset()
+void Reset()
         {
             DoCast(me, SPELL_INFERNO_EFFECT);
             ImmolationTimer = 5000;
             CheckTimer = 5000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+void EnterCombat(Unit* /*who*/)
         {
         }
 
-        void KilledUnit(Unit* /*victim*/)
+void KilledUnit(Unit* /*victim*/)
         {
         }
 
-        void JustDied(Unit* /*killer*/)
+void JustDied(Unit* /*killer*/)
         {
         }
 
-        void MoveInLineOfSight(Unit* who)
+void MoveInLineOfSight(Unit* who)
         {
             if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 
-        void UpdateAI(const uint32 diff)
+void UpdateAI(const uint32 diff)
         {
             if (CheckTimer <= diff)
             {
@@ -248,7 +249,7 @@ public:
             else
                 CheckTimer -= diff;
 
-            //Return since we have no target
+//Return since we have no target
             if (!UpdateVictim())
                 return;
 
