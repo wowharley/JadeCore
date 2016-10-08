@@ -13,18 +13,19 @@
 /*
 General Information: (Icy-veins.com):
 
-p_Difficulty	Amalgam of Corruption	Manifestation of Corruption	Essence of Corruption	Greater Corruption
-10-man	261M	1.3M	600K	3M
-10-man Heroic	702M	6M	1M	1.3M
-25-man	1.1B	900K	675K	???
-25-man Heroic	1.95B	1.3M	1M	???
-LFR	???M	???	???	???
-p_Difficulty	Titanic Corruption	Unleashed Manifestation of Corruption	Unleashed Essence of Corruption
-10-man	???	5M	2M
-10-man Heroic	6.5M	6M	3.1M
-25-man	???	4M	2M
-25-man Heroic	???	6M	3.16M
-LFR	???	???	???
+p_Difficulty    Amalgam of Corruption    Manifestation of Corruption    Essence of Corruption    Greater Corruption
+   10-man              261M                         1.3M                        600K                      3M
+10-man Heroic          702M                          6M                          1M                      1.3M
+   25-man              1.1B                         900K                        675K                     ???
+25-man Heroic          1.95B                        1.3M                         1M                      ???
+    LFR                ???M                         ???                         ???                      ???
+
+p_Difficulty    Titanic Corruption    Unleashed Manifestation of Corruption    Unleashed Essence of Corruption
+  10-man              ???                             5M                                      2M
+10-man Heroic         6.5M                            6M                                     3.1M
+  25-man              ???                             4M                                      2M
+25-man Heroic         ???                             6M                                     3.16M
+   LFR                ???                             ???                                     ???
 
 1.2. Enrage Timer
 The fight has a hard enrage timer of 7 minutes, at which point your raid will instantly wipe.
@@ -33,10 +34,10 @@ The fight has a hard enrage timer of 7 minutes, at which point your raid will in
 enum eSpells
 {
     // Visuals
-    SPELL_ALMEGALEM_EMOTE_ROAR        = 34999,
-    SPELL_NORUSHEN_LIGHT_CIRCLE       = 149634,
-    SPELL_NORUSHEN_LIGHT_TELEPORT     = 145188,
-    SPELL_NORUSHEN_SHA_VISUALS        = 145144,
+    SPELL_ALMEGALEM_EMOTE_ROAR          = 34999,
+    SPELL_NORUSHEN_LIGHT_CIRCLE         = 149634,
+    SPELL_NORUSHEN_LIGHT_TELEPORT       = 145188,
+    SPELL_NORUSHEN_SHA_VISUALS          = 145144,
     SPELL_NORUSHEN_FULL_PRE_BOSS_VISUAL = 145143,
     SPELL_NORUSHEN_UNKNOWN_HOLY_PALM    = 145145,
     SPELL_NORUSHEN_SUMMON_BOSS          = 145149,

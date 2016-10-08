@@ -22,117 +22,117 @@
 
 enum eSpells
 {
-	// Stances
-	SPELL_BATTLE_STANCE			= 143589,
-	SPELL_BERSERKER_STANCE		= 143594,
-	SPELL_DEFENSIVE_STANCE		= 143593,
+    // Stances
+    SPELL_BATTLE_STANCE         = 143589,
+    SPELL_BERSERKER_STANCE      = 143594,
+    SPELL_DEFENSIVE_STANCE      = 143593,
 
-	// Normal Spells
-	SPELL_SUNDERING_BLOW		= 143494,
-	SPELL_BONECRACKER			= 143638,
-	SPELL_COOLING_OFF			= 143484,
-	SPELL_EXECUTE				= 143502,
+    // Normal Spells
+    SPELL_SUNDERING_BLOW        = 143494,
+    SPELL_BONECRACKER           = 143638,
+    SPELL_COOLING_OFF           = 143484,
+    SPELL_EXECUTE               = 143502,
 
-	// Rage Spells
-	SPELL_HEROIC_SHOCKWAVE		= 143716,
-	SPELL_AFTERSHOCK			= 143712,
-	SPELL_KORKRON_BANNER		= 143591,
-	SPELL_WAR_SONG				= 143503,
-	SPELL_RAVAGER				= 143872,
-	SPELL_RAVAGER_VISUAL		= 143874,
-	SPELL_KORKRON_BANNER_AURA	= 143536,
+    // Rage Spells
+    SPELL_HEROIC_SHOCKWAVE      = 143716,
+    SPELL_AFTERSHOCK            = 143712,
+    SPELL_KORKRON_BANNER        = 143591,
+    SPELL_WAR_SONG              = 143503,
+    SPELL_RAVAGER               = 143872,
+    SPELL_RAVAGER_VISUAL        = 143874,
+    SPELL_KORKRON_BANNER_AURA   = 143536,
 
-	// Kor'kron Ironblade
-	SPELL_IRONSTORM				= 143420,
-	SPELL_LAST_STAND			= 143427,
+    // Kor'kron Ironblade
+    SPELL_IRONSTORM             = 143420,
+    SPELL_LAST_STAND            = 143427,
 
-	// Kor'kron Arcweaver
-	SPELL_ARCANE_SHOCK			= 143432,
-	SPELL_MAGISTRIKE			= 143431,
-	SPELL_UNSTABLE_BLINK		= 143471,
+    // Kor'kron Arcweaver
+    SPELL_ARCANE_SHOCK          = 143432,
+    SPELL_MAGISTRIKE            = 143431,
+    SPELL_UNSTABLE_BLINK        = 143471,
 
-	// Kor'kron Assassins
-	SPELL_STEALTH				= 118969,
-	SPELL_BACKSTAB				= 143481,
-	SPELL_ASSASSINS_MARK		= 143480,
+    // Kor'kron Assassins
+    SPELL_STEALTH               = 118969,
+    SPELL_BACKSTAB              = 143481,
+    SPELL_ASSASSINS_MARK        = 143480,
 
-	// Kor'kron Warshamans
-	SPELL_EARTH_SHIELD			= 143475,
-	SPELL_EMPOWERED_CHAIN_HEAL	= 143473,
-	SPELL_HEALING_TIDE_TOTEM	= 143474,
-	SPELL_HEALING_TIDE			= 143477,
+    // Kor'kron Warshamans
+    SPELL_EARTH_SHIELD          = 143475,
+    SPELL_EMPOWERED_CHAIN_HEAL  = 143473,
+    SPELL_HEALING_TIDE_TOTEM    = 143474,
+    SPELL_HEALING_TIDE          = 143477,
 
-	// Kor'kron Sniper
-	SPELL_HUNTERS_MARK			= 143882,
-	SPELL_SHOOT					= 143884,
-	SPELL_MULTI_SHOT			= 143887,
+    // Kor'kron Sniper
+    SPELL_HUNTERS_MARK          = 143882,
+    SPELL_SHOOT                 = 143884,
+    SPELL_MULTI_SHOT            = 143887,
 };
 
 enum Enum
 {
-	GCD_CAST         = 1,
+    GCD_CAST         = 1,
 };
 
 enum Say
 {
-	SAY_AGGRO                   =0,
-	SAY_AGGRO_HORDE             =1,
-	SAY_DEATH                   =2,
-	SAY_DEATH_HORDE             =3,
-	SAY_SUMMON                  =4,
-	SAY_KILL                    =5,
+    SAY_AGGRO                   =0,
+    SAY_AGGRO_HORDE             =1,
+    SAY_DEATH                   =2,
+    SAY_DEATH_HORDE             =3,
+    SAY_SUMMON                  =4,
+    SAY_KILL                    =5,
 };
 
 enum eEvents
 {
-	EVENT_BATTLE_STANCE		 = 1,
-	EVENT_BERSERKER_STANCE	 = 2,
-	EVENT_DEFFENSIVE_STANCE	 = 3,
-	EVENT_DAMAGE_TAKEN		 = 4,
+    EVENT_BATTLE_STANCE      = 1,
+    EVENT_BERSERKER_STANCE   = 2,
+    EVENT_DEFFENSIVE_STANCE  = 3,
+    EVENT_DAMAGE_TAKEN       = 4,
 
-	// Rage Abilities
-	EVENT_HEROIC_SHOCKWAVE	 = 5,
-	EVENT_KORKRON_BANNER	 = 6,
-	EVENT_WAR_SONG			 = 7,
-	EVENT_RAVAGER			 = 8,
-	EVENT_AFTERSHOCK		 = 9,
+    // Rage Abilities
+    EVENT_HEROIC_SHOCKWAVE   = 5,
+    EVENT_KORKRON_BANNER     = 6,
+    EVENT_WAR_SONG           = 7,
+    EVENT_RAVAGER            = 8,
+    EVENT_AFTERSHOCK         = 9,
 
-	EVENT_SUMMON_ADDS_ONE	 = 10,
-	EVENT_SUMMON_ADDS_TWO	 = 11,
-	EVENT_SUNDERING_BLOW	 = 12,
-	EVENT_BONECRACKER		 = 13,
+    EVENT_SUMMON_ADDS_ONE    = 10,
+    EVENT_SUMMON_ADDS_TWO    = 11,
+    EVENT_SUNDERING_BLOW     = 12,
+    EVENT_BONECRACKER        = 13,
 
-	EVENT_BATTLE_STANCE_RAGE = 14,
-	EVENT_HEROIC_SHOCKWAVE_J = 15,
+    EVENT_BATTLE_STANCE_RAGE = 14,
+    EVENT_HEROIC_SHOCKWAVE_J = 15,
 
-	EVENT_IRONSTORM			 = 16,
-	EVENT_LAST_STAND		 = 17,
+    EVENT_IRONSTORM          = 16,
+    EVENT_LAST_STAND         = 17,
 
-	EVENT_ARCANE_SHOCK		 = 18,
-	EVENT_MAGISTRIKE		 = 19,
-	EVENT_UNSTABLE_BLINK	 = 20,
-	
-	EVENT_BACKSTAB			 = 21,
-	EVENT_ASSASSINS_MARK	 = 22,
+    EVENT_ARCANE_SHOCK       = 18,
+    EVENT_MAGISTRIKE         = 19,
+    EVENT_UNSTABLE_BLINK     = 20,
+    
+    EVENT_BACKSTAB           = 21,
+    EVENT_ASSASSINS_MARK     = 22,
 
-	EVENT_EARTH_SHIELD		 = 23,
-	EVENT_CHAIN_HEAL		 = 24,
-	EVENT_HEALING_TIDE_TOTEM = 25,
+    EVENT_EARTH_SHIELD       = 23,
+    EVENT_CHAIN_HEAL         = 24,
+    EVENT_HEALING_TIDE_TOTEM = 25,
 
-	EVENT_EXECUTE			 = 26,
+    EVENT_EXECUTE            = 26,
 
-	EVENT_HUNTERS_MARK		 = 27,
-	EVENT_SHOOT				 = 28,
-	EVENT_MULTI_SHOT		 = 29,
+    EVENT_HUNTERS_MARK       = 27,
+    EVENT_SHOOT              = 28,
+    EVENT_MULTI_SHOT         = 29,
 };
 
 enum eCreatures
 {
-	CREATURE_KORKRON_IRONBLADE	= 71516,
-	CREATURE_KORKRON_ASSASSINS	= 71518,
-	CREATURE_KORKRON_ARCWEAVER	= 71517,
-	CREATURE_KORKRON_WARSHAMAN	= 71519,
-	CREATURE_KORKRON_SNIPERS	= 71656,
+    CREATURE_KORKRON_IRONBLADE  = 71516,
+    CREATURE_KORKRON_ASSASSINS  = 71518,
+    CREATURE_KORKRON_ARCWEAVER  = 71517,
+    CREATURE_KORKRON_WARSHAMAN  = 71519,
+    CREATURE_KORKRON_SNIPERS    = 71656,
 };
 
 enum eSays
@@ -148,111 +148,111 @@ void AddRage(Unit* me,uint32 p_BaseValue, uint64 nazgrimGuid)
     {
         uint32 power = generalNazgrim->GetPower(Powers(POWER_RAGE));
 
-		generalNazgrim->SetPower(Powers(POWER_RAGE), power + p_BaseValue);
+        generalNazgrim->SetPower(Powers(POWER_RAGE), power + p_BaseValue);
     }
 }
 
 void RemoveRage(Unit* me, uint32 p_BaseValue, uint64 nazgrimGuid)
 {
-	if (nazgrimGuid == NULL)
-		return;
+    if (nazgrimGuid == NULL)
+        return;
 
-	if (Unit* generalNazgrim = sObjectAccessor->GetCreature(*me, nazgrimGuid))
-	{
-		uint32 power = generalNazgrim->GetPower(Powers(POWER_RAGE));
+    if (Unit* generalNazgrim = sObjectAccessor->GetCreature(*me, nazgrimGuid))
+    {
+        uint32 power = generalNazgrim->GetPower(Powers(POWER_RAGE));
 
-		generalNazgrim->SetPower(Powers(POWER_RAGE), power - p_BaseValue);
-	}
+        generalNazgrim->SetPower(Powers(POWER_RAGE), power - p_BaseValue);
+    }
 }
 
 // 71515 - General Nazgrim
 class boss_general_nazgrim : public CreatureScript
 {
-	public:
-		boss_general_nazgrim() : CreatureScript("boss_general_nazgrim") { }
+    public:
+        boss_general_nazgrim() : CreatureScript("boss_general_nazgrim") { }
 
-		struct boss_general_nazgrimAI : public BossAI
-		{
-			boss_general_nazgrimAI(Creature* creature) : BossAI(creature, DATA_GENERAL_NAZGRIM)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
-			
-			InstanceScript* pInstance;
-			TeamId TeamIdInInstance;
-			
-			void Reset() override
-			{
-				_Reset();
-				
-				events.Reset();
-				
-				summons.DespawnAll();
-				
-				if (pInstance)
+        struct boss_general_nazgrimAI : public BossAI
+        {
+            boss_general_nazgrimAI(Creature* creature) : BossAI(creature, DATA_GENERAL_NAZGRIM)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+            
+            InstanceScript* pInstance;
+            TeamId TeamIdInInstance;
+            
+            void Reset() override
+            {
+                _Reset();
+                
+                events.Reset();
+                
+                summons.DespawnAll();
+                
+                if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-				me->setFaction(16);
-				
-				//damage
-				const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                me->setFaction(16);
+                
+                //damage
+                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
 
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case MAN10_DIFFICULTY:
-						me->SetMaxHealth(349523325);
-						me->SetHealth(349523325);
-						break;
-					case MAN10_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(523325523);
-						me->SetHealth(523325523);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.8 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.8 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_DIFFICULTY:
-						me->SetMaxHealth(976523325);
-						me->SetHealth(976523325);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(1523325523);
-						me->SetHealth(1523325523);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2.5 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2.5 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-				}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                        me->SetMaxHealth(349523325);
+                        me->SetHealth(349523325);
+                        break;
+                    case MAN10_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(523325523);
+                        me->SetHealth(523325523);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.8 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.8 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_DIFFICULTY:
+                        me->SetMaxHealth(976523325);
+                        me->SetHealth(976523325);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(1523325523);
+                        me->SetHealth(1523325523);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2.5 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2.5 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                }
 
-				me->SetPower(POWER_RAGE, 0);
-				me->SetInt32Value(UNIT_FIELD_POWER1, 0);
-				me->SetMaxPower(POWER_RAGE, 1000);
-				me->SetInt32Value(UNIT_FIELD_MAXPOWER1, 1000);
-				instance->HandleGameObject(instance->GetData64(DATA_NAZGRIM_ENTRY_DOOR), true);
-			}
-			
-			void JustReachedHome()
+                me->SetPower(POWER_RAGE, 0);
+                me->SetInt32Value(UNIT_FIELD_POWER1, 0);
+                me->SetMaxPower(POWER_RAGE, 1000);
+                me->SetInt32Value(UNIT_FIELD_MAXPOWER1, 1000);
+                instance->HandleGameObject(instance->GetData64(DATA_NAZGRIM_ENTRY_DOOR), true);
+            }
+            
+            void JustReachedHome()
             {
                 _JustReachedHome();
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_GENERAL_NAZGRIM, FAIL);
             }
-			
-			void EnterCombat(Unit* attacker)
+            
+            void EnterCombat(Unit* attacker)
             {
-				_EnterCombat();
+                _EnterCombat();
 
                 if (pInstance)
                 {
@@ -260,25 +260,25 @@ class boss_general_nazgrim : public CreatureScript
                     pInstance->SetBossState(DATA_GENERAL_NAZGRIM, IN_PROGRESS);
                 }
 
-				events.ScheduleEvent(EVENT_BATTLE_STANCE, 0);
-				events.ScheduleEvent(EVENT_SUMMON_ADDS_ONE, 45000);
-				events.ScheduleEvent(EVENT_SUNDERING_BLOW, 10000);
-				events.ScheduleEvent(EVENT_BONECRACKER, 30000);
+                events.ScheduleEvent(EVENT_BATTLE_STANCE, 0);
+                events.ScheduleEvent(EVENT_SUMMON_ADDS_ONE, 45000);
+                events.ScheduleEvent(EVENT_SUNDERING_BLOW, 10000);
+                events.ScheduleEvent(EVENT_BONECRACKER, 30000);
 
-				if (me->GetMap()->IsHeroic())
-					events.ScheduleEvent(EVENT_EXECUTE, 15000);
-				if (TeamIdInInstance == TEAM_ALLIANCE)
-				{
-					Talk(SAY_AGGRO);
-				}
-				else
-				{
-					Talk(SAY_AGGRO_HORDE);
-				}
-				instance->HandleGameObject(instance->GetData64(DATA_NAZGRIM_ENTRY_DOOR), false);
+                if (me->GetMap()->IsHeroic())
+                    events.ScheduleEvent(EVENT_EXECUTE, 15000);
+                if (TeamIdInInstance == TEAM_ALLIANCE)
+                {
+                    Talk(SAY_AGGRO);
+                }
+                else
+                {
+                    Talk(SAY_AGGRO_HORDE);
+                }
+                instance->HandleGameObject(instance->GetData64(DATA_NAZGRIM_ENTRY_DOOR), false);
             }
-			
-			void JustSummoned(Creature* summon)
+            
+            void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
@@ -287,16 +287,16 @@ class boss_general_nazgrim : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
-			void KilledUnit(Unit* who)
+            
+            void KilledUnit(Unit* who)
             {
-				Talk(SAY_KILL);
+                Talk(SAY_KILL);
             }
-			
-			void JustDied(Unit* killer)
+            
+            void JustDied(Unit* killer)
             {
                 _JustDied();
-				instance->HandleGameObject(instance->GetData64(DATA_NAZGRIM_ENTRY_DOOR), true);
+                instance->HandleGameObject(instance->GetData64(DATA_NAZGRIM_ENTRY_DOOR), true);
 
                 if (pInstance)
                 {
@@ -304,25 +304,25 @@ class boss_general_nazgrim : public CreatureScript
                     pInstance->SetBossState(DATA_GENERAL_NAZGRIM, DONE);
                 }
 
-				if (TeamIdInInstance == TEAM_ALLIANCE)
-				{
-					Talk(SAY_DEATH);
-				}
-				else
-				{
-					Talk(SAY_DEATH_HORDE);
-				}
+                if (TeamIdInInstance == TEAM_ALLIANCE)
+                {
+                    Talk(SAY_DEATH);
+                }
+                else
+                {
+                    Talk(SAY_DEATH_HORDE);
+                }
             }
-			
-			void DamageTaken(Unit* attacker, uint32& damage)
-			{
-				if (me->HasAura(SPELL_DEFENSIVE_STANCE) && attacker->HasAura(SPELL_SUNDERING_BLOW))
-					return;
-				else if (me->HasAura(SPELL_DEFENSIVE_STANCE) && !attacker->HasAura(SPELL_SUNDERING_BLOW))
-					events.ScheduleEvent(EVENT_DAMAGE_TAKEN, 1000); // Made it as event because rage gain can occur only once per second
-			}
+            
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (me->HasAura(SPELL_DEFENSIVE_STANCE) && attacker->HasAura(SPELL_SUNDERING_BLOW))
+                    return;
+                else if (me->HasAura(SPELL_DEFENSIVE_STANCE) && !attacker->HasAura(SPELL_SUNDERING_BLOW))
+                    events.ScheduleEvent(EVENT_DAMAGE_TAKEN, 1000); // Made it as event because rage gain can occur only once per second
+            }
 
-			void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -331,280 +331,280 @@ class boss_general_nazgrim : public CreatureScript
                     return;
 
                 events.Update(diff);
-				uint32 RageAmount = me->GetPower(Powers(POWER_RAGE));
+                uint32 RageAmount = me->GetPower(Powers(POWER_RAGE));
 
-				if (RageAmount <= 490 && RageAmount >= 300)
-				{
-					if (me->HasAura(SPELL_COOLING_OFF))
-					{
+                if (RageAmount <= 490 && RageAmount >= 300)
+                {
+                    if (me->HasAura(SPELL_COOLING_OFF))
+                    {
 
-					}
-					else
-					{
-						events.ScheduleEvent(EVENT_HEROIC_SHOCKWAVE_J, 0);
-					}
-				}
+                    }
+                    else
+                    {
+                        events.ScheduleEvent(EVENT_HEROIC_SHOCKWAVE_J, 0);
+                    }
+                }
 
-				if (RageAmount <= 690 && RageAmount >= 500)
-				{
-					if (me->HasAura(SPELL_COOLING_OFF))
-					{
+                if (RageAmount <= 690 && RageAmount >= 500)
+                {
+                    if (me->HasAura(SPELL_COOLING_OFF))
+                    {
 
-					}
-					else
-					{
-						events.ScheduleEvent(EVENT_KORKRON_BANNER, 0);
-					}
-				}
+                    }
+                    else
+                    {
+                        events.ScheduleEvent(EVENT_KORKRON_BANNER, 0);
+                    }
+                }
 
-				if (RageAmount <= 990 && RageAmount >= 700)
-				{
-					if (me->HasAura(SPELL_COOLING_OFF))
-					{
+                if (RageAmount <= 990 && RageAmount >= 700)
+                {
+                    if (me->HasAura(SPELL_COOLING_OFF))
+                    {
 
-					}
-					else
-					{
-						events.ScheduleEvent(EVENT_WAR_SONG, 0);
-					}
-				}
+                    }
+                    else
+                    {
+                        events.ScheduleEvent(EVENT_WAR_SONG, 0);
+                    }
+                }
 
-				if (RageAmount == 1000)
-				{
-					if (me->HasAura(SPELL_COOLING_OFF))
-					{
+                if (RageAmount == 1000)
+                {
+                    if (me->HasAura(SPELL_COOLING_OFF))
+                    {
 
-					}
-					else
-					{
-						events.ScheduleEvent(EVENT_RAVAGER, 0);
-					}
-				}
+                    }
+                    else
+                    {
+                        events.ScheduleEvent(EVENT_RAVAGER, 0);
+                    }
+                }
 
-				switch (events.ExecuteEvent())
-				{
-					case EVENT_BATTLE_STANCE:
-					{
-						if (me->HasAura(SPELL_DEFENSIVE_STANCE))
-							me->RemoveAura(SPELL_DEFENSIVE_STANCE);
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_BATTLE_STANCE:
+                    {
+                        if (me->HasAura(SPELL_DEFENSIVE_STANCE))
+                            me->RemoveAura(SPELL_DEFENSIVE_STANCE);
 
-						DoCast(me, SPELL_BATTLE_STANCE);
-						events.ScheduleEvent(EVENT_BATTLE_STANCE_RAGE, 1000);
-						events.ScheduleEvent(EVENT_BERSERKER_STANCE, 60000);
-						break;
-					}
+                        DoCast(me, SPELL_BATTLE_STANCE);
+                        events.ScheduleEvent(EVENT_BATTLE_STANCE_RAGE, 1000);
+                        events.ScheduleEvent(EVENT_BERSERKER_STANCE, 60000);
+                        break;
+                    }
 
-					case EVENT_BATTLE_STANCE_RAGE:
-					{
-						if (me->HasAura(SPELL_BATTLE_STANCE))
-						{
-							AddRage(me, 10, me->GetGUID());
-							events.ScheduleEvent(EVENT_BATTLE_STANCE_RAGE, 1000);
-						}
+                    case EVENT_BATTLE_STANCE_RAGE:
+                    {
+                        if (me->HasAura(SPELL_BATTLE_STANCE))
+                        {
+                            AddRage(me, 10, me->GetGUID());
+                            events.ScheduleEvent(EVENT_BATTLE_STANCE_RAGE, 1000);
+                        }
 
-						break;
-					}
+                        break;
+                    }
 
-					case EVENT_BERSERKER_STANCE:
-					{
-						DoCast(me, SPELL_BERSERKER_STANCE);
-						events.ScheduleEvent(EVENT_DEFFENSIVE_STANCE, 60000);
-						break;
-					}
+                    case EVENT_BERSERKER_STANCE:
+                    {
+                        DoCast(me, SPELL_BERSERKER_STANCE);
+                        events.ScheduleEvent(EVENT_DEFFENSIVE_STANCE, 60000);
+                        break;
+                    }
 
-					case EVENT_DEFFENSIVE_STANCE:
-					{
-						DoCast(me, SPELL_DEFENSIVE_STANCE);
-						events.ScheduleEvent(EVENT_BATTLE_STANCE, 60000);
-						break;
-					}
+                    case EVENT_DEFFENSIVE_STANCE:
+                    {
+                        DoCast(me, SPELL_DEFENSIVE_STANCE);
+                        events.ScheduleEvent(EVENT_BATTLE_STANCE, 60000);
+                        break;
+                    }
 
-					case EVENT_DAMAGE_TAKEN:
-					{
-						if (me->HasAura(SPELL_DEFENSIVE_STANCE))
-							AddRage(me, 50, me->GetGUID());
+                    case EVENT_DAMAGE_TAKEN:
+                    {
+                        if (me->HasAura(SPELL_DEFENSIVE_STANCE))
+                            AddRage(me, 50, me->GetGUID());
 
-						break;
-					}
+                        break;
+                    }
 
-					case EVENT_HEROIC_SHOCKWAVE_J: // Hackfix for jump...
-					{
-						if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
-						{
-							float posX = target->GetPositionX();
-							float posY = target->GetPositionY();
-							float posZ = target->GetPositionZ();
-							float posO = target->GetOrientation();
-							me->GetMotionMaster()->MoveJump(posX, posY, posZ, 30.0f, 15.0f);
-						}
+                    case EVENT_HEROIC_SHOCKWAVE_J: // Hackfix for jump...
+                    {
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        {
+                            float posX = target->GetPositionX();
+                            float posY = target->GetPositionY();
+                            float posZ = target->GetPositionZ();
+                            float posO = target->GetOrientation();
+                            me->GetMotionMaster()->MoveJump(posX, posY, posZ, 30.0f, 15.0f);
+                        }
 
-						events.ScheduleEvent(EVENT_HEROIC_SHOCKWAVE, 1000);
-						RemoveRage(me, 300, me->GetGUID());
-						break;
-					}
+                        events.ScheduleEvent(EVENT_HEROIC_SHOCKWAVE, 1000);
+                        RemoveRage(me, 300, me->GetGUID());
+                        break;
+                    }
 
-					case EVENT_HEROIC_SHOCKWAVE:
-					{
-						if (me->HasAura(SPELL_COOLING_OFF))
-							return;
+                    case EVENT_HEROIC_SHOCKWAVE:
+                    {
+                        if (me->HasAura(SPELL_COOLING_OFF))
+                            return;
 
-						DoCast(me, SPELL_HEROIC_SHOCKWAVE);
-						DoCast(me, SPELL_COOLING_OFF);
+                        DoCast(me, SPELL_HEROIC_SHOCKWAVE);
+                        DoCast(me, SPELL_COOLING_OFF);
 
-						break;
-					}
+                        break;
+                    }
 
-					case EVENT_KORKRON_BANNER:
-					{
-						if (me->HasAura(SPELL_COOLING_OFF))
-							return;
+                    case EVENT_KORKRON_BANNER:
+                    {
+                        if (me->HasAura(SPELL_COOLING_OFF))
+                            return;
 
-						DoCast(SPELL_KORKRON_BANNER);
-						DoCast(me, SPELL_COOLING_OFF);
-						RemoveRage(me, 500, me->GetGUID());
-						
-						break;
-					}
+                        DoCast(SPELL_KORKRON_BANNER);
+                        DoCast(me, SPELL_COOLING_OFF);
+                        RemoveRage(me, 500, me->GetGUID());
+                        
+                        break;
+                    }
 
-					case EVENT_WAR_SONG:
-					{
-						if (me->HasAura(SPELL_COOLING_OFF))
-							return;
+                    case EVENT_WAR_SONG:
+                    {
+                        if (me->HasAura(SPELL_COOLING_OFF))
+                            return;
 
-						DoCast(SPELL_WAR_SONG);
-						me->AddAura(SPELL_COOLING_OFF, me);
-						RemoveRage(me, 700, me->GetGUID());
+                        DoCast(SPELL_WAR_SONG);
+                        me->AddAura(SPELL_COOLING_OFF, me);
+                        RemoveRage(me, 700, me->GetGUID());
 
-						break;
-					}
+                        break;
+                    }
 
-					case EVENT_RAVAGER:
-					{
-						if (me->HasAura(SPELL_COOLING_OFF))
-							return;
+                    case EVENT_RAVAGER:
+                    {
+                        if (me->HasAura(SPELL_COOLING_OFF))
+                            return;
 
-						if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
-						{
-							DoCast(target, SPELL_RAVAGER);
-						}
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        {
+                            DoCast(target, SPELL_RAVAGER);
+                        }
 
-						me->AddAura(SPELL_COOLING_OFF, me);
-						RemoveRage(me, 1000, me->GetGUID());
-						break;
-					}
+                        me->AddAura(SPELL_COOLING_OFF, me);
+                        RemoveRage(me, 1000, me->GetGUID());
+                        break;
+                    }
 
-					case EVENT_SUMMON_ADDS_ONE:
-					{
-						float posX = me->GetPositionX();
-						float posY = me->GetPositionY();
-						float posZ = me->GetPositionZ();
-						float posO = me->GetOrientation();
+                    case EVENT_SUMMON_ADDS_ONE:
+                    {
+                        float posX = me->GetPositionX();
+                        float posY = me->GetPositionY();
+                        float posZ = me->GetPositionZ();
+                        float posO = me->GetOrientation();
 
-						if (!me->GetMap()->IsHeroic())
-						{
-							Position pos[2] =
-							{
-								{ 1568, -4646, -66, 0},
-								{ 1560, -4634, -67, 0},
-							};
+                        if (!me->GetMap()->IsHeroic())
+                        {
+                            Position pos[2] =
+                            {
+                                { 1568, -4646, -66, 0},
+                                { 1560, -4634, -67, 0},
+                            };
 
-							me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
-							me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
-						}
+                            me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+                            me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
 
-						if (me->GetMap()->IsHeroic())
-						{
-							Position pos[3] =
-							{
-								{ 1568, -4646, -66, 0 },
-								{ 1560, -4634, -67, 0 },
-								{ 1560, -4622, -66, 5},
-							};
+                        if (me->GetMap()->IsHeroic())
+                        {
+                            Position pos[3] =
+                            {
+                                { 1568, -4646, -66, 0 },
+                                { 1560, -4634, -67, 0 },
+                                { 1560, -4622, -66, 5},
+                            };
 
-							me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
-							me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
-							me->SummonCreature(CREATURE_KORKRON_SNIPERS  , pos[2], TEMPSUMMON_MANUAL_DESPAWN);
-						}
+                            me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+                            me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+                            me->SummonCreature(CREATURE_KORKRON_SNIPERS  , pos[2], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
 
-						Talk(SAY_SUMMON);
-						events.ScheduleEvent(EVENT_SUMMON_ADDS_TWO, 45000);
-						break;
-					}
+                        Talk(SAY_SUMMON);
+                        events.ScheduleEvent(EVENT_SUMMON_ADDS_TWO, 45000);
+                        break;
+                    }
 
-					case EVENT_SUMMON_ADDS_TWO:
-					{
-						float posX = me->GetPositionX();
-						float posY = me->GetPositionY();
-						float posZ = me->GetPositionZ();
-						float posO = me->GetOrientation();
+                    case EVENT_SUMMON_ADDS_TWO:
+                    {
+                        float posX = me->GetPositionX();
+                        float posY = me->GetPositionY();
+                        float posZ = me->GetPositionZ();
+                        float posO = me->GetOrientation();
 
-						if (!me->GetMap()->IsHeroic())
-						{
-							Position pos[2] =
-							{
-								{ 1568, -4646, -66, 0 },
-								{ 1560, -4634, -67, 0 },
-							};
+                        if (!me->GetMap()->IsHeroic())
+                        {
+                            Position pos[2] =
+                            {
+                                { 1568, -4646, -66, 0 },
+                                { 1560, -4634, -67, 0 },
+                            };
 
-							me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
-							me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
-						}
+                            me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+                            me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
 
-						if (me->GetMap()->IsHeroic())
-						{
-							Position pos[3] =
-							{
-								{ 1568, -4646, -66, 0 },
-								{ 1560, -4634, -67, 0 },
-								{ 1560, -4622, -66, 5 },
-							};
+                        if (me->GetMap()->IsHeroic())
+                        {
+                            Position pos[3] =
+                            {
+                                { 1568, -4646, -66, 0 },
+                                { 1560, -4634, -67, 0 },
+                                { 1560, -4622, -66, 5 },
+                            };
 
-							me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
-							me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
-							me->SummonCreature(CREATURE_KORKRON_SNIPERS  , pos[2], TEMPSUMMON_MANUAL_DESPAWN);
-						}
+                            me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+                            me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+                            me->SummonCreature(CREATURE_KORKRON_SNIPERS  , pos[2], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
 
-						Talk(SAY_SUMMON);
-						events.ScheduleEvent(EVENT_SUMMON_ADDS_ONE, 45000);
-						break;
-					}
+                        Talk(SAY_SUMMON);
+                        events.ScheduleEvent(EVENT_SUMMON_ADDS_ONE, 45000);
+                        break;
+                    }
 
-					case EVENT_SUNDERING_BLOW:
-					{
-						DoCastVictim(SPELL_SUNDERING_BLOW);
+                    case EVENT_SUNDERING_BLOW:
+                    {
+                        DoCastVictim(SPELL_SUNDERING_BLOW);
 
-						events.ScheduleEvent(EVENT_SUNDERING_BLOW, urand(5000, 10000));
-						break;
-					}
+                        events.ScheduleEvent(EVENT_SUNDERING_BLOW, urand(5000, 10000));
+                        break;
+                    }
 
-					case EVENT_BONECRACKER:
-					{
-						if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
-						{
-							DoCast(target, SPELL_BONECRACKER);
-						}
+                    case EVENT_BONECRACKER:
+                    {
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        {
+                            DoCast(target, SPELL_BONECRACKER);
+                        }
 
-						events.ScheduleEvent(EVENT_BONECRACKER, 30000);
-						break;
-					}
+                        events.ScheduleEvent(EVENT_BONECRACKER, 30000);
+                        break;
+                    }
 
-					case EVENT_EXECUTE:
-					{
-						DoCastVictim(SPELL_EXECUTE);
+                    case EVENT_EXECUTE:
+                    {
+                        DoCastVictim(SPELL_EXECUTE);
 
-						events.ScheduleEvent(EVENT_EXECUTE, 15000);
-						break;
-					}
-				}
+                        events.ScheduleEvent(EVENT_EXECUTE, 15000);
+                        break;
+                    }
+                }
 
-				DoMeleeAttackIfReady();
-			}
-		};
+                DoMeleeAttackIfReady();
+            }
+        };
 
         CreatureAI* GetAI(Creature* pCreature) const
-		{
-			return new boss_general_nazgrimAI(pCreature);
-		}
+        {
+            return new boss_general_nazgrimAI(pCreature);
+        }
 };
 
 // Done
@@ -625,23 +625,23 @@ class mob_orgrimmar_faithful : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case MAN10_DIFFICULTY:
-						me->SetMaxHealth(2000000);
-						break;
-					case MAN10_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(2000000);
-						break;
-					case MAN25_DIFFICULTY:
-						me->SetMaxHealth(5500000);
-						break;
-					case MAN25_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(5500000);
-						break;
-				}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                        me->SetMaxHealth(2000000);
+                        break;
+                    case MAN10_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(2000000);
+                        break;
+                    case MAN25_DIFFICULTY:
+                        me->SetMaxHealth(5500000);
+                        break;
+                    case MAN25_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(5500000);
+                        break;
+                }
 
-				me->setFaction(16);
+                me->setFaction(16);
             }
 
             void UpdateAI(const uint32 diff)
@@ -649,22 +649,22 @@ class mob_orgrimmar_faithful : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-				if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
-				{
+                if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
+                {
 
-					if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
-					{
-						if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 10, genNazgrim->GetGUID());
+                    if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
+                    {
+                        if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 10, genNazgrim->GetGUID());
 
-						if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 20, genNazgrim->GetGUID());
+                        if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 20, genNazgrim->GetGUID());
 
-						DoMeleeAttackIfReady();
-					}
-				}
-				else
-					DoMeleeAttackIfReady();
+                        DoMeleeAttackIfReady();
+                    }
+                }
+                else
+                    DoMeleeAttackIfReady();
             }
         };
 
@@ -692,54 +692,54 @@ class mob_korkron_ironblade : public CreatureScript
             {
                 events.Reset();
 
-				const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
 
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case MAN10_DIFFICULTY:
-						me->SetMaxHealth(8000000);
-						me->SetHealth(8000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN10_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(9300000);
-						me->SetHealth(9300000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_DIFFICULTY:
-						me->SetMaxHealth(22000000);
-						me->SetHealth(22000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.4 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.4 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(32000000);
-						me->SetHealth(32000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.55 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.55 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-				}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                        me->SetMaxHealth(8000000);
+                        me->SetHealth(8000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN10_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(9300000);
+                        me->SetHealth(9300000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_DIFFICULTY:
+                        me->SetMaxHealth(22000000);
+                        me->SetHealth(22000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.4 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.4 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(32000000);
+                        me->SetHealth(32000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.55 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.55 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                }
 
-				events.ScheduleEvent(EVENT_IRONSTORM, 10000);
-				me->SetInCombatWithZone();
+                events.ScheduleEvent(EVENT_IRONSTORM, 10000);
+                me->SetInCombatWithZone();
             }
 
             void UpdateAI(const uint32 diff)
@@ -747,51 +747,51 @@ class mob_korkron_ironblade : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-				if (me->HasUnitState(UNIT_STATE_CASTING))
-					return;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
 
-				events.Update(diff);
+                events.Update(diff);
 
-				if (HealthBelowPct(50))
-				{
-					if (me->HasAura(SPELL_LAST_STAND))
-					{
-					
-					}
-					else
-					{
-						events.ScheduleEvent(EVENT_LAST_STAND, 0);
-					}
-				}
+                if (HealthBelowPct(50))
+                {
+                    if (me->HasAura(SPELL_LAST_STAND))
+                    {
+                    
+                    }
+                    else
+                    {
+                        events.ScheduleEvent(EVENT_LAST_STAND, 0);
+                    }
+                }
 
-				switch (events.ExecuteEvent())
-				{
-					case EVENT_IRONSTORM:
-					{
-						DoCast(me, SPELL_IRONSTORM);
-						events.ScheduleEvent(EVENT_IRONSTORM, 30000);
-						break;
-					}
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_IRONSTORM:
+                    {
+                        DoCast(me, SPELL_IRONSTORM);
+                        events.ScheduleEvent(EVENT_IRONSTORM, 30000);
+                        break;
+                    }
 
-					case EVENT_LAST_STAND:
-					{
-						DoCast(me, SPELL_LAST_STAND);
-						break;
-					}
-				}
+                    case EVENT_LAST_STAND:
+                    {
+                        DoCast(me, SPELL_LAST_STAND);
+                        break;
+                    }
+                }
 
-				if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
-					if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
-					{
-						if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 10, genNazgrim->GetGUID());
+                if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
+                    if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
+                    {
+                        if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 10, genNazgrim->GetGUID());
 
-						if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 20, genNazgrim->GetGUID());
-					}
+                        if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 20, genNazgrim->GetGUID());
+                    }
 
-				DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
             }
         };
 
@@ -819,56 +819,56 @@ class mob_korkron_arcweaver : public CreatureScript
             {
                 events.Reset();
 
-				const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
 
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case MAN10_DIFFICULTY:
-						me->SetMaxHealth(6000000);
-						me->SetHealth(6000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN10_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(7400000);
-						me->SetHealth(7400000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_DIFFICULTY:
-						me->SetMaxHealth(17000000);
-						me->SetHealth(17000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(25600000);
-						me->SetHealth(25600000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-				}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                        me->SetMaxHealth(6000000);
+                        me->SetHealth(6000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN10_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(7400000);
+                        me->SetHealth(7400000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_DIFFICULTY:
+                        me->SetMaxHealth(17000000);
+                        me->SetHealth(17000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(25600000);
+                        me->SetHealth(25600000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                }
 
-				events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(5000,8000));
-				events.ScheduleEvent(EVENT_MAGISTRIKE, 20000);
-				events.ScheduleEvent(EVENT_UNSTABLE_BLINK, 10000);
-				me->SetInCombatWithZone();
+                events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(5000,8000));
+                events.ScheduleEvent(EVENT_MAGISTRIKE, 20000);
+                events.ScheduleEvent(EVENT_UNSTABLE_BLINK, 10000);
+                me->SetInCombatWithZone();
             }
 
             void UpdateAI(const uint32 diff)
@@ -876,53 +876,53 @@ class mob_korkron_arcweaver : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-				if (me->HasUnitState(UNIT_STATE_CASTING))
-					return;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-				events.Update(diff);
+                events.Update(diff);
 
-				switch (events.ExecuteEvent())
-				{
-					case EVENT_ARCANE_SHOCK:
-					{
-						std::list<Unit*> targets;
-						uint32 minTargets = RAID_MODE<uint32>(2, 5, 2, 5);
-						SelectTargetList(targets, minTargets, SELECT_TARGET_RANDOM, 80, true);
-						for (std::list<Unit*>::const_iterator i = targets.begin(); i != targets.end(); ++i)
-							DoCast(*i,SPELL_ARCANE_SHOCK);
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_ARCANE_SHOCK:
+                    {
+                        std::list<Unit*> targets;
+                        uint32 minTargets = RAID_MODE<uint32>(2, 5, 2, 5);
+                        SelectTargetList(targets, minTargets, SELECT_TARGET_RANDOM, 80, true);
+                        for (std::list<Unit*>::const_iterator i = targets.begin(); i != targets.end(); ++i)
+                            DoCast(*i,SPELL_ARCANE_SHOCK);
 
-						events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(5000, 8000));
-						break;
-					}
+                        events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(5000, 8000));
+                        break;
+                    }
 
-					case EVENT_MAGISTRIKE:
-					{
-						DoCastVictim(SPELL_MAGISTRIKE);
-						
-						events.ScheduleEvent(EVENT_MAGISTRIKE, 20000);
-						break;
-					}
+                    case EVENT_MAGISTRIKE:
+                    {
+                        DoCastVictim(SPELL_MAGISTRIKE);
+                        
+                        events.ScheduleEvent(EVENT_MAGISTRIKE, 20000);
+                        break;
+                    }
 
-					case EVENT_UNSTABLE_BLINK:
-					{
-						DoCast(SPELL_UNSTABLE_BLINK);
+                    case EVENT_UNSTABLE_BLINK:
+                    {
+                        DoCast(SPELL_UNSTABLE_BLINK);
 
-						events.ScheduleEvent(EVENT_UNSTABLE_BLINK, 10000);
-						break;
-					}		
-				}
+                        events.ScheduleEvent(EVENT_UNSTABLE_BLINK, 10000);
+                        break;
+                    }		
+                }
 
-				if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
-					if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
-					{
-						if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 10, genNazgrim->GetGUID());
+                if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
+                    if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
+                    {
+                        if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 10, genNazgrim->GetGUID());
 
-						if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 20, genNazgrim->GetGUID());
-					}
+                        if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 20, genNazgrim->GetGUID());
+                    }
 
-				DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
             }
         };
 
@@ -949,110 +949,110 @@ class mob_korkron_assassin : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-				const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
 
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case MAN10_DIFFICULTY:
-						me->SetMaxHealth(7000000);
-						me->SetHealth(7000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN10_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(8400000);
-						me->SetHealth(8400000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.5 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.5 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_DIFFICULTY:
-						me->SetMaxHealth(20000000);
-						me->SetHealth(20000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.5 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.5 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(29500000);
-						me->SetHealth(29500000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.85 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.85 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-				}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                        me->SetMaxHealth(7000000);
+                        me->SetHealth(7000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN10_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(8400000);
+                        me->SetHealth(8400000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.5 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.5 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_DIFFICULTY:
+                        me->SetMaxHealth(20000000);
+                        me->SetHealth(20000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.5 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.5 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(29500000);
+                        me->SetHealth(29500000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.85 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.85 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                }
 
-				DoCast(me, SPELL_STEALTH);
-				DoCast(me, 29651);
-				me->SetPower(POWER_ENERGY, 100);
-				me->SetInt32Value(UNIT_FIELD_POWER1, 100);
-				me->SetMaxPower(POWER_ENERGY, 100);
-				me->SetInt32Value(UNIT_FIELD_MAXPOWER1, 100);
-				events.ScheduleEvent(EVENT_BACKSTAB, 5000);
-				events.ScheduleEvent(EVENT_ASSASSINS_MARK, 1000);
-				if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
-					DoCast(target, SPELL_ASSASSINS_MARK);
-				me->SetInCombatWithZone();
+                DoCast(me, SPELL_STEALTH);
+                DoCast(me, 29651);
+                me->SetPower(POWER_ENERGY, 100);
+                me->SetInt32Value(UNIT_FIELD_POWER1, 100);
+                me->SetMaxPower(POWER_ENERGY, 100);
+                me->SetInt32Value(UNIT_FIELD_MAXPOWER1, 100);
+                events.ScheduleEvent(EVENT_BACKSTAB, 5000);
+                events.ScheduleEvent(EVENT_ASSASSINS_MARK, 1000);
+                if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                    DoCast(target, SPELL_ASSASSINS_MARK);
+                me->SetInCombatWithZone();
             }
 
 
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
-					return;
+                    return;
 
-				events.Update(diff);
+                events.Update(diff);
 
-				switch (events.ExecuteEvent())
-				{
-					case EVENT_ASSASSINS_MARK:
-					{
-						if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
-						{
-							me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-							me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-							DoResetThreat();
-							DoCast(target, SPELL_ASSASSINS_MARK);
-							me->AddThreat(target, 1000000.0f);
-							AttackStart(target);
-						}
-						break;
-					}
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_ASSASSINS_MARK:
+                    {
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        {
+                            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+                            DoResetThreat();
+                            DoCast(target, SPELL_ASSASSINS_MARK);
+                            me->AddThreat(target, 1000000.0f);
+                            AttackStart(target);
+                        }
+                        break;
+                    }
 
-					case EVENT_BACKSTAB:
-					{
-						DoCastVictim(SPELL_BACKSTAB);
+                    case EVENT_BACKSTAB:
+                    {
+                        DoCastVictim(SPELL_BACKSTAB);
 
-						events.ScheduleEvent(EVENT_BACKSTAB, 5000);
-						break;
-					}
-					
-				}
+                        events.ScheduleEvent(EVENT_BACKSTAB, 5000);
+                        break;
+                    }
+                    
+                }
 
-				if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
-					if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
-					{
-						if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 10, genNazgrim->GetGUID());
+                if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
+                    if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
+                    {
+                        if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 10, genNazgrim->GetGUID());
 
-						if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 20, genNazgrim->GetGUID());
-					}
+                        if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 20, genNazgrim->GetGUID());
+                    }
 
-				DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
             }
         };
 
@@ -1079,111 +1079,111 @@ class mob_korkron_warshaman : public CreatureScript
             void Reset()
             {
                 events.Reset();
-				const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
 
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case MAN10_DIFFICULTY:
-						me->SetMaxHealth(7200000);
-						me->SetHealth(7200000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN10_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(8900000);
-						me->SetHealth(8900000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_DIFFICULTY:
-						me->SetMaxHealth(20000000);
-						me->SetHealth(20000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.4 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.4 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(31000000);
-						me->SetHealth(31000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.8 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.8 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-				}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                        me->SetMaxHealth(7200000);
+                        me->SetHealth(7200000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN10_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(8900000);
+                        me->SetHealth(8900000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_DIFFICULTY:
+                        me->SetMaxHealth(20000000);
+                        me->SetHealth(20000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.4 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.4 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(31000000);
+                        me->SetHealth(31000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.8 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.8 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                }
 
-				events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(10000,15000));
-				events.ScheduleEvent(EVENT_CHAIN_HEAL, urand(6000, 9000));
-				events.ScheduleEvent(EVENT_HEALING_TIDE_TOTEM, urand(18500, 20500));
-				me->SetInCombatWithZone();
+                events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(10000,15000));
+                events.ScheduleEvent(EVENT_CHAIN_HEAL, urand(6000, 9000));
+                events.ScheduleEvent(EVENT_HEALING_TIDE_TOTEM, urand(18500, 20500));
+                me->SetInCombatWithZone();
             }
 
             void UpdateAI(const uint32 diff)
             {
-				if (!UpdateVictim())
-					return;
+                if (!UpdateVictim())
+                    return;
 
-				if (me->HasUnitState(UNIT_STATE_CASTING))
-					return;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-				events.Update(diff);
+                events.Update(diff);
 
-				switch (events.ExecuteEvent())
-				{
-					case EVENT_EARTH_SHIELD:
-					{
-						if (Unit* target = DoSelectLowestHpFriendly(50.0f))
-							DoCast(target, SPELL_EARTH_SHIELD);
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_EARTH_SHIELD:
+                    {
+                        if (Unit* target = DoSelectLowestHpFriendly(50.0f))
+                            DoCast(target, SPELL_EARTH_SHIELD);
 
-						events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(10000, 15000), GCD_CAST);
-						events.DelayEvents(2000, GCD_CAST);
-						break;
-					}
+                        events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(10000, 15000), GCD_CAST);
+                        events.DelayEvents(2000, GCD_CAST);
+                        break;
+                    }
 
-					case EVENT_CHAIN_HEAL:
-					{
-						if (Unit* target = DoSelectLowestHpFriendly(50.0f))
-							DoCast(target, SPELL_EMPOWERED_CHAIN_HEAL);
+                    case EVENT_CHAIN_HEAL:
+                    {
+                        if (Unit* target = DoSelectLowestHpFriendly(50.0f))
+                            DoCast(target, SPELL_EMPOWERED_CHAIN_HEAL);
 
-						events.ScheduleEvent(EVENT_CHAIN_HEAL, urand(6000, 9000), GCD_CAST);
-						events.DelayEvents(2000, GCD_CAST);
-						break;
-					}
+                        events.ScheduleEvent(EVENT_CHAIN_HEAL, urand(6000, 9000), GCD_CAST);
+                        events.DelayEvents(2000, GCD_CAST);
+                        break;
+                    }
 
-					case EVENT_HEALING_TIDE_TOTEM:
-					{
-						DoCast(me,SPELL_HEALING_TIDE_TOTEM);
+                    case EVENT_HEALING_TIDE_TOTEM:
+                    {
+                        DoCast(me,SPELL_HEALING_TIDE_TOTEM);
 
-						events.ScheduleEvent(EVENT_HEALING_TIDE_TOTEM, urand(18500, 20500), GCD_CAST);
-						events.DelayEvents(2000, GCD_CAST);
-						break;
-					}
-				}
+                        events.ScheduleEvent(EVENT_HEALING_TIDE_TOTEM, urand(18500, 20500), GCD_CAST);
+                        events.DelayEvents(2000, GCD_CAST);
+                        break;
+                    }
+                }
 
-				if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
-					if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
-					{
-						if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 10, genNazgrim->GetGUID());
+                if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
+                    if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
+                    {
+                        if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 10, genNazgrim->GetGUID());
 
-						if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 20, genNazgrim->GetGUID());
-					}
+                        if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 20, genNazgrim->GetGUID());
+                    }
 
-				DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
             }
         };
 
@@ -1195,146 +1195,146 @@ class mob_korkron_warshaman : public CreatureScript
 
 class mob_korkron_sniper : public CreatureScript
 {
-	public:
-		mob_korkron_sniper() : CreatureScript("mob_korkron_sniper") { }
+    public:
+        mob_korkron_sniper() : CreatureScript("mob_korkron_sniper") { }
 
-		struct mob_korkron_sniperAI : ScriptedAI
-		{
-			mob_korkron_sniperAI(Creature* creature) : ScriptedAI(creature)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
+        struct mob_korkron_sniperAI : ScriptedAI
+        {
+            mob_korkron_sniperAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
-			InstanceScript* pInstance;
+            InstanceScript* pInstance;
 
-			void Reset() override
-			{
-				events.Reset();
-				const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+            void Reset() override
+            {
+                events.Reset();
+                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
 
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case MAN10_DIFFICULTY:
-						me->SetMaxHealth(7000000);
-						me->SetHealth(7000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN10_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(8400000);
-						me->SetHealth(8400000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_DIFFICULTY:
-						me->SetMaxHealth(20000000);
-						me->SetHealth(20000000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-					case MAN25_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(29500000);
-						me->SetHealth(29500000);
-						if (cinfo)
-						{
-							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
-							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
-							me->UpdateDamagePhysical(BASE_ATTACK);
-						}
-						break;
-				}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                        me->SetMaxHealth(7000000);
+                        me->SetHealth(7000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN10_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(8400000);
+                        me->SetHealth(8400000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_DIFFICULTY:
+                        me->SetMaxHealth(20000000);
+                        me->SetHealth(20000000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                    case MAN25_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(29500000);
+                        me->SetHealth(29500000);
+                        if (cinfo)
+                        {
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.35 * cinfo->mindmg);
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.35 * cinfo->maxdmg);
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                        }
+                        break;
+                }
 
-				events.ScheduleEvent(EVENT_HUNTERS_MARK, 1000);
-				events.ScheduleEvent(EVENT_SHOOT, 1500);
-				events.ScheduleEvent(EVENT_MULTI_SHOT, 12000);
-				me->SetInCombatWithZone();
-			}
+                events.ScheduleEvent(EVENT_HUNTERS_MARK, 1000);
+                events.ScheduleEvent(EVENT_SHOOT, 1500);
+                events.ScheduleEvent(EVENT_MULTI_SHOT, 12000);
+                me->SetInCombatWithZone();
+            }
 
-			void UpdateAI(const uint32 diff)
-			{
-				if (!UpdateVictim())
-					return;
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
 
-				if (me->HasUnitState(UNIT_STATE_CASTING))
-					return;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-				events.Update(diff);
+                events.Update(diff);
 
-				switch (events.ExecuteEvent())
-				{
-					case EVENT_HUNTERS_MARK:
-					{
-						if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-						{
-							me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-							me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-							DoResetThreat();
-							DoCast(target, SPELL_HUNTERS_MARK);
-							me->AddThreat(target, 1000000.0f);
-							AttackStart(target);
-						}
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_HUNTERS_MARK:
+                    {
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        {
+                            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+                            DoResetThreat();
+                            DoCast(target, SPELL_HUNTERS_MARK);
+                            me->AddThreat(target, 1000000.0f);
+                            AttackStart(target);
+                        }
 
-						break;
-					}
+                        break;
+                    }
 
-					case EVENT_SHOOT:
-					{
-						DoCastVictim(SPELL_SHOOT);
-						
-						events.ScheduleEvent(EVENT_SHOOT, 2000);
-						break;
-					}
+                    case EVENT_SHOOT:
+                    {
+                        DoCastVictim(SPELL_SHOOT);
+                        
+                        events.ScheduleEvent(EVENT_SHOOT, 2000);
+                        break;
+                    }
 
-					case EVENT_MULTI_SHOT:
-					{
-						DoCastVictim(SPELL_MULTI_SHOT);
+                    case EVENT_MULTI_SHOT:
+                    {
+                        DoCastVictim(SPELL_MULTI_SHOT);
 
-						events.ScheduleEvent(EVENT_MULTI_SHOT, 10000);
-						break;
-					}
-				}
+                        events.ScheduleEvent(EVENT_MULTI_SHOT, 10000);
+                        break;
+                    }
+                }
 
-				if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
-					if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
-					{
-						if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 10, genNazgrim->GetGUID());
+                if (me->HasAura(SPELL_KORKRON_BANNER_AURA))
+                    if (Creature * genNazgrim = pInstance->instance->GetCreature(pInstance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
+                    {
+                        if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 10, genNazgrim->GetGUID());
 
-						if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 20, genNazgrim->GetGUID());
-					}
+                        if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 20, genNazgrim->GetGUID());
+                    }
 
-				DoMeleeAttackIfReady();
-			}
-		};
+                DoMeleeAttackIfReady();
+            }
+        };
 
-		CreatureAI* GetAI(Creature* creature) const
-		{
-			return new mob_korkron_sniperAI(creature);
-		}
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_korkron_sniperAI(creature);
+        }
 };
 
 // Done
 class mob_aftershock : public CreatureScript
 {
     public:
-		mob_aftershock() : CreatureScript("mob_aftershock") { }
+        mob_aftershock() : CreatureScript("mob_aftershock") { }
 
         struct mob_aftershockAI : public ScriptedAI
         {
-			mob_aftershockAI(Creature* creature) : ScriptedAI(creature)
+            mob_aftershockAI(Creature* creature) : ScriptedAI(creature)
             {
                 pInstance = creature->GetInstanceScript();
             }
@@ -1345,11 +1345,11 @@ class mob_aftershock : public CreatureScript
             void Reset()
             {
                 events.Reset();
-				me->SetReactState(ReactStates::REACT_PASSIVE);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-				me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-				DoCast(SPELL_AFTERSHOCK);
+                DoCast(SPELL_AFTERSHOCK);
             }
         };
 
@@ -1363,11 +1363,11 @@ class mob_aftershock : public CreatureScript
 class mob_korkron_banner : public CreatureScript
 {
     public:
-		mob_korkron_banner() : CreatureScript("mob_korkron_banner") { }
+        mob_korkron_banner() : CreatureScript("mob_korkron_banner") { }
 
         struct mob_korkron_bannerAI : public ScriptedAI
         {
-			mob_korkron_bannerAI(Creature* creature) : ScriptedAI(creature)
+            mob_korkron_bannerAI(Creature* creature) : ScriptedAI(creature)
             {
                 pInstance = creature->GetInstanceScript();
             }
@@ -1378,26 +1378,26 @@ class mob_korkron_banner : public CreatureScript
             {
                 events.Reset();
 
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case MAN10_DIFFICULTY:
-						me->SetMaxHealth(1700000);
-						break;
-					case MAN10_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(1700000);
-						break;
-					case MAN25_DIFFICULTY:
-						me->SetMaxHealth(2500000);
-						break;
-					case MAN25_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(2500000);
-						break;
-				}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                        me->SetMaxHealth(1700000);
+                        break;
+                    case MAN10_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(1700000);
+                        break;
+                    case MAN25_DIFFICULTY:
+                        me->SetMaxHealth(2500000);
+                        break;
+                    case MAN25_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(2500000);
+                        break;
+                }
 
-				DoCast(me, SPELL_KORKRON_BANNER_AURA);
-				me->SetReactState(ReactStates::REACT_PASSIVE);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-				me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                DoCast(me, SPELL_KORKRON_BANNER_AURA);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
             }
 
             void UpdateAI(const uint32 diff)
@@ -1417,11 +1417,11 @@ class mob_korkron_banner : public CreatureScript
 class mob_healing_tide_totem : public CreatureScript
 {
     public:
-		mob_healing_tide_totem() : CreatureScript("mob_healing_tide_totem") { }
+        mob_healing_tide_totem() : CreatureScript("mob_healing_tide_totem") { }
 
         struct mob_healing_tide_totemAI : public ScriptedAI
         {
-			mob_healing_tide_totemAI(Creature* creature) : ScriptedAI(creature)
+            mob_healing_tide_totemAI(Creature* creature) : ScriptedAI(creature)
             {
                 pInstance = creature->GetInstanceScript();
             }
@@ -1432,31 +1432,31 @@ class mob_healing_tide_totem : public CreatureScript
             {
                 events.Reset();
 
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case MAN10_DIFFICULTY:
-						me->SetMaxHealth(1200000);
-						me->SetHealth(1200000);
-						break;
-					case MAN10_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(1200000);
-						me->SetHealth(1200000);
-						break;
-					case MAN25_DIFFICULTY:
-						me->SetMaxHealth(2300000);
-						me->SetHealth(2300000);
-						break;
-					case MAN25_HEROIC_DIFFICULTY:
-						me->SetMaxHealth(2300000);
-						me->SetHealth(2300000);
-						break;
-				}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                        me->SetMaxHealth(1200000);
+                        me->SetHealth(1200000);
+                        break;
+                    case MAN10_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(1200000);
+                        me->SetHealth(1200000);
+                        break;
+                    case MAN25_DIFFICULTY:
+                        me->SetMaxHealth(2300000);
+                        me->SetHealth(2300000);
+                        break;
+                    case MAN25_HEROIC_DIFFICULTY:
+                        me->SetMaxHealth(2300000);
+                        me->SetHealth(2300000);
+                        break;
+                }
 
-				me->SetReactState(ReactStates::REACT_PASSIVE);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-				me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-				DoCast(me, SPELL_HEALING_TIDE);
+                DoCast(me, SPELL_HEALING_TIDE);
             }
         };
 
@@ -1470,11 +1470,11 @@ class mob_healing_tide_totem : public CreatureScript
 class mob_ravager : public CreatureScript
 {
     public:
-		mob_ravager() : CreatureScript("mob_ravager") { }
+        mob_ravager() : CreatureScript("mob_ravager") { }
 
         struct mob_ravagerAI : public ScriptedAI
         {
-			mob_ravagerAI(Creature* creature) : ScriptedAI(creature)
+            mob_ravagerAI(Creature* creature) : ScriptedAI(creature)
             {
                 pInstance = creature->GetInstanceScript();
             }
@@ -1485,11 +1485,11 @@ class mob_ravager : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-				me->SetReactState(ReactStates::REACT_PASSIVE);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-				me->GetMotionMaster()->MoveRandom(40.0f);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->GetMotionMaster()->MoveRandom(40.0f);
 
-				DoCast(me, SPELL_RAVAGER_VISUAL);
+                DoCast(me, SPELL_RAVAGER_VISUAL);
             }
         };
 
@@ -1502,135 +1502,135 @@ class mob_ravager : public CreatureScript
 // Done
 class spell_war_song : public SpellScriptLoader
 {
-	public:
-		spell_war_song() : SpellScriptLoader("spell_war_song") { }
+    public:
+        spell_war_song() : SpellScriptLoader("spell_war_song") { }
 
-		class spell_war_song_SpellScript : public SpellScript
-		{
-			PrepareSpellScript(spell_war_song_SpellScript);
+        class spell_war_song_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_war_song_SpellScript);
 
-			void HandleOnHit()
-			{
-				if (Unit* target = GetHitUnit())
-				{
-					uint32 health = target->GetMaxHealth();
-					uint32 damage = health / 2; // 50% of the players health is dealt as damage
-					SetHitDamage(damage);
-				}
-			}
+            void HandleOnHit()
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    uint32 health = target->GetMaxHealth();
+                    uint32 damage = health / 2; // 50% of the players health is dealt as damage
+                    SetHitDamage(damage);
+                }
+            }
 
-			void Register()
-			{
-				OnHit += SpellHitFn(spell_war_song_SpellScript::HandleOnHit);
-			}
-		};
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_war_song_SpellScript::HandleOnHit);
+            }
+        };
 
-		SpellScript* GetSpellScript() const
-		{
-			return new spell_war_song_SpellScript();
-		}
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_war_song_SpellScript();
+        }
 };
 
 // Done
 class spell_sundering_blow : public SpellScriptLoader
 {
-	public:
-		spell_sundering_blow() : SpellScriptLoader("spell_sundering_blow") { }
+    public:
+        spell_sundering_blow() : SpellScriptLoader("spell_sundering_blow") { }
 
-		class spell_sundering_blow_SpellScript : public SpellScript
-		{
-			PrepareSpellScript(spell_sundering_blow_SpellScript);
+        class spell_sundering_blow_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sundering_blow_SpellScript);
 
-			void HandleOnHit()
-			{
-				if (InstanceScript* m_Instance = GetCaster()->GetInstanceScript())
-					if (Creature * genNazgrim = m_Instance->instance->GetCreature(m_Instance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
-					{
-						if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 13, genNazgrim->GetGUID()); // On hit it gives 5 rage to nazgrim
+            void HandleOnHit()
+            {
+                if (InstanceScript* m_Instance = GetCaster()->GetInstanceScript())
+                    if (Creature * genNazgrim = m_Instance->instance->GetCreature(m_Instance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
+                    {
+                        if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 13, genNazgrim->GetGUID()); // On hit it gives 5 rage to nazgrim
 
-						if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-							AddRage(genNazgrim, 26, genNazgrim->GetGUID()); // On hit it gives 10 rage to nazgrim
+                        if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                            AddRage(genNazgrim, 26, genNazgrim->GetGUID()); // On hit it gives 10 rage to nazgrim
 
-						if (Unit* target = GetHitUnit())
-							if (AuraPtr sunderingBlow = target->GetAura(SPELL_SUNDERING_BLOW))
-							{
-								uint32 stacks = sunderingBlow->GetStackAmount();
+                        if (Unit* target = GetHitUnit())
+                            if (AuraPtr sunderingBlow = target->GetAura(SPELL_SUNDERING_BLOW))
+                            {
+                                uint32 stacks = sunderingBlow->GetStackAmount();
 
-								if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-									AddRage(genNazgrim, 13*stacks, genNazgrim->GetGUID()); // And for every stack of the debuff 5 more rage
+                                if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                                    AddRage(genNazgrim, 13*stacks, genNazgrim->GetGUID()); // And for every stack of the debuff 5 more rage
 
-								if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-									AddRage(genNazgrim, 26*stacks, genNazgrim->GetGUID()); // And for every stack of the debuff 10 more rage
-							}
-					}
-			}
+                                if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                                    AddRage(genNazgrim, 26*stacks, genNazgrim->GetGUID()); // And for every stack of the debuff 10 more rage
+                            }
+                    }
+            }
 
-			void Register()
-			{
-				OnHit += SpellHitFn(spell_sundering_blow_SpellScript::HandleOnHit);
-			}
-		};
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_sundering_blow_SpellScript::HandleOnHit);
+            }
+        };
 
-		SpellScript* GetSpellScript() const
-		{
-			return new spell_sundering_blow_SpellScript();
-		}
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sundering_blow_SpellScript();
+        }
 };
 
 // Apply only on offensive spells from adds on boss General Nazgrim
 class spell_korkron_banner_aura : public SpellScriptLoader
 {
-	public:
-		spell_korkron_banner_aura() : SpellScriptLoader("spell_korkron_banner_aura") { }
+    public:
+        spell_korkron_banner_aura() : SpellScriptLoader("spell_korkron_banner_aura") { }
 
-		class spell_korkron_banner_aura_SpellScript : public SpellScript
-		{
-			PrepareSpellScript(spell_korkron_banner_aura_SpellScript);
+        class spell_korkron_banner_aura_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_korkron_banner_aura_SpellScript);
 
-			void HandleOnHit()
-			{
-				if (Unit* caster = GetCaster())
-					if (caster->HasAura(SPELL_KORKRON_BANNER_AURA))
-						if (InstanceScript* m_Instance = GetCaster()->GetInstanceScript())
-							if (Creature * genNazgrim = m_Instance->instance->GetCreature(m_Instance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
-							{
-								if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-									AddRage(genNazgrim, 3, genNazgrim->GetGUID());
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAura(SPELL_KORKRON_BANNER_AURA))
+                        if (InstanceScript* m_Instance = GetCaster()->GetInstanceScript())
+                            if (Creature * genNazgrim = m_Instance->instance->GetCreature(m_Instance->GetData64(eData::DATA_GENERAL_NAZGRIM)))
+                            {
+                                if (!genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                                    AddRage(genNazgrim, 3, genNazgrim->GetGUID());
 
-								if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
-									AddRage(genNazgrim, 6, genNazgrim->GetGUID());
-							}
-			}
+                                if (genNazgrim->HasAura(SPELL_BERSERKER_STANCE))
+                                    AddRage(genNazgrim, 6, genNazgrim->GetGUID());
+                            }
+            }
 
-			void Register()
-			{
-				OnHit += SpellHitFn(spell_korkron_banner_aura_SpellScript::HandleOnHit);
-			}
-		};
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_korkron_banner_aura_SpellScript::HandleOnHit);
+            }
+        };
 
-		SpellScript* GetSpellScript() const
-		{
-			return new spell_korkron_banner_aura_SpellScript();
-		}
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_korkron_banner_aura_SpellScript();
+        }
 };
 
 void AddSC_boss_general_nazgrim()
 {
-	new boss_general_nazgrim();
+    new boss_general_nazgrim();
 
     new mob_orgrimmar_faithful();
     new mob_korkron_ironblade();
     new mob_korkron_arcweaver();
     new mob_korkron_assassin();
     new mob_korkron_warshaman();
-	new mob_korkron_sniper();
-	new mob_aftershock();
-	new mob_korkron_banner();
-	new mob_healing_tide_totem();
-	new mob_ravager();
+    new mob_korkron_sniper();
+    new mob_aftershock();
+    new mob_korkron_banner();
+    new mob_healing_tide_totem();
+    new mob_ravager();
 
-	new spell_war_song();
-	new spell_sundering_blow();
-	new spell_korkron_banner_aura();
+    new spell_war_song();
+    new spell_sundering_blow();
+    new spell_korkron_banner_aura();
 };

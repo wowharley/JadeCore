@@ -2057,7 +2057,3 @@ void AddSC_fallen_protectors()
     new spell_garrote_dummy();
     new spell_mark_of_anguish_periodic_damage();
 };
-
-
-
-

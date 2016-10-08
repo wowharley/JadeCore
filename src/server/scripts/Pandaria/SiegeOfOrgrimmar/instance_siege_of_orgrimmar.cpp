@@ -38,12 +38,12 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
 
             InstanceScript* Pinstance = this;
 
-			// Immerseus
+            // Immerseus
             uint64 ImmersusGuid;
             uint64 ImmersusBackDoorGuid;
             uint64 ImmersusFrontDoorGuid;
 
-			// Fallen Protectors
+            // Fallen Protectors
             uint64 StoneGuid;
             uint64 HuGuid;
             uint64 SunGuid;
@@ -72,44 +72,44 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
             uint64 East02Guid;
             uint64 East03Guid;
 
-			// Galakras
+            // Galakras
 
-			// Iron Juggernaut
-			uint64 JuggernautGuid;
+            // Iron Juggernaut
+            uint64 JuggernautGuid;
 
-			// Kor'kron Dark Shamans
-			uint64 HarommGuid;
-			uint64 KardrisGuid;
+            // Kor'kron Dark Shamans
+            uint64 HarommGuid;
+            uint64 KardrisGuid;
 
-			// General Nazgrim
-			uint64 NazgrimGuid;
-			uint64 extinazgrimGuid;
-			uint64 entrynazgrimGuid;
+            // General Nazgrim
+            uint64 NazgrimGuid;
+            uint64 extinazgrimGuid;
+            uint64 entrynazgrimGuid;
 
-			// Malkorok
-			uint64 MalkorokGuid;
+            // Malkorok
+            uint64 MalkorokGuid;
 
-			// Spoils of Pandaria
+            // Spoils of Pandaria
 
-			// Thok the Bloodthirsty
+            // Thok the Bloodthirsty
 
-			// Siegecrafter Blackfuse
+            // Siegecrafter Blackfuse
 
-			// Paragons of the Klaxxi
+            // Paragons of the Klaxxi
 
-			// Garrosh Hellscream
+            // Garrosh Hellscream
             uint64 GarroshGuid;
             uint64 GarroshThrallGuid;
             uint64 GarroshHeartOfYshaaraj;
             uint64 GarroshRightDoor;
             uint64 GarroshLeftDoor;
 
-			// Lorewalker Cho
+            // Lorewalker Cho
             uint64 Cho01Guid;
 
             void Initialize()
             {
-				// Immerseus
+                // Immerseus
                 ImmersusGuid						= 0;
                 ImmersusBackDoorGuid				= 0;
                 ImmersusFrontDoorGuid				= 0;
@@ -142,39 +142,39 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
                 East02Guid							= 0;
                 East03Guid							= 0;
 
-				// Galakras
+                // Galakras
 
-				// Iron Juggernaut
-				JuggernautGuid						= 0;
+                // Iron Juggernaut
+                JuggernautGuid						= 0;
 
-				// Kor'kron Dark Shamans
-				HarommGuid							= 0;
-				KardrisGuid							= 0;
+                // Kor'kron Dark Shamans
+                HarommGuid							= 0;
+                KardrisGuid							= 0;
 
-				// General Nazgrim
-				NazgrimGuid							= 0;
-				extinazgrimGuid                     = 0;
-				entrynazgrimGuid                    = 0;
+                // General Nazgrim
+                NazgrimGuid							= 0;
+                extinazgrimGuid                     = 0;
+                entrynazgrimGuid                    = 0;
 
-				// Malkorok
-				MalkorokGuid                        = 0;
+                // Malkorok
+                MalkorokGuid                        = 0;
 
-				// Spoils of Pandaria
+                // Spoils of Pandaria
 
-				// Thok the Bloodthirsty
+                // Thok the Bloodthirsty
 
-				// Siegecrafter Blackfuse
+                // Siegecrafter Blackfuse
 
-				// Paragons of the Klaxxi
+                // Paragons of the Klaxxi
 
-				// Garrosh Hellscream
+                // Garrosh Hellscream
                 GarroshGuid							= 0;
                 GarroshThrallGuid					= 0;
                 GarroshHeartOfYshaaraj				= 0;
                 GarroshRightDoor					= 0;
                 GarroshRightDoor					= 0;
 
-				// Lorewalker Cho
+                // Lorewalker Cho
                 Cho01Guid							= 0;
 
                 SetBossNumber(14);
@@ -184,7 +184,7 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-					// Immerseus
+                    // Immerseus
                     case BOSS_IMMERSUS:
                     case 724360:
                     case 724366:
@@ -193,7 +193,7 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
                         ImmersusGuid = creature->GetGUID();
                         break;
 
-					// Fallen Protectors
+                    // Fallen Protectors
                     case BOSS_STONE:
                     case 714750:
                     case 714751:
@@ -227,46 +227,46 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
                         NorushenGuid = creature->GetGUID();
                         break;
 
-					// Sha of Pride
+                    // Sha of Pride
                     case BOSS_SHA_OF_PRIDE:
                     case 475683:
                     case 475684:
                         ShaOfPrideGuid = creature->GetGUID();
                         break;
 
-					// Galakras
+                    // Galakras
 
-					// Iron Juggrenaut
-					case BOSS_IRON_JUGGERNAUT:
-						JuggernautGuid = creature->GetGUID();
-						break;
+                    // Iron Juggrenaut
+                    case BOSS_IRON_JUGGERNAUT:
+                        JuggernautGuid = creature->GetGUID();
+                        break;
 
-					// Kor'kron Dark Shamans
-					case BOSS_EARTHBREAKER_HAROMM:
-						HarommGuid = creature->GetGUID();
-						break;
-					case BOSS_WAVEBINDER_KARDRIS:
-						KardrisGuid = creature->GetGUID();
-						break;
+                    // Kor'kron Dark Shamans
+                    case BOSS_EARTHBREAKER_HAROMM:
+                        HarommGuid = creature->GetGUID();
+                        break;
+                    case BOSS_WAVEBINDER_KARDRIS:
+                        KardrisGuid = creature->GetGUID();
+                        break;
 
-					// General Nazgrim
-					case BOSS_GENERAL_NAZGRIM:
-						NazgrimGuid = creature->GetGUID();
-						break;
+                    // General Nazgrim
+                    case BOSS_GENERAL_NAZGRIM:
+                        NazgrimGuid = creature->GetGUID();
+                        break;
 
-					// Malkorok
-					case BOSS_MALKOROK:
-						MalkorokGuid = creature->GetGUID();
-						break;
-					// Spoils of Pandaria
+                    // Malkorok
+                    case BOSS_MALKOROK:
+                        MalkorokGuid = creature->GetGUID();
+                        break;
+                    // Spoils of Pandaria
 
-					// Thok the Bloodthirsty
+                    // Thok the Bloodthirsty
 
-					// Siegecrafter Blackfuse
+                    // Siegecrafter Blackfuse
 
-					// Paragons of the Klaxxi
+                    // Paragons of the Klaxxi
 
-					// Garrosh Hellscream
+                    // Garrosh Hellscream
                     case BOSS_GARROSH_HELLSCREAM:
                         GarroshGuid = creature->GetGUID();
                         break;
@@ -277,7 +277,7 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
                         GarroshThrallGuid = creature->GetGUID();
                         break;
 
-					// Lorewalker Cho
+                    // Lorewalker Cho
                     case CREATURE_CHO01:
                         Cho01Guid = creature->GetGUID();
                         break;
@@ -292,10 +292,10 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
 
                  switch (creature->GetEntry())
                  {
-				 case BOSS_GENERAL_NAZGRIM:
-				 if (GameObject* go = instance->GetGameObject(extinazgrimGuid))
-					 go->SetGoState(GO_STATE_ACTIVE);
-					 
+                 case BOSS_GENERAL_NAZGRIM:
+                 if (GameObject* go = instance->GetGameObject(extinazgrimGuid))
+                     go->SetGoState(GO_STATE_ACTIVE);
+                     
                  }
             }
             
@@ -444,13 +444,13 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
                         PrideEntranceGuid = go->GetGUID();
                         break;
                     }
-					case GAMEOBJECT_NAZGRIM_ENTRY:
-						entrynazgrimGuid = go->GetGUID();
-						break;
+                    case GAMEOBJECT_NAZGRIM_ENTRY:
+                        entrynazgrimGuid = go->GetGUID();
+                        break;
 
-					case GAMEOBJECT_NAZGRIM_EXTI:
-						extinazgrimGuid = go->GetGUID();
-						break;
+                    case GAMEOBJECT_NAZGRIM_EXTI:
+                        extinazgrimGuid = go->GetGUID();
+                        break;
 
 
                 default:
@@ -462,145 +462,145 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
             {
                 switch (type)
                 {
-					// Immerseus
-					case DATA_IMMERSUS:
-						return ImmersusGuid;
-						break;
+                    // Immerseus
+                    case DATA_IMMERSUS:
+                        return ImmersusGuid;
+                        break;
 
 
-					// Fallen Protectors
-					case DATA_STONE:
-						return StoneGuid;
-						break;
-					case DATA_HU:
-						return HuGuid;
-						break;
-					case DATA_SUN:
-						return SunGuid;
-						break;
+                    // Fallen Protectors
+                    case DATA_STONE:
+                        return StoneGuid;
+                        break;
+                    case DATA_HU:
+                        return HuGuid;
+                        break;
+                    case DATA_SUN:
+                        return SunGuid;
+                        break;
 
-						// Norushen
-					case DATA_NORUSHEN_BOSS:
-						return NorushenBossGuid;
-						break;
-					case DATA_NORUSHEN_CHO:
-						return NorushenChoGuid;
-						break;
-					case DATA_NORUSHEN_TRIGGER:
-						return NorushenTriggerGuid;
-						break;
-					case DATA_NORUSHEN_ALMAGLEM_OF_CORRUPTION:
-						return NorushenAlmalgamOfCorruptionGuid;
-						break;
-					case DATA_NORUSHEN_ENTRANCE:
-						return NorushenEntranceGuid;
-						break;
-					case DATA_NORUSHEN:
-						return NorushenGuid;
-						break;
+                        // Norushen
+                    case DATA_NORUSHEN_BOSS:
+                        return NorushenBossGuid;
+                        break;
+                    case DATA_NORUSHEN_CHO:
+                        return NorushenChoGuid;
+                        break;
+                    case DATA_NORUSHEN_TRIGGER:
+                        return NorushenTriggerGuid;
+                        break;
+                    case DATA_NORUSHEN_ALMAGLEM_OF_CORRUPTION:
+                        return NorushenAlmalgamOfCorruptionGuid;
+                        break;
+                    case DATA_NORUSHEN_ENTRANCE:
+                        return NorushenEntranceGuid;
+                        break;
+                    case DATA_NORUSHEN:
+                        return NorushenGuid;
+                        break;
 
-					// Sha of Pride
-					case DATA_SHA_OF_PRIDE:
-						return ShaOfPrideGuid;
-						break;
-					case DATA_PRIDE_ENTRANCE:
-						return PrideEntranceGuid;
-						break;
-					case DATA_SOUTH01:
-						return South01Guid;
-						break;
-					case DATA_SOUTH02:
-						return South02Guid;
-						break;
-					case DATA_SOUTH03:
-						return South03Guid;
-						break;
-					case DATA_WEST01:
-						return West01Guid;
-						break;
-					case DATA_WEST02:
-						return West02Guid;
-						break;
-					case DATA_WEST03:
-						return West03Guid;
-						break;
-					case DATA_EAST01:
-						return East01Guid;
-						break;
-					case DATA_EAST02:
-						return East02Guid;
-						break;
-					case DATA_EAST03:
-						return East03Guid;
-						break;
-					case DATA_NORTH01:
-						return North01Guid;
-						break;
-					case DATA_NORTH02:
-						return North02Guid;
-						break;
-					case DATA_NORTH03:
-						return North03Guid;
-						break;
+                    // Sha of Pride
+                    case DATA_SHA_OF_PRIDE:
+                        return ShaOfPrideGuid;
+                        break;
+                    case DATA_PRIDE_ENTRANCE:
+                        return PrideEntranceGuid;
+                        break;
+                    case DATA_SOUTH01:
+                        return South01Guid;
+                        break;
+                    case DATA_SOUTH02:
+                        return South02Guid;
+                        break;
+                    case DATA_SOUTH03:
+                        return South03Guid;
+                        break;
+                    case DATA_WEST01:
+                        return West01Guid;
+                        break;
+                    case DATA_WEST02:
+                        return West02Guid;
+                        break;
+                    case DATA_WEST03:
+                        return West03Guid;
+                        break;
+                    case DATA_EAST01:
+                        return East01Guid;
+                        break;
+                    case DATA_EAST02:
+                        return East02Guid;
+                        break;
+                    case DATA_EAST03:
+                        return East03Guid;
+                        break;
+                    case DATA_NORTH01:
+                        return North01Guid;
+                        break;
+                    case DATA_NORTH02:
+                        return North02Guid;
+                        break;
+                    case DATA_NORTH03:
+                        return North03Guid;
+                        break;
 
-					// Iron Juggernaut
-					case DATA_IRON_JUGGERNAUT:
-						return JuggernautGuid;
-						break;
+                    // Iron Juggernaut
+                    case DATA_IRON_JUGGERNAUT:
+                        return JuggernautGuid;
+                        break;
 
-					// Kor'kron Dark Shamans
-					case DATA_EARTHBREAKER_HAROMM:
-						return HarommGuid;
-						break;
-					case DATA_WAVEBINDER_KARDRIS:
-						return KardrisGuid;
-						break;
+                    // Kor'kron Dark Shamans
+                    case DATA_EARTHBREAKER_HAROMM:
+                        return HarommGuid;
+                        break;
+                    case DATA_WAVEBINDER_KARDRIS:
+                        return KardrisGuid;
+                        break;
 
-					// General Nazgrim
-					case DATA_GENERAL_NAZGRIM:
-						return NazgrimGuid;
-						break;
-					case DATA_NAZGRIM_EXTI_DOOR:
-						return extinazgrimGuid;
-						break;
-					case DATA_NAZGRIM_ENTRY_DOOR:
-						return entrynazgrimGuid;
-						break;
+                    // General Nazgrim
+                    case DATA_GENERAL_NAZGRIM:
+                        return NazgrimGuid;
+                        break;
+                    case DATA_NAZGRIM_EXTI_DOOR:
+                        return extinazgrimGuid;
+                        break;
+                    case DATA_NAZGRIM_ENTRY_DOOR:
+                        return entrynazgrimGuid;
+                        break;
 
-					// Malkorok
-					case DATA_MALKOROK:
-						return MalkorokGuid;
-						break;
+                    // Malkorok
+                    case DATA_MALKOROK:
+                        return MalkorokGuid;
+                        break;
 
-					// Spoils of Pandaria
+                    // Spoils of Pandaria
 
-					// Thok the Bloodthirsty
+                    // Thok the Bloodthirsty
 
-					// Siegecrafter Blackfuse
+                    // Siegecrafter Blackfuse
 
-					// Paragons of the Klaxxi
+                    // Paragons of the Klaxxi
 
-					// Garrosh Hellscream
-					case DATA_GARROSH_HEART_OF_YSHAARAJ:
-						return GarroshHeartOfYshaaraj;
-						break;
-					case DATA_GARROSH_HELLSCREAM:
-						return GarroshGuid;
-						break;
-					case DATA_THRALL:
-						return GarroshThrallGuid;
-						break;
-					case DATA_LEFT_DOOR_GARROSH:
-						return GarroshLeftDoor;
-						break;
-					case DATA_RIGHT_DOOR_GARROSH:
-						return GarroshRightDoor;
-						break;
+                    // Garrosh Hellscream
+                    case DATA_GARROSH_HEART_OF_YSHAARAJ:
+                        return GarroshHeartOfYshaaraj;
+                        break;
+                    case DATA_GARROSH_HELLSCREAM:
+                        return GarroshGuid;
+                        break;
+                    case DATA_THRALL:
+                        return GarroshThrallGuid;
+                        break;
+                    case DATA_LEFT_DOOR_GARROSH:
+                        return GarroshLeftDoor;
+                        break;
+                    case DATA_RIGHT_DOOR_GARROSH:
+                        return GarroshRightDoor;
+                        break;
 
-					// Lorewalker Cho
-					case DATA_LORE_WALKER_CHO_01:
-						return Cho01Guid;
-						break;
+                    // Lorewalker Cho
+                    case DATA_LORE_WALKER_CHO_01:
+                        return Cho01Guid;
+                        break;
                 }
 
                 return 0;
@@ -619,5 +619,5 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
 
 void AddSC_instance_siege_of_orgrimmar()
 {
-	new instance_siege_of_orgrimmar();
+    new instance_siege_of_orgrimmar();
 }
