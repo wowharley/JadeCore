@@ -9,7 +9,7 @@
  #define _MYSQL_EXECUTABLE          R"(@MYSQL_EXECUTABLE@)"
  #define _FULL_DATABASE             "JCDB 547.04 & \"patch\" SmartAI Lab 547.01.sql"
  #define VER_COMPANYNAME_STR        "JadeCore Developers"
- #define VER_LEGALCOPYRIGHT_STR     "(c)2016 JadeCoreCore"
+ #define VER_LEGALCOPYRIGHT_STR     "(c)2013-3016 JadeCoreCore"
  #define VER_FILEVERSION            0,0,0
  #define VER_FILEVERSION_STR        "@rev_hash@ @rev_date@ (@rev_branch@ branch)"
  #define VER_PRODUCTVERSION         VER_FILEVERSION
