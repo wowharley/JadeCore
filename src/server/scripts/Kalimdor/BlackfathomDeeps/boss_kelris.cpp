@@ -43,7 +43,7 @@ public:
         return new boss_kelrisAI (creature);
     }
 
-    struct boss_kelrisAI : public ScriptedAI
+struct boss_kelrisAI : public ScriptedAI
     {
         boss_kelrisAI(Creature* creature) : ScriptedAI(creature)
         {
@@ -55,7 +55,7 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+void Reset()
         {
             mindBlastTimer = urand(2000, 5000);
             sleepTimer = urand(9000, 12000);
@@ -63,21 +63,21 @@ public:
                 instance->SetData(TYPE_KELRIS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             if (instance)
                 instance->SetData(TYPE_KELRIS, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/)
+void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
             if (instance)
                 instance->SetData(TYPE_KELRIS, DONE);
         }
 
-        void UpdateAI(const uint32 diff)
+void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;
