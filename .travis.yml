@@ -1,5 +1,5 @@
 # Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2016 jadecoreCore <http://www.jadecorecore.org/>
 # Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
 #
 # This file is free software; as a special exception the author gives
@@ -29,14 +29,15 @@ before_install:
 
 install:
   - mysql -uroot -e 'create database test_mysql;'
-  - mkdir build
-  - cd build
-  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS=1 -DSERVERS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=check_install
+  - mkdir bin
+  - cd bin
+  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS="dynamic" -DSERVERS=1 -DNOJEM=1 -DWITH_DYNAMIC_LINKING=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_INSTALL_PREFIX=check_install
   - cd ..
+  - chmod +x contrib/check_updates.sh
 
 script:
   - $CXX --version
-  - mysql -uroot < data/sql/create/create_mysql.sql
+  - mysql -uroot < sql/create/create_mysql.sql
   - mysql -ujadecore -pjadecore auth < sql/base/auth_database.sql
   - ./contrib/check_updates.sh auth 5.4.7 auth
   - mysql -ujadecore -pjadecore characters < sql/base/characters_database.sql
@@ -44,8 +45,8 @@ script:
   - mysql -ujadecore -pjadecore world < sql/base/dev/world_database.sql
   - cat sql/updates/world/5.4.7/*.sql | mysql -ujadecore -pjadecore world
   - mysql -uroot < sql/create/drop_mysql.sql
-  - cd build
+  - cd bin
   - make -j 8 -k && make install
-  - cd check_install/build
+  - cd check_install/bin
   - ./authserver --version
   - ./worldserver --version
