@@ -64,12 +64,12 @@ For more information about the project, visit our website at project [JadeCore O
 
 ## Reporting issues
 
-Issues can be reported via the [Github issue tracker](#).
+Issues can be reported via the [Github issue tracker](https://github.com/JadeEmu/JadeCore_547/issues).
 
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
 
-In addition, thoroughly read through the [issue tracker guide](#) to ensure
+In addition, thoroughly read through the [issue tracker guide - thanks TrinityCore](http://www.trinitycore.org/f/topic/37-the-trinitycore-issuetracker-and-you/) to ensure
 your report contains the required information. Incorrect or poorly formed
 reports are wasteful and are subject to deletion.
 
@@ -77,14 +77,14 @@ reports are wasteful and are subject to deletion.
 ## Submitting fixes
 
 Fixes are submitted as pull requests via Github. For more information on how to
-properly submit a pull request, read the [how-to: maintain a remote fork](#).
+properly submit a pull request, read the [how-to: maintain a remote fork - thanks TrinityCore](http://www.trinitycore.org/f/topic/6037-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
 
 
 ## Copyright
 
 License: GPL 2.0
 
-Read file [COPYING](#)
+Read file [COPYING](COPYING)
 
 
 ## Authors &amp; Contributors
