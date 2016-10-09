@@ -1,4 +1,7 @@
-INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, str, agi, sta, inte, spi) VALUES
+-- Fix Pet Level Stats
+-- By Bodeguero for JadeCore.
+
+REPLACE INTO pet_levelstats (creature_entry, level, hp, mana, armor, str, agi, sta, inte, spi) VALUES
 (329, 86, 55764, 1, 37503, 558, 413, 1348, 862, 475),
 (329, 87, 64786, 1, 40178, 576, 429, 1378, 885, 492),
 (329, 88, 65535, 1, 42987, 595, 445, 1409, 908, 509),

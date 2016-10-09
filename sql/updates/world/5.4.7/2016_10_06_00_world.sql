@@ -1,4 +1,7 @@
---Fix Only DK Worgen start with Viciousness spell
+-- Fix Player Create Info Spell and Spell Script Name
+-- By Bodeguero for JadeCore.
+
+-- Fix Only DK Worgen start with Viciousness spell
 DELETE FROM playercreateinfo_spell WHERE race=22 AND Spell=68975;
 INSERT INTO playercreateinfo_spell(race, class, Spell, Note)VALUES
 (22, 6, 68975, "Viciousness"),

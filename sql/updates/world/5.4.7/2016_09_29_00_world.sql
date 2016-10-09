@@ -1,3 +1,6 @@
+-- Fix Table Command
+-- By Bodeguero for JadeCore.
+
 /*
 Navicat MySQL Data Transfer
 

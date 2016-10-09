@@ -1,3 +1,6 @@
+-- Fix Creature Template
+-- By Bodeguero for JadeCore.
+
 -- Commander Lindon
 SET @ENTRY := 59191;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;

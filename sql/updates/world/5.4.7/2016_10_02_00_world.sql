@@ -1,3 +1,6 @@
+-- Fix Command .mmap
+-- By Bodeguero for JadeCore.
+
 DELETE FROM `command` WHERE `name`='mmap' OR `name` LIKE 'mmap%';
 INSERT INTO `command` (`name`, `security`, `help`) VALUES 
 ('mmap', 3, 'Syntax: Syntax: .mmaps $subcommand Type .mmaps to see the list of possible subcommands or .help mmaps $subcommand to see info on subcommands'),

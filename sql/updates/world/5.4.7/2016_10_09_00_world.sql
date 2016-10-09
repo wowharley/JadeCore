@@ -1,3 +1,6 @@
+-- Fix Spell Script Name
+-- By Bodeguero for JadeCore.
+
 REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (124081, 'spell_monk_zen_sphere');
 REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (124081, 'spell_monk_zen_sphere_hot');
 REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (82327, 'spell_pal_daybreak');
