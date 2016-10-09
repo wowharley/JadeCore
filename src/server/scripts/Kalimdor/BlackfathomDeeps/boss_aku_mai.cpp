@@ -35,19 +35,19 @@ public:
         return new boss_aku_maiAI (creature);
     }
 
-struct boss_aku_maiAI : public ScriptedAI
+    struct boss_aku_maiAI : public ScriptedAI
     {
         boss_aku_maiAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
 
-uint32 poisonCloudTimer;
-bool IsEnraged;
+        uint32 poisonCloudTimer;
+        bool IsEnraged;
 
         InstanceScript* instance;
 
-void Reset()
+        void Reset()
         {
             poisonCloudTimer = urand(5000, 9000);
             IsEnraged = false;
@@ -55,19 +55,19 @@ void Reset()
                 instance->SetData(TYPE_AKU_MAI, NOT_STARTED);
         }
 
-void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (instance)
                 instance->SetData(TYPE_AKU_MAI, IN_PROGRESS);
         }
 
-void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(TYPE_AKU_MAI, DONE);
         }
 
-void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;

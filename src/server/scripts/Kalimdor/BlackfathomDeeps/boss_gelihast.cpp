@@ -21,7 +21,7 @@
 
 enum Spells
 {
-    SPELL_NET                                              = 6533
+    SPELL_NET = 6533
 };
 
 class boss_gelihast : public CreatureScript
@@ -34,7 +34,7 @@ public:
         return new boss_gelihastAI (creature);
     }
 
-struct boss_gelihastAI : public ScriptedAI
+    struct boss_gelihastAI : public ScriptedAI
     {
         boss_gelihastAI(Creature* creature) : ScriptedAI(creature)
         {
@@ -45,26 +45,26 @@ struct boss_gelihastAI : public ScriptedAI
 
         InstanceScript* instance;
 
-void Reset()
+        void Reset()
         {
             netTimer = urand(2000, 4000);
             if (instance)
                 instance->SetData(TYPE_GELIHAST, NOT_STARTED);
         }
 
-void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             if (instance)
                 instance->SetData(TYPE_GELIHAST, IN_PROGRESS);
         }
 
-void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(TYPE_GELIHAST, DONE);
         }
 
-void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;

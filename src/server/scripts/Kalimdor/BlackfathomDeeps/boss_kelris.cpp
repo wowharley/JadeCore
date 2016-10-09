@@ -21,16 +21,16 @@
 
 enum Spells
 {
-    SPELL_MIND_BLAST                                       = 15587,
-    SPELL_SLEEP                                            = 8399,
+    SPELL_MIND_BLAST  = 15587,
+    SPELL_SLEEP       = 8399,
 };
 
 //Id's from ACID
 enum Yells
 {
-    SAY_AGGRO                                              = -1048002,
-    SAY_SLEEP                                              = -1048001,
-    SAY_DEATH                                              = -1048000
+    SAY_AGGRO         = -1048002,
+    SAY_SLEEP         = -1048001,
+    SAY_DEATH         = -1048000
 };
 
 class boss_kelris : public CreatureScript
@@ -43,7 +43,7 @@ public:
         return new boss_kelrisAI (creature);
     }
 
-struct boss_kelrisAI : public ScriptedAI
+    struct boss_kelrisAI : public ScriptedAI
     {
         boss_kelrisAI(Creature* creature) : ScriptedAI(creature)
         {
@@ -55,7 +55,7 @@ struct boss_kelrisAI : public ScriptedAI
 
         InstanceScript* instance;
 
-void Reset()
+        void Reset()
         {
             mindBlastTimer = urand(2000, 5000);
             sleepTimer = urand(9000, 12000);
@@ -63,21 +63,21 @@ void Reset()
                 instance->SetData(TYPE_KELRIS, NOT_STARTED);
         }
 
-void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             if (instance)
                 instance->SetData(TYPE_KELRIS, IN_PROGRESS);
         }
 
-void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
             if (instance)
                 instance->SetData(TYPE_KELRIS, DONE);
         }
 
-void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;

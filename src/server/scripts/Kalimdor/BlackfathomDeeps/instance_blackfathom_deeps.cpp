@@ -62,7 +62,7 @@ public:
         return new instance_blackfathom_deeps_InstanceMapScript(map);
     }
 
-struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
+    struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
     {
         instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
@@ -79,7 +79,7 @@ struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
         uint8 countFires;
         uint8 deathTimes;
 
-void Initialize()
+        void Initialize()
         {
             memset(&encounter, 0, sizeof(encounter));
 
@@ -95,7 +95,7 @@ void Initialize()
             deathTimes = 0;
         }
 
-void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature)
         {
             switch (creature->GetEntry())
             {
@@ -108,7 +108,7 @@ void OnCreatureCreate(Creature* creature)
             }
         }
 
-void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go)
         {
             switch (go->GetEntry())
             {
@@ -142,7 +142,7 @@ void OnGameObjectCreate(GameObject* go)
             }
         }
 
-void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data)
         {
             switch (type)
             {
@@ -212,7 +212,7 @@ void SetData(uint32 type, uint32 data)
             }
         }
 
-uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type)
         {
             switch (type)
             {
@@ -233,7 +233,7 @@ uint32 GetData(uint32 type)
             return 0;
         }
 
-uint64 GetData64(uint32 data)
+        uint64 GetData64(uint32 data)
         {
             switch (data)
             {

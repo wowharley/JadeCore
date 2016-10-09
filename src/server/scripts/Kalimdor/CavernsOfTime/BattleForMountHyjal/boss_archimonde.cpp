@@ -148,7 +148,7 @@ public:
 
     struct mob_doomfireAI : public ScriptedAI
     {
-        mob_doomfireAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_doomfireAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() { }
 

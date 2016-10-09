@@ -77,7 +77,7 @@ public:
         return new npc_blackfathom_deeps_eventAI (creature);
     }
 
-struct npc_blackfathom_deeps_eventAI : public ScriptedAI
+    struct npc_blackfathom_deeps_eventAI : public ScriptedAI
     {
         npc_blackfathom_deeps_eventAI(Creature* creature) : ScriptedAI(creature)
         {
@@ -96,9 +96,9 @@ struct npc_blackfathom_deeps_eventAI : public ScriptedAI
         uint32 frostNovaTimer;
         uint32 frostBoltVolleyTimer;
 
-bool Flee;
+        bool Flee;
 
-void Reset()
+        void Reset()
         {
             Flee = false;
 
@@ -107,7 +107,7 @@ void Reset()
             frostBoltVolleyTimer  = urand(2000, 4000);
         }
 
-void AttackPlayer()
+        void AttackPlayer()
         {
             Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
 
@@ -131,7 +131,7 @@ void AttackPlayer()
             }
         }
 
-void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -184,7 +184,7 @@ void UpdateAI(const uint32 diff)
             DoMeleeAttackIfReady();
         }
 
-void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (me->IsSummon()) //we are not a normal spawn.
                 if (instance)
@@ -204,7 +204,7 @@ class npc_morridune : public CreatureScript
 public:
     npc_morridune() : CreatureScript("npc_morridune") { }
 
-bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -217,7 +217,7 @@ bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, u
         return true;
     }
 
-bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MORRIDUNE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
@@ -230,7 +230,7 @@ bool OnGossipHello(Player* player, Creature* creature)
         return new npc_morriduneAI (creature);
     }
 
-struct npc_morriduneAI : public npc_escortAI
+    struct npc_morriduneAI : public npc_escortAI
     {
         npc_morriduneAI(Creature* creature) : npc_escortAI(creature)
         {
@@ -239,7 +239,7 @@ struct npc_morriduneAI : public npc_escortAI
             Start(false, false, 0);
         }
 
-void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId)
         {
             switch (waypointId)
             {

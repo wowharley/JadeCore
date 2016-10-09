@@ -84,7 +84,7 @@ class boss_drakkari_colossus : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 introDone = false;
-		AllowDie = false;
+                AllowDie = false;
             }
 
             void InitializeAI()
@@ -106,7 +106,7 @@ class boss_drakkari_colossus : public CreatureScript
 
                 //events.Reset(); -> done in _Reset();
                 events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(10000, 30000));
-		AllowDie = false;
+                AllowDie = false;
 
                 phase = COLOSSUS_PHASE_NORMAL;
 
@@ -158,7 +158,7 @@ class boss_drakkari_colossus : public CreatureScript
                         //DoCast(me, SPELL_FREEZE_ANIM);
                         break;
                     case ACTION_UNFREEZE_COLOSSUS:
-						AllowDie = true;
+                        AllowDie = true;
                         if (me->GetReactState() == REACT_AGGRESSIVE)
                             return;
 
@@ -170,15 +170,15 @@ class boss_drakkari_colossus : public CreatureScript
 
                         if (me->getVictim())
                             me->GetMotionMaster()->MoveChase(me->getVictim(), 0, 0);
-						break;
-					case ACTION_DIE:
-						if (AllowDie = true)
-						{ 
-						me->SetReactState(REACT_AGGRESSIVE);
-						me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-						me->RemoveAura(SPELL_FREEZE_ANIM);
-						me->Kill(me);
-						}
+                        break;
+                    case ACTION_DIE:
+                        if (AllowDie = true)
+                        { 
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->RemoveAura(SPELL_FREEZE_ANIM);
+                            me->Kill(me);
+                        }
                         break;
                 }
             }
@@ -254,7 +254,7 @@ class boss_drakkari_colossus : public CreatureScript
         private:
             uint8 phase;
             bool introDone;
-			bool AllowDie;
+            bool AllowDie;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -311,16 +311,14 @@ class boss_drakkari_elemental : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-			void JustDied(Unit* /*killer*/)
-			{
-				{
-					if (instance)
-						if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
-							colossus->AI()->DoAction(ACTION_DIE);
-				}
-			}
+            void JustDied(Unit* /*killer*/)
+            {
+                if (instance)
+                    if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                        colossus->AI()->DoAction(ACTION_DIE);
+            }
 
-           void DoAction(const int32 action)
+            void DoAction(const int32 action)
             {
                 switch (action)
                 {
@@ -508,4 +506,3 @@ void AddSC_boss_drakkari_colossus()
     new boss_drakkari_elemental();
     new npc_living_mojo();
 }
-
