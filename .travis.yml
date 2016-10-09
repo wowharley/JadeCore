@@ -29,7 +29,8 @@ before_install:
 
 install:
   - mysql -uroot -e 'create database test_mysql;'
-  - cd bin
+  - mkdir build
+  - cd build
   - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS=1 -DSERVERS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=check_install
   - cd ..
 
@@ -43,6 +44,6 @@ script:
   - cat data/sql/updates/characters/5.4.7/*.sql | mysql -ujadecore -pjadecore characters
   - cat data/sql/updates/world/5.4.7/*.sql | mysql -ujadecore -pjadecore world
   - mysql -uroot < data/sql/create/drop_mysql.sql
-  - cd bin
+  - cd build
   - make -j 8 -k && make install
   - cd check_install/bin
