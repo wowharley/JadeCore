@@ -120,17 +120,9 @@ public:
             return false;
         }
 
-        Aura* aura = player->AddAura(isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER, player);
+		 player->AddAura(isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER, player);
 
-        if (!aura)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-        aura->SetDuration(time * IN_MILLISECONDS);
-
-        return true;
+		 return true;
     }
 
     /**
