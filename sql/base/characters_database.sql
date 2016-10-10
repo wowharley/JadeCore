@@ -4,7 +4,7 @@ Navicat MySQL Data Transfer
 Source Server         : JadeCore_5.x.x
 Source Server Version : 50624
 Source Host           : 127.0.0.1:3306
-Source Database       : characters
+Source Database       : characters547
 
 Target Server Type    : MYSQL
 Target Server Version : 50624

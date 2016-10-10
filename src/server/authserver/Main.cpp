@@ -99,6 +99,24 @@ extern int main(int argc, char **argv)
 
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "%s (authserver)", GitRevision::GetFullVersion());
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "<Ctrl-C> to stop.\n");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, " ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "       ██╗ █████╗ ██████╗ ███████╗");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "       ██║██╔══██╗██╔══██╗██╔════╝");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "       ██║███████║██║  ██║█████╗");  
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "  ██   ██║██╔══██║██║  ██║██╔══╝");  
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "  ╚█████╔╝██║  ██║██████╔╝███████╗");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "   ╚════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "   ");                                                        
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "               ██████╗ ██████╗ ██████╗ ███████╗");             
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "              ██╔════╝██╔═══██╗██╔══██╗██╔════╝");             
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "              ██║     ██║   ██║██████╔╝█████╗");               
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "              ██║     ██║   ██║██╔══██╗██╔══╝");               
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "              ╚██████╗╚██████╔╝██║  ██║███████╗");             
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "               ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝"); 
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "   ");                                                        
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "  	JadeCore 2016(c) Open-Sourced Game Emulation"); 
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "		       https://www.jadecore.tk ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "");                                                   
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", cfg_file);
 
     sLog->outWarn(LOG_FILTER_AUTHSERVER, "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
