@@ -1,4 +1,4 @@
-﻿# ![logo](http://image.prntscr.com/image/fad4a61aad304cb8aef28783c8a37640.png)
+# ![logo](http://image.prntscr.com/image/5204070d9fe44cf2b2960cd66940922a.png)
 
 | JadeCore 5.4.8 |
 :------------: |
@@ -6,8 +6,6 @@
 | [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/JadeEmu/JadeCore_547.svg)](http://isitmaintained.com/project/JadeEmu/JadeCore_547 "Average time to resolve an issue")
 | [![Percentage of issues still open](http://isitmaintained.com/badge/open/JadeEmu/JadeCore_547.svg)](http://isitmaintained.com/project/JadeEmu/JadeCore_547 "Percentage of issues still open")
 | [![Coverity Scan Build Status](https://scan.coverity.com/projects/10344/badge.svg)]("https://scan.coverity.com/projects/jadecore_547)
-
-# ![logo](http://image.prntscr.com/image/5204070d9fe44cf2b2960cd66940922a.png)
 
 
 ## Introduction
