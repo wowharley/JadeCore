@@ -17,71 +17,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GitRevision.h"
-#include "CompilerDefs.h"
-#include "revision.h"
+#ifndef __GITREVISION_H__
+#define __GITREVISION_H__
 
-char const* GitRevision::GetHash()
+#include <string>
+
+namespace GitRevision
 {
-    return _HASH;
+    char const* GetHash();
+    char const* GetDate();
+    char const* GetBranch();
+    char const* GetSourceDirectory();
+    char const* GetMySQLExecutable();
+    char const* GetFullDatabase();
+    char const* GetFullVersion();
+    char const* GetCompanyNameStr();
+    char const* GetLegalCopyrightStr();
+    char const* GetFileVersionStr();
+    char const* GetProductVersionStr();
 }
 
-char const* GitRevision::GetDate()
-{
-    return _DATE;
-}
-
-char const* GitRevision::GetBranch()
-{
-    return _BRANCH;
-}
-
-char const* GitRevision::GetSourceDirectory()
-{
-    return _SOURCE_DIRECTORY;
-}
-
-char const* GitRevision::GetMySQLExecutable()
-{
-    return _MYSQL_EXECUTABLE;
-}
-
-char const* GitRevision::GetFullDatabase()
-{
-    return _FULL_DATABASE;
-}
-
-#define _PACKAGENAME "JadeCore"
-
-char const* GitRevision::GetFullVersion()
-{
-#if PLATFORM == PLATFORM_WINDOWS
-# ifdef _WIN64
-    return _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win64, " _BUILD_DIRECTIVE ")";
-# else
-    return _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win32, " _BUILD_DIRECTIVE ")";
-# endif
-#else
-    return _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Unix, " _BUILD_DIRECTIVE ")";
 #endif
-}
-
-char const* GitRevision::GetCompanyNameStr()
-{
-    return VER_COMPANYNAME_STR;
-}
-
-char const* GitRevision::GetLegalCopyrightStr()
-{
-    return VER_LEGALCOPYRIGHT_STR;
-}
-
-char const* GitRevision::GetFileVersionStr()
-{
-    return VER_FILEVERSION_STR;
-}
-
-char const* GitRevision::GetProductVersionStr()
-{
-    return VER_PRODUCTVERSION_STR;
-}
