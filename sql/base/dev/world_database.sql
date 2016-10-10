@@ -4194,7 +4194,7 @@ COMMENT='Creature waypoints'
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `sp_CharExtraLevelHPMP`;
 DELIMITER ;;
-CREATE DEFINER=`SkyFire`@`%` PROCEDURE `sp_CharExtraLevelHPMP`()
+CREATE DEFINER=`jadecore`@`%` PROCEDURE `sp_CharExtraLevelHPMP`()
 BEGIN
   
   DECLARE intMaxHP           INT   DEFAULT 65535000; 
@@ -4256,7 +4256,7 @@ DELIMITER ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `sp_CharExtraLevelStats`;
 DELIMITER ;;
-CREATE DEFINER=`SkyFire`@`%` PROCEDURE `sp_CharExtraLevelStats`()
+CREATE DEFINER=`jadecore`@`%` PROCEDURE `sp_CharExtraLevelStats`()
 BEGIN
   
   DECLARE intMaxStats        INT   DEFAULT 2556541;    
@@ -5247,7 +5247,7 @@ DELIMITER ;
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `sp_PetExtraLevelStats`;
 DELIMITER ;;
-CREATE DEFINER=`SkyFire`@`%` PROCEDURE `sp_PetExtraLevelStats`()
+CREATE DEFINER=`jadecore`@`%` PROCEDURE `sp_PetExtraLevelStats`()
 BEGIN
   
   DECLARE intMaxHP       INT   DEFAULT 6553500;
