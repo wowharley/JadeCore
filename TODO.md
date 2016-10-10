@@ -1442,7 +1442,8 @@ Warrior
 Disrupting Shout and Pummel now both share a 15-second cooldown when either ability is used. Disrupting Shout's 40-second cooldown remains unchanged but the ability will be unavailable for 15 seconds after using Pummel.
 ########################################################################################################################################################################################
 
-PvP
+## PvP:
+########################################################################################################################################################################################
 Base Resilience for level-90 players is now 77% (up from 72%). Base Resilience for players below level 90 remain at 40%.
 Resilience Diminishing Returns curve for Resilience has been adjusted for the new base resilience value to maintain the same value per point of Resilience as previously.
 
@@ -1452,9 +1453,13 @@ Resilience Diminishing Returns curve for Resilience has been adjusted for the ne
 
 ## Classes:
 ########################################################################################################################################################################################
-Druid
+
+## Druid:
+########################################################################################################################################################################################
 Resolved an issue where Cat Form's movement speed bonus was stacking incorrectly with Warrior's version of Stampeding Shout granted via Symbiosis.
-Rogue
+
+## Rogue:
+########################################################################################################################################################################################
 Burst of Speed can now be activated to remove movement-slowing effects even if another movement speed bonus such as Sprint is already present (the speed bonuses will still not stack).
 ########################################################################################################################################################################################
 
