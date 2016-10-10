@@ -1,10 +1,11 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
+ * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -29,7 +30,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 
 class server_commandscript : public CommandScript
 {
@@ -116,7 +117,8 @@ public:
         std::string uptime          = secsToTimeString(sWorld->GetUptime());
         uint32 updateTime           = sWorld->GetUpdateTime();
 
-		handler->SendSysMessage(_FULLVERSION);
+        handler->SendSysMessage(GitRevision::GetFullVersion());
+        handler->SendSysMessage(GitRevision::GetFullDatabase());
         handler->PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
         handler->PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
         handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());

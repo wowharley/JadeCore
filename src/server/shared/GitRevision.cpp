@@ -16,13 +16,25 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
-//add here most rarely modified headers to speed up debug build compilation
 
-#include "Common.h"
-#include "Log.h"
-#include "DatabaseWorker.h"
-#include "SQLOperation.h"
-#include "Errors.h"
-#include "TypeList.h"
-#include "GitRevision.h"
+#ifndef __GITREVISION_H__
+#define __GITREVISION_H__
+
+#include <string>
+
+namespace GitRevision
+{
+    char const* GetHash();
+    char const* GetDate();
+    char const* GetBranch();
+    char const* GetSourceDirectory();
+    char const* GetMySQLExecutable();
+    char const* GetFullDatabase();
+    char const* GetFullVersion();
+    char const* GetCompanyNameStr();
+    char const* GetLegalCopyrightStr();
+    char const* GetFileVersionStr();
+    char const* GetProductVersionStr();
+}
+
+#endif
