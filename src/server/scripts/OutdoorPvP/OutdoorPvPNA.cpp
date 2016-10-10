@@ -1,9 +1,11 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -27,6 +29,7 @@
 OutdoorPvPNA::OutdoorPvPNA()
 {
     m_TypeId = OUTDOOR_PVP_NA;
+    m_obj = NULL;
 }
 
 void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
@@ -64,7 +67,7 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
         case NA_NPC_GUARD_14:
         case NA_NPC_GUARD_15:
             if (Creature const* const cr = HashMapHolder<Creature>::Find(itr->second))
-                if (cr->isAlive())
+                if (cr->IsAlive())
                     ++cnt;
             break;
         default:
@@ -214,10 +217,8 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
 
     // halaa
     m_obj = new OPvPCapturePointNA(this);
-    if (!m_obj)
-        return false;
-    AddCapturePoint(m_obj);
 
+    AddCapturePoint(m_obj);
     return true;
 }
 
@@ -236,61 +237,61 @@ void OutdoorPvPNA::HandlePlayerLeaveZone(Player* player, uint32 zone)
     OutdoorPvP::HandlePlayerLeaveZone(player, zone);
 }
 
-void OutdoorPvPNA::FillInitialWorldStates(WorldPacket &data)
+void OutdoorPvPNA::FillInitialWorldStates(WorldStateBuilder &builder)
 {
-    m_obj->FillInitialWorldStates(data);
+    m_obj->FillInitialWorldStates(builder);
 }
 
-void OPvPCapturePointNA::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointNA::FillInitialWorldStates(WorldStateBuilder& builder)
 {
     if (m_ControllingFaction == ALLIANCE)
     {
-        data << NA_UI_HORDE_GUARDS_SHOW << uint32(0);
-        data << NA_UI_ALLIANCE_GUARDS_SHOW << uint32(1);
+        builder.AppendState(NA_UI_HORDE_GUARDS_SHOW, 0);
+        builder.AppendState(NA_UI_ALLIANCE_GUARDS_SHOW, 1);
     }
     else if (m_ControllingFaction == HORDE)
     {
-        data << NA_UI_HORDE_GUARDS_SHOW << uint32(1);
-        data << NA_UI_ALLIANCE_GUARDS_SHOW << uint32(0);
+        builder.AppendState(NA_UI_HORDE_GUARDS_SHOW, 1);
+        builder.AppendState(NA_UI_ALLIANCE_GUARDS_SHOW, 0);
     }
     else
     {
-        data << NA_UI_HORDE_GUARDS_SHOW << uint32(0);
-        data << NA_UI_ALLIANCE_GUARDS_SHOW << uint32(0);
+        builder.AppendState(NA_UI_HORDE_GUARDS_SHOW, 0);
+        builder.AppendState(NA_UI_ALLIANCE_GUARDS_SHOW, 0);
     }
 
-    data << NA_UI_GUARDS_MAX << NA_GUARDS_MAX;
-    data << NA_UI_GUARDS_LEFT << uint32(m_GuardsAlive);
+    builder.AppendState(NA_UI_GUARDS_MAX,  NA_GUARDS_MAX);
+    builder.AppendState(NA_UI_GUARDS_LEFT, m_GuardsAlive);
 
-    data << NA_UI_TOWER_SLIDER_DISPLAY << uint32(0);
-    data << NA_UI_TOWER_SLIDER_POS << uint32(50);
-    data << NA_UI_TOWER_SLIDER_N << uint32(100);
+    builder.AppendState(NA_UI_TOWER_SLIDER_DISPLAY, 0);
+    builder.AppendState(NA_UI_TOWER_SLIDER_POS, 50);
+    builder.AppendState(NA_UI_TOWER_SLIDER_N, 100);
 
-    data << NA_MAP_WYVERN_NORTH_NEU_H << uint32(bool(m_WyvernStateNorth & WYVERN_NEU_HORDE));
-    data << NA_MAP_WYVERN_NORTH_NEU_A << uint32(bool(m_WyvernStateNorth & WYVERN_NEU_ALLIANCE));
-    data << NA_MAP_WYVERN_NORTH_H << uint32(bool(m_WyvernStateNorth & WYVERN_HORDE));
-    data << NA_MAP_WYVERN_NORTH_A << uint32(bool(m_WyvernStateNorth & WYVERN_ALLIANCE));
+    builder.AppendState(NA_MAP_WYVERN_NORTH_NEU_H, bool(m_WyvernStateNorth & WYVERN_NEU_HORDE));
+    builder.AppendState(NA_MAP_WYVERN_NORTH_NEU_A, bool(m_WyvernStateNorth & WYVERN_NEU_ALLIANCE));
+    builder.AppendState(NA_MAP_WYVERN_NORTH_H, bool(m_WyvernStateNorth & WYVERN_HORDE));
+    builder.AppendState(NA_MAP_WYVERN_NORTH_A, bool(m_WyvernStateNorth & WYVERN_ALLIANCE));
 
-    data << NA_MAP_WYVERN_SOUTH_NEU_H << uint32(bool(m_WyvernStateSouth & WYVERN_NEU_HORDE));
-    data << NA_MAP_WYVERN_SOUTH_NEU_A << uint32(bool(m_WyvernStateSouth & WYVERN_NEU_ALLIANCE));
-    data << NA_MAP_WYVERN_SOUTH_H << uint32(bool(m_WyvernStateSouth & WYVERN_HORDE));
-    data << NA_MAP_WYVERN_SOUTH_A << uint32(bool(m_WyvernStateSouth & WYVERN_ALLIANCE));
+    builder.AppendState(NA_MAP_WYVERN_SOUTH_NEU_H, bool(m_WyvernStateSouth & WYVERN_NEU_HORDE));
+    builder.AppendState(NA_MAP_WYVERN_SOUTH_NEU_A, bool(m_WyvernStateSouth & WYVERN_NEU_ALLIANCE));
+    builder.AppendState(NA_MAP_WYVERN_SOUTH_H, bool(m_WyvernStateSouth & WYVERN_HORDE));
+    builder.AppendState(NA_MAP_WYVERN_SOUTH_A, bool(m_WyvernStateSouth & WYVERN_ALLIANCE));
 
-    data << NA_MAP_WYVERN_WEST_NEU_H << uint32(bool(m_WyvernStateWest & WYVERN_NEU_HORDE));
-    data << NA_MAP_WYVERN_WEST_NEU_A << uint32(bool(m_WyvernStateWest & WYVERN_NEU_ALLIANCE));
-    data << NA_MAP_WYVERN_WEST_H << uint32(bool(m_WyvernStateWest & WYVERN_HORDE));
-    data << NA_MAP_WYVERN_WEST_A << uint32(bool(m_WyvernStateWest & WYVERN_ALLIANCE));
+    builder.AppendState(NA_MAP_WYVERN_WEST_NEU_H, bool(m_WyvernStateWest & WYVERN_NEU_HORDE));
+    builder.AppendState(NA_MAP_WYVERN_WEST_NEU_A, bool(m_WyvernStateWest & WYVERN_NEU_ALLIANCE));
+    builder.AppendState(NA_MAP_WYVERN_WEST_H, bool(m_WyvernStateWest & WYVERN_HORDE));
+    builder.AppendState(NA_MAP_WYVERN_WEST_A, bool(m_WyvernStateWest & WYVERN_ALLIANCE));
 
-    data << NA_MAP_WYVERN_EAST_NEU_H << uint32(bool(m_WyvernStateEast & WYVERN_NEU_HORDE));
-    data << NA_MAP_WYVERN_EAST_NEU_A << uint32(bool(m_WyvernStateEast & WYVERN_NEU_ALLIANCE));
-    data << NA_MAP_WYVERN_EAST_H << uint32(bool(m_WyvernStateEast & WYVERN_HORDE));
-    data << NA_MAP_WYVERN_EAST_A << uint32(bool(m_WyvernStateEast & WYVERN_ALLIANCE));
+    builder.AppendState(NA_MAP_WYVERN_EAST_NEU_H, bool(m_WyvernStateEast & WYVERN_NEU_HORDE));
+    builder.AppendState(NA_MAP_WYVERN_EAST_NEU_A, bool(m_WyvernStateEast & WYVERN_NEU_ALLIANCE));
+    builder.AppendState(NA_MAP_WYVERN_EAST_H, bool(m_WyvernStateEast & WYVERN_HORDE));
+    builder.AppendState(NA_MAP_WYVERN_EAST_A, bool(m_WyvernStateEast & WYVERN_ALLIANCE));
 
-    data << NA_MAP_HALAA_NEUTRAL << uint32(bool(m_HalaaState & HALAA_N));
-    data << NA_MAP_HALAA_NEU_A << uint32(bool(m_HalaaState & HALAA_N_A));
-    data << NA_MAP_HALAA_NEU_H << uint32(bool(m_HalaaState & HALAA_N_H));
-    data << NA_MAP_HALAA_HORDE << uint32(bool(m_HalaaState & HALAA_H));
-    data << NA_MAP_HALAA_ALLIANCE << uint32(bool(m_HalaaState & HALAA_A));
+    builder.AppendState(NA_MAP_HALAA_NEUTRAL, bool(m_HalaaState & HALAA_N));
+    builder.AppendState(NA_MAP_HALAA_NEU_A, bool(m_HalaaState & HALAA_N_A));
+    builder.AppendState(NA_MAP_HALAA_NEU_H, bool(m_HalaaState & HALAA_N_H));
+    builder.AppendState(NA_MAP_HALAA_HORDE, bool(m_HalaaState & HALAA_H));
+    builder.AppendState(NA_MAP_HALAA_ALLIANCE, bool(m_HalaaState & HALAA_A));
 }
 
 void OutdoorPvPNA::SendRemoveWorldStates(Player* player)
@@ -341,7 +342,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
         nodes[0] = FlightPathStartNodes[NA_ROOST_N];
         nodes[1] = FlightPathEndNodes[NA_ROOST_N];
         player->ActivateTaxiPathTo(nodes);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+        player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
         player->UpdatePvP(true, true);
         retval = true;
         break;
@@ -349,7 +350,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
         nodes[0] = FlightPathStartNodes[NA_ROOST_S];
         nodes[1] = FlightPathEndNodes[NA_ROOST_S];
         player->ActivateTaxiPathTo(nodes);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+        player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
         player->UpdatePvP(true, true);
         retval = true;
         break;
@@ -357,7 +358,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
         nodes[0] = FlightPathStartNodes[NA_ROOST_W];
         nodes[1] = FlightPathEndNodes[NA_ROOST_W];
         player->ActivateTaxiPathTo(nodes);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+        player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
         player->UpdatePvP(true, true);
         retval = true;
         break;
@@ -365,7 +366,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
         nodes[0] = FlightPathStartNodes[NA_ROOST_E];
         nodes[1] = FlightPathEndNodes[NA_ROOST_E];
         player->ActivateTaxiPathTo(nodes);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+        player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
         player->UpdatePvP(true, true);
         retval = true;
         break;
@@ -668,7 +669,7 @@ class OutdoorPvP_nagrand : public OutdoorPvPScript
         {
         }
 
-        OutdoorPvP* GetOutdoorPvP() const
+        OutdoorPvP* GetOutdoorPvP() const override
         {
             return new OutdoorPvPNA();
         }

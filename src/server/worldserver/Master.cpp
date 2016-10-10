@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -23,7 +23,7 @@
 #include <ace/Sig_Handler.h>
 
 #include "Common.h"
-#include "GitRevision.h"
+#include "SystemConfig.h"
 #include "SignalHandler.h"
 #include "World.h"
 #include "WorldRunnable.h"
@@ -32,9 +32,6 @@
 #include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/DatabaseWorkerPool.h"
-#include "PlayerDump.h"
-#include "Player.h"
-#include "ObjectMgr.h"
 
 #include "CliRunnable.h"
 #include "Log.h"
@@ -47,28 +44,35 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
+#include "OpenSSLCrypto.h"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
 extern int m_ServiceStatus;
 #endif
 
+#ifdef __linux__
+#include <sched.h>
+#include <sys/resource.h>
+#define PROCESS_HIGH_PRIORITY -15 // [-20, 19], default is 0
+#endif
+
 /// Handle worldservers's termination signals
-class WorldServerSignalHandler : public JadeCore::SignalHandler
+class WorldServerSignalHandler : public Trinity::SignalHandler
 {
     public:
-        virtual void HandleSignal(int SigNum)
+        virtual void HandleSignal(int sigNum)
         {
-            switch (SigNum)
+            switch (sigNum)
             {
                 case SIGINT:
                     World::StopNow(RESTART_EXIT_CODE);
                     break;
                 case SIGTERM:
-                #ifdef _WIN32
+#ifdef _WIN32
                 case SIGBREAK:
                     if (m_ServiceStatus != 1)
-                #endif /* _WIN32 */
+#endif
                     World::StopNow(SHUTDOWN_EXIT_CODE);
                     break;
             }
@@ -77,418 +81,249 @@ class WorldServerSignalHandler : public JadeCore::SignalHandler
 
 class FreezeDetectorRunnable : public ACE_Based::Runnable
 {
+private:
+    uint32 _loops;
+    uint32 _lastChange;
+    uint32 _delaytime;
 public:
     FreezeDetectorRunnable() { _delaytime = 0; }
-    uint32 m_loops, m_lastchange;
-    uint32 w_loops, w_lastchange;
-    uint32 _delaytime;
+
     void SetDelayTime(uint32 t) { _delaytime = t; }
-    void run(void)
+
+	void run()
     {
         if (!_delaytime)
             return;
-        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Starting up anti-freeze thread (%u seconds max stuck time)...", _delaytime/1000);
-        m_loops = 0;
-        w_loops = 0;
-        m_lastchange = 0;
-        w_lastchange = 0;
+
+        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", _delaytime/1000);
+        _loops = 0;
+        _lastChange = 0;
         while (!World::IsStopped())
         {
             ACE_Based::Thread::Sleep(1000);
             uint32 curtime = getMSTime();
             // normal work
             uint32 worldLoopCounter = World::m_worldLoopCounter.value();
-            if (w_loops != worldLoopCounter)
+            if (_loops != worldLoopCounter)
             {
-                w_lastchange = curtime;
-                w_loops = worldLoopCounter;
+                _lastChange = curtime;
+                _loops = worldLoopCounter;
             }
             // possible freeze
-            else if (getMSTimeDiff(w_lastchange, curtime) > _delaytime)
+            else if (getMSTimeDiff(_lastChange, curtime) > _delaytime)
             {
-                sLog->outError(LOG_FILTER_WORLDSERVER, "World Thread hangs, kicking out server!");
+                TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
                 ASSERT(false);
-                exit(0);
             }
         }
-        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Anti-freeze thread exiting without problems.");
+        TC_LOG_INFO("server.worldserver", "Anti-freeze thread exiting without problems.");
     }
 };
-
-class GmLogToDBRunnable : public ACE_Based::Runnable
-{
-public:
-
-	void run()
-	{
-		while (!World::IsStopped())
-		{
-			GmCommand * command;
-			while (!GmLogQueue.empty())
-			{
-				GmLogQueue.next(command);
-				CharacterDatabase.EscapeString(command->accountName[0]);
-				CharacterDatabase.EscapeString(command->accountName[1]);
-				CharacterDatabase.EscapeString(command->characterName[0]);
-				CharacterDatabase.EscapeString(command->characterName[1]);
-				CharacterDatabase.EscapeString(command->command);
-				//No sql injections. Strings are escaped.
-
-				//au cas ou on a pas les infos...
-				if (command->accountName[0] == "" && command->accountID[0] != 0)
-				{
-					QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", command->accountID[0]);
-					if (result)
-					{
-						Field *fields = result->Fetch();
-						command->accountName[0] = fields[0].GetString();
-						CharacterDatabase.EscapeString(command->accountName[0]);
-					}
-				}
-
-				if (command->accountName[1] == "" && command->accountID[1] != 0)
-				{
-					QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", command->accountID[1]);
-					if (result)
-					{
-						Field *fields = result->Fetch();
-						command->accountName[1] = fields[0].GetString();
-						CharacterDatabase.EscapeString(command->accountName[1]);
-					}
-				}
-
-				if (command->characterName[0] == "" && command->characterID[0] != 0)
-				{
-					QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", command->characterID[0]);
-					if (result)
-					{
-						Field *fields = result->Fetch();
-						command->characterName[0] = fields[0].GetString();
-						CharacterDatabase.EscapeString(command->characterName[0]);
-					}
-				}
-
-				if (command->characterName[0] == "" && command->characterID[0] != 0)
-				{
-					QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", command->characterID[0]);
-					if (result)
-					{
-						Field *fields = result->Fetch();
-						command->characterName[0] = fields[0].GetString();
-						CharacterDatabase.EscapeString(command->characterName[0]);
-					}
-				}
-
-				if (command->characterName[1] == "" && command->characterID[1] != 0)
-				{
-					QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", command->characterID[1]);
-					if (result)
-					{
-						Field *fields = result->Fetch();
-						command->characterName[1] = fields[0].GetString();
-						CharacterDatabase.EscapeString(command->characterName[1]);
-					}
-				}
-
-				std::string last_ip = " ";
-
-				QueryResult result = LoginDatabase.PQuery("SELECT last_ip FROM account WHERE id = %u", command->accountID[0]);
-				if (result)
-				{
-					Field *fields_ip = result->Fetch();
-					last_ip = fields_ip[0].GetString();
-				}
-
-				if (command->accountID[1] == 0 && command->characterID == 0)
-				{
-					command->accountID[1] = command->accountID[0];
-					command->characterID[1] = command->characterID[0];
-					command->accountName[1] = command->accountName[0];
-					command->characterName[1] = command->characterName[0];
-				}
-
-				CharacterDatabase.PExecute("INSERT INTO log_gm(`date`, "
-					"`gm_account_id`, `gm_account_name`, `gm_character_id`, `gm_character_name`, `gm_last_ip`,"
-					"`sc_account_id`, `sc_account_name`, `sc_character_id`, `sc_character_name`,"
-					"`command`)"
-					"VALUES(NOW(),"
-					"%u,'%s',%u,'%s','%s',"
-					"%u,'%s',%u,'%s',"
-					"'%s')",
-					command->accountID[0], command->accountName[0].c_str(), command->characterID[0], command->characterName[0].c_str(), last_ip.c_str(),
-					command->accountID[1], command->accountName[1].c_str(), command->characterID[1], command->characterName[1].c_str(),
-					command->command.c_str());
-				delete command;
-			}
-			ACE_Based::Thread::Sleep(1000);
-		}
-	}
-};
-
-class GmChatLogToDBRunnable : public ACE_Based::Runnable
-{
-public:
-
-	void run()
-	{
-		while (!World::IsStopped())
-		{
-			GmChat * ChatLog;
-			while (!GmChatLogQueue.empty())
-			{
-				GmChatLogQueue.next(ChatLog);
-				CharacterDatabase.EscapeString(ChatLog->accountName[0]);
-				CharacterDatabase.EscapeString(ChatLog->accountName[1]);
-				CharacterDatabase.EscapeString(ChatLog->characterName[0]);
-				CharacterDatabase.EscapeString(ChatLog->characterName[1]);
-				CharacterDatabase.EscapeString(ChatLog->message);
-				//No sql injections. Strings are escaped.
-
-				//au cas ou on a pas les infos...
-				if (ChatLog->accountName[0] == "" && ChatLog->accountID[0] != 0)
-				{
-					QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", ChatLog->accountID[0]);
-					if (result)
-					{
-						Field *fields = result->Fetch();
-						ChatLog->accountName[0] = fields[0].GetString();
-						CharacterDatabase.EscapeString(ChatLog->accountName[0]);
-					}
-				}
-
-				if (ChatLog->accountName[1] == "" && ChatLog->accountID[1] != 0)
-				{
-					QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", ChatLog->accountID[1]);
-					if (result)
-					{
-						Field *fields = result->Fetch();
-						ChatLog->accountName[1] = fields[0].GetString();
-						CharacterDatabase.EscapeString(ChatLog->accountName[1]);
-					}
-				}
-
-				if (ChatLog->characterName[0] == "" && ChatLog->characterID[0] != 0)
-				{
-					QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", ChatLog->characterID[0]);
-					if (result)
-					{
-						Field *fields = result->Fetch();
-						ChatLog->characterName[0] = fields[0].GetString();
-						CharacterDatabase.EscapeString(ChatLog->characterName[0]);
-					}
-				}
-
-				if (ChatLog->characterName[1] == "" && ChatLog->characterID[1] != 0)
-				{
-					QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", ChatLog->characterID[1]);
-					if (result)
-					{
-						Field *fields = result->Fetch();
-						ChatLog->characterName[1] = fields[0].GetString();
-						CharacterDatabase.EscapeString(ChatLog->characterName[1]);
-					}
-				}
-
-				CharacterDatabase.PExecute("INSERT INTO log_gm_chat(`type`, `date`, "
-					"`from_account_id`, `from_account_name`, `from_character_id`, `from_character_name`,"
-					"`to_account_id`, `to_account_name`, `to_character_id`, `to_character_name`,"
-					"`message`)"
-					"VALUES(%u, NOW(),"
-					"%u,'%s',%u,'%s',"
-					"%u,'%s',%u,'%s',"
-					"'%s')",
-					ChatLog->type,
-					ChatLog->accountID[0], ChatLog->accountName[0].c_str(), ChatLog->characterID[0], ChatLog->characterName[0].c_str(),
-					ChatLog->accountID[1], ChatLog->accountName[1].c_str(), ChatLog->characterID[1], ChatLog->characterName[1].c_str(),
-					ChatLog->message.c_str());
-				delete ChatLog;
-			}
-			ACE_Based::Thread::Sleep(1000);
-		}
-	}
-};
-
-Master::Master()
-{
-}
-
-Master::~Master()
-{
-}
 
 /// Main function
 int Master::Run()
 {
+    OpenSSLCrypto::threadsSetup();
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", GitRevision::GetFullVersion());
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, " ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "       ██╗ █████╗ ██████╗ ███████╗");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "       ██║██╔══██╗██╔══██╗██╔════╝");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "       ██║███████║██║  ██║█████╗");  
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "  ██   ██║██╔══██║██║  ██║██╔══╝");  
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "  ╚█████╔╝██║  ██║██████╔╝███████╗");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ╚════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ");                                                        
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "               ██████╗ ██████╗ ██████╗ ███████╗");             
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "              ██╔════╝██╔═══██╗██╔══██╗██╔════╝");             
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "              ██║     ██║   ██║██████╔╝█████╗");               
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "              ██║     ██║   ██║██╔══██╗██╔══╝");               
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "              ╚██████╗╚██████╔╝██║  ██║███████╗");             
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "               ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝"); 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ");                                                        
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "  	JadeCore 2016(c) Open-Sourced Game Emulation"); 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "		       https://www.jadecore.tk ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "");                                                   
+    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", _FULLVERSION);
+    TC_LOG_INFO("server.worldserver", "<Ctrl-C> to stop.\n");
+    TC_LOG_INFO("server.worldserver", " ");
+    TC_LOG_INFO("server.worldserver", "       ██╗ █████╗ ██████╗ ███████╗");
+    TC_LOG_INFO("server.worldserver", "       ██║██╔══██╗██╔══██╗██╔════╝");
+    TC_LOG_INFO("server.worldserver", "       ██║███████║██║  ██║█████╗");  
+    TC_LOG_INFO("server.worldserver", "  ██   ██║██╔══██║██║  ██║██╔══╝");  
+    TC_LOG_INFO("server.worldserver", "  ╚█████╔╝██║  ██║██████╔╝███████╗");
+    TC_LOG_INFO("server.worldserver", "   ╚════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝");
+    TC_LOG_INFO("server.worldserver", "   ");                                                        
+    TC_LOG_INFO("server.worldserver", "               ██████╗ ██████╗ ██████╗ ███████╗");             
+    TC_LOG_INFO("server.worldserver", "              ██╔════╝██╔═══██╗██╔══██╗██╔════╝");             
+    TC_LOG_INFO("server.worldserver", "              ██║     ██║   ██║██████╔╝█████╗");               
+    TC_LOG_INFO("server.worldserver", "              ██║     ██║   ██║██╔══██╗██╔══╝");               
+    TC_LOG_INFO("server.worldserver", "              ╚██████╗╚██████╔╝██║  ██║███████╗");             
+    TC_LOG_INFO("server.worldserver", "               ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝"); 
+    TC_LOG_INFO("server.worldserver", "   ");                                                        
+    TC_LOG_INFO("server.worldserver", "  	JadeCore 2016(c) Open-Sourced Game Emulation"); 
+    TC_LOG_INFO("server.worldserver", "		       https://www.jadecore.tk ");
+    TC_LOG_INFO("server.worldserver", "");                                                   
 
     /// worldserver PID file creation
-    std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
-    if (!pidfile.empty())
+    std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
+    if (!pidFile.empty())
     {
-        uint32 pid = CreatePIDFile(pidfile);
-        if (!pid)
+        if (uint32 pid = CreatePIDFile(pidFile))
+            TC_LOG_INFO("server.worldserver", "Daemon PID: %u\n", pid);
+        else
         {
-            sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot create PID file %s.\n", pidfile.c_str());
+            TC_LOG_ERROR("server.worldserver", "Cannot create PID file %s.\n", pidFile.c_str());
             return 1;
         }
-
-        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Daemon PID: %u\n", pid);
     }
 
     ///- Start the databases
     if (!_StartDB())
         return 1;
 
+    // set server offline (not connectable)
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmID);
+
     ///- Initialize the World
     sWorld->SetInitialWorldSettings();
 
     ///- Initialize the signal handlers
-    WorldServerSignalHandler SignalINT, SignalTERM;
+    WorldServerSignalHandler signalINT, signalTERM;
     #ifdef _WIN32
-    WorldServerSignalHandler SignalBREAK;
+    WorldServerSignalHandler signalBREAK;
     #endif /* _WIN32 */
 
     ///- Register worldserver's signal handlers
-    ACE_Sig_Handler Handler;
-    Handler.register_handler(SIGINT, &SignalINT);
-    Handler.register_handler(SIGTERM, &SignalTERM);
-    #ifdef _WIN32
-    Handler.register_handler(SIGBREAK, &SignalBREAK);
-    #endif /* _WIN32 */
+    ACE_Sig_Handler handle;
+    handle.register_handler(SIGINT, &signalINT);
+    handle.register_handler(SIGTERM, &signalTERM);
+#ifdef _WIN32
+    handle.register_handler(SIGBREAK, &signalBREAK);
+#endif
 
     ///- Launch WorldRunnable thread
-    ACE_Based::Thread world_thread(new WorldRunnable);
-    world_thread.setPriority(ACE_Based::Highest);
+    ACE_Based::Thread worldThread(new WorldRunnable);
+    worldThread.setPriority(ACE_Based::Highest);
 
     ACE_Based::Thread* cliThread = NULL;
 
 #ifdef _WIN32
-    if (ConfigMgr::GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
+    if (sConfigMgr->GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
 #else
-    if (ConfigMgr::GetBoolDefault("Console.Enable", true))
+    if (sConfigMgr->GetBoolDefault("Console.Enable", true))
 #endif
     {
         ///- Launch CliRunnable thread
         cliThread = new ACE_Based::Thread(new CliRunnable);
     }
 
-    ACE_Based::Thread rar_thread(new RARunnable);
-	ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable);
-	ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable);
+    ACE_Based::Thread rarThread(new RARunnable);
 
-    ///- Handle affinity for multiple processors and process priority on Windows
-    #ifdef _WIN32
+    ///- Handle affinity for multiple processors and process priority
+    uint32 affinity = sConfigMgr->GetIntDefault("UseProcessors", 0);
+    bool highPriority = sConfigMgr->GetBoolDefault("ProcessPriority", false);
+
+#ifdef _WIN32 // Windows
     {
         HANDLE hProcess = GetCurrentProcess();
 
-        uint32 Aff = ConfigMgr::GetIntDefault("UseProcessors", 0);
-        if (Aff > 0)
+        if (affinity > 0)
         {
             ULONG_PTR appAff;
             ULONG_PTR sysAff;
 
             if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
             {
-                ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
+                ULONG_PTR currentAffinity = affinity & appAff;            // remove non accessible processors
 
-                if (!curAff)
-                {
-                    sLog->outError(LOG_FILTER_WORLDSERVER, "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the worldserver. Accessible processors bitmask (hex): %x", Aff, appAff);
-                }
+                if (!currentAffinity)
+                    TC_LOG_ERROR("server.worldserver", "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the worldserver. Accessible processors bitmask (hex): %x", affinity, appAff);
+                else if (SetProcessAffinityMask(hProcess, currentAffinity))
+                    TC_LOG_INFO("server.worldserver", "Using processors (bitmask, hex): %x", currentAffinity);
                 else
-                {
-                    if (SetProcessAffinityMask(hProcess, curAff))
-                        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using processors (bitmask, hex): %x", curAff);
-                    else
-                        sLog->outError(LOG_FILTER_WORLDSERVER, "Can't set used processors (hex): %x", curAff);
-                }
+                    TC_LOG_ERROR("server.worldserver", "Can't set used processors (hex): %x", currentAffinity);
             }
         }
 
-        bool Prio = ConfigMgr::GetBoolDefault("ProcessPriority", false);
-
-        //if (Prio && (m_ServiceStatus == -1)  /* need set to default process priority class in service mode*/)
-        if (Prio)
+        if (highPriority)
         {
             if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-                sLog->outInfo(LOG_FILTER_WORLDSERVER, "worldserver process priority class set to HIGH");
+                TC_LOG_INFO("server.worldserver", "worldserver process priority class set to HIGH");
             else
-                sLog->outError(LOG_FILTER_WORLDSERVER, "Can't set worldserver process priority class.");
+                TC_LOG_ERROR("server.worldserver", "Can't set worldserver process priority class.");
         }
     }
-    #endif
-    //Start soap serving thread
-    ACE_Based::Thread* soap_thread = NULL;
+#elif __linux__ // Linux
 
-    if (ConfigMgr::GetBoolDefault("SOAP.Enabled", false))
+    if (affinity > 0)
+    {
+        cpu_set_t mask;
+        CPU_ZERO(&mask);
+
+        for (unsigned int i = 0; i < sizeof(affinity) * 8; ++i)
+            if (affinity & (1 << i))
+                CPU_SET(i, &mask);
+
+        if (sched_setaffinity(0, sizeof(mask), &mask))
+            TC_LOG_ERROR("server.worldserver", "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
+        else
+        {
+            CPU_ZERO(&mask);
+            sched_getaffinity(0, sizeof(mask), &mask);
+            TC_LOG_INFO("server.worldserver", "Using processors (bitmask, hex): %x", *(uint32*)(&mask));
+        }
+    }
+
+    if (highPriority)
+    {
+        if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
+            TC_LOG_ERROR("server.worldserver", "Can't set worldserver process priority class, error: %s", strerror(errno));
+        else
+            TC_LOG_INFO("server.worldserver", "worldserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
+    }
+
+#endif
+
+    //Start soap serving thread
+    ACE_Based::Thread* soapThread = NULL;
+
+    if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
     {
         TCSoapRunnable* runnable = new TCSoapRunnable();
-        runnable->setListenArguments(ConfigMgr::GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(ConfigMgr::GetIntDefault("SOAP.Port", 7878)));
-        soap_thread = new ACE_Based::Thread(runnable);
+        runnable->SetListenArguments(sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
+        soapThread = new ACE_Based::Thread(runnable);
     }
 
     ///- Start up freeze catcher thread
-    if (uint32 freeze_delay = ConfigMgr::GetIntDefault("MaxCoreStuckTime", 0))
+    if (uint32 freezeDelay = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
     {
         FreezeDetectorRunnable* fdr = new FreezeDetectorRunnable();
-        fdr->SetDelayTime(freeze_delay * 1000);
-        ACE_Based::Thread freeze_thread(fdr);
-        freeze_thread.setPriority(ACE_Based::Highest);
+        fdr->SetDelayTime(freezeDelay * 1000);
+        ACE_Based::Thread freezeThread(fdr);
+        freezeThread.setPriority(ACE_Based::Highest);
     }
 
     ///- Launch the world listener socket
-    uint16 wsport = sWorld->getIntConfig(CONFIG_PORT_WORLD);
-    std::string bind_ip = ConfigMgr::GetStringDefault("BindIP", "0.0.0.0");
+    uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
+    std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
-    if (sWorldSocketMgr->StartNetwork(wsport, bind_ip.c_str()) == -1)
+    if (sWorldSocketMgr->StartNetwork(worldPort, bindIp.c_str()) == -1)
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Failed to start network");
+        TC_LOG_ERROR("server.worldserver", "Failed to start network");
         World::StopNow(ERROR_EXIT_CODE);
         // go down and shutdown the server
     }
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
+    // set server online (allow connecting now)
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
+
+    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
 
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
-    world_thread.wait();
-    rar_thread.wait();
+    worldThread.wait();
+    rarThread.wait();
 
-    if (soap_thread)
+    if (soapThread)
     {
-        soap_thread->wait();
-        soap_thread->destroy();
-        delete soap_thread;
+        soapThread->wait();
+        soapThread->destroy();
+        delete soapThread;
     }
+
+    // set server offline
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmID);
 
     ///- Clean database before leaving
     ClearOnlineAccounts();
 
     _StopDB();
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Halting process...");
+    TC_LOG_INFO("server.worldserver", "Stopping CLI Thread...");
 
     if (cliThread)
     {
@@ -497,7 +332,7 @@ int Master::Run()
         // this only way to terminate CLI thread exist at Win32 (alt. way exist only in Windows Vista API)
         //_exit(1);
         // send keyboard input to safely unblock the CLI thread
-        INPUT_RECORD b[5];
+        INPUT_RECORD b[4];
         HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
         b[0].EventType = KEY_EVENT;
         b[0].Event.KeyEvent.bKeyDown = TRUE;
@@ -544,7 +379,10 @@ int Master::Run()
     // fixes a memory leak related to detaching threads from the module
     //UnloadScriptingModule();
 
+    OpenSSLCrypto::threadsCleanup();
     // Exit the process with specified return value
+    TC_LOG_INFO("server.worldserver", "Stopping Master Process...");
+    exit(0);
     return World::GetExitCode();
 }
 
@@ -553,101 +391,113 @@ bool Master::_StartDB()
 {
     MySQL::Library_Init();
 
-    std::string dbstring;
-    uint8 async_threads, synch_threads;
+    std::string dbString;
+    uint8 asyncThreads, synchThreads;
 
-    dbstring = ConfigMgr::GetStringDefault("WorldDatabaseInfo", "");
-    if (dbstring.empty())
+    dbString = sConfigMgr->GetStringDefault("WorldDatabaseInfo", "");
+    if (dbString.empty())
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "World database not specified in configuration file");
+        TC_LOG_ERROR("server.worldserver", "World database not specified in configuration file");
         return false;
     }
 
-    async_threads = ConfigMgr::GetIntDefault("WorldDatabase.WorkerThreads", 1);
-    if (async_threads < 1 || async_threads > 32)
+    asyncThreads = uint8(sConfigMgr->GetIntDefault("WorldDatabase.WorkerThreads", 1));
+    if (asyncThreads < 1 || asyncThreads > 32)
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "World database: invalid number of worker threads specified. "
+        TC_LOG_ERROR("server.worldserver", "World database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
 
-    synch_threads = ConfigMgr::GetIntDefault("WorldDatabase.SynchThreads", 1);
-    ///- Initialise the world database
-    if (!WorldDatabase.Open(dbstring, async_threads, synch_threads))
+    synchThreads = uint8(sConfigMgr->GetIntDefault("WorldDatabase.SynchThreads", 1));
+    ///- Initialize the world database
+    if (!WorldDatabase.Open(dbString, asyncThreads, synchThreads))
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to world database %s", dbstring.c_str());
+        TC_LOG_ERROR("server.worldserver", "Cannot connect to world database %s", dbString.c_str());
         return false;
     }
 
     ///- Get character database info from configuration file
-    dbstring = ConfigMgr::GetStringDefault("CharacterDatabaseInfo", "");
-    if (dbstring.empty())
+    dbString = sConfigMgr->GetStringDefault("CharacterDatabaseInfo", "");
+    if (dbString.empty())
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Character database not specified in configuration file");
+        TC_LOG_ERROR("server.worldserver", "Character database not specified in configuration file");
         return false;
     }
 
-    async_threads = ConfigMgr::GetIntDefault("CharacterDatabase.WorkerThreads", 1);
-    if (async_threads < 1 || async_threads > 32)
+    asyncThreads = uint8(sConfigMgr->GetIntDefault("CharacterDatabase.WorkerThreads", 1));
+    if (asyncThreads < 1 || asyncThreads > 32)
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Character database: invalid number of worker threads specified. "
+        TC_LOG_ERROR("server.worldserver", "Character database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
 
-    synch_threads = ConfigMgr::GetIntDefault("CharacterDatabase.SynchThreads", 2);
+    synchThreads = uint8(sConfigMgr->GetIntDefault("CharacterDatabase.SynchThreads", 2));
 
-    ///- Initialise the Character database
-    if (!CharacterDatabase.Open(dbstring, async_threads, synch_threads))
+    ///- Initialize the Character database
+    if (!CharacterDatabase.Open(dbString, asyncThreads, synchThreads))
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to Character database %s", dbstring.c_str());
+        TC_LOG_ERROR("server.worldserver", "Cannot connect to Character database %s", dbString.c_str());
         return false;
     }
 
     ///- Get login database info from configuration file
-    dbstring = ConfigMgr::GetStringDefault("LoginDatabaseInfo", "");
-    if (dbstring.empty())
+    dbString = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
+    if (dbString.empty())
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Login database not specified in configuration file");
+        TC_LOG_ERROR("server.worldserver", "Login database not specified in configuration file");
         return false;
     }
 
-    async_threads = ConfigMgr::GetIntDefault("LoginDatabase.WorkerThreads", 1);
-    if (async_threads < 1 || async_threads > 32)
+    asyncThreads = uint8(sConfigMgr->GetIntDefault("LoginDatabase.WorkerThreads", 1));
+    if (asyncThreads < 1 || asyncThreads > 32)
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Login database: invalid number of worker threads specified. "
+        TC_LOG_ERROR("server.worldserver", "Login database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
 
-    synch_threads = ConfigMgr::GetIntDefault("LoginDatabase.SynchThreads", 1);
+    synchThreads = uint8(sConfigMgr->GetIntDefault("LoginDatabase.SynchThreads", 1));
     ///- Initialise the login database
-    if (!LoginDatabase.Open(dbstring, async_threads, synch_threads))
+    if (!LoginDatabase.Open(dbString, asyncThreads, synchThreads))
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to login database %s", dbstring.c_str());
+        TC_LOG_ERROR("server.worldserver", "Cannot connect to login database %s", dbString.c_str());
         return false;
     }
 
     ///- Get the realm Id from the configuration file
-    realmID = ConfigMgr::GetIntDefault("RealmID", 0);
+    realmID = sConfigMgr->GetIntDefault("RealmID", 0);
     if (!realmID)
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Realm ID not defined in configuration file");
+        TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
         return false;
     }
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Realm running as realm ID %d", realmID);
 
-    sLog->SetRealmID(realmID);
+    // Load realm names into a store
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            realmNameStore[fields[0].GetUInt32()] = fields[1].GetString(); // Store the realm name into the store
+        }
+        while (result->NextRow());
+    }
+
+    TC_LOG_INFO("server.worldserver", "Realm running as realm ID %d", realmID);
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", _FULLVERSION, _HASH);        // One-time query
 
     sWorld->LoadDBVersion();
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using World DB: %s", sWorld->GetDBVersion());
+    TC_LOG_INFO("server.worldserver", "Using World DB: %s", sWorld->GetDBVersion());
     return true;
 }
 

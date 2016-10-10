@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,16 +28,16 @@ enum Spells
     SPELL_FROST_ARMOR           = 31256,
     SPELL_DEATH_AND_DECAY       = 31258,
     SPELL_FROST_NOVA            = 31250,
-    SPELL_ICEBOLT               = 31249,
+    SPELL_ICEBOLT               = 31249
 };
 
 enum Texts
 {
-    SAY_ONDEATH         = 0,
-    SAY_ONSLAY          = 1,
-    SAY_DECAY           = 2,
-    SAY_NOVA            = 3,
-    SAY_ONAGGRO         = 4,
+    SAY_ONDEATH                 = 0,
+    SAY_ONSLAY                  = 1,
+    SAY_DECAY                   = 2,
+    SAY_NOVA                    = 3,
+    SAY_ONAGGRO                 = 4
 };
 
 class boss_rage_winterchill : public CreatureScript
@@ -42,9 +45,9 @@ class boss_rage_winterchill : public CreatureScript
 public:
     boss_rage_winterchill() : CreatureScript("boss_rage_winterchill") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_rage_winterchillAI (creature);
+        return new boss_rage_winterchillAI(creature);
     }
 
     struct boss_rage_winterchillAI : public hyjal_trashAI
@@ -61,7 +64,7 @@ public:
         uint32 IceboltTimer;
         bool go;
 
-        void Reset()
+        void Reset() override
         {
             damageTaken = 0;
             FrostArmorTimer = 37000;
@@ -73,29 +76,29 @@ public:
                 instance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             if (waypointId == 7 && instance)
             {
                 Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_JAINAPROUDMOORE));
-                if (target && target->isAlive())
+                if (target && target->IsAlive())
                     me->AddThreat(target, 0.0f);
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             hyjal_trashAI::JustDied(killer);
             if (instance && IsEvent)
@@ -103,7 +106,7 @@ public:
             Talk(SAY_ONDEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (IsEvent)
             {
@@ -139,13 +142,13 @@ public:
             } else FrostArmorTimer -= diff;
             if (DecayTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DEATH_AND_DECAY);
+                DoCastVictim(SPELL_DEATH_AND_DECAY);
                 DecayTimer = 60000+rand()%20000;
                 Talk(SAY_DECAY);
             } else DecayTimer -= diff;
             if (NovaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROST_NOVA);
+                DoCastVictim(SPELL_FROST_NOVA);
                 NovaTimer = 30000+rand()%15000;
                 Talk(SAY_NOVA);
             } else NovaTimer -= diff;

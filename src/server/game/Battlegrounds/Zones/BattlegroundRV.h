@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef __BATTLEGROUNDRV_H
 #define __BATTLEGROUNDRV_H
 
-class Battleground;
+#include "Battleground.h"
 
 enum BattlegroundRVObjectTypes
 {
@@ -46,7 +47,7 @@ enum BattlegroundRVObjectTypes
 
     BG_RV_OBJECT_ELEVATOR_1,
     BG_RV_OBJECT_ELEVATOR_2,
-    BG_RV_OBJECT_MAX,
+    BG_RV_OBJECT_MAX
 };
 
 enum BattlegroundRVObjects
@@ -73,7 +74,7 @@ enum BattlegroundRVObjects
     BG_RV_OBJECT_TYPE_PILAR_1                    = 194583, // axe
     BG_RV_OBJECT_TYPE_PILAR_2                    = 194584, // arena
     BG_RV_OBJECT_TYPE_PILAR_3                    = 194585, // lightning
-    BG_RV_OBJECT_TYPE_PILAR_4                    = 194587, // ivory
+    BG_RV_OBJECT_TYPE_PILAR_4                    = 194587  // ivory
 };
 
 enum BattlegroundRVData
@@ -88,14 +89,7 @@ enum BattlegroundRVData
     BG_RV_FIRST_TIMER                            = 20133,
     BG_RV_WORLD_STATE_A                          = 0xe10,
     BG_RV_WORLD_STATE_H                          = 0xe11,
-    BG_RV_WORLD_STATE                            = 0xe1a,
-};
-
-class BattlegroundRVScore : public BattlegroundScore
-{
-    public:
-        BattlegroundRVScore() {};
-        virtual ~BattlegroundRVScore() {};
+    BG_RV_WORLD_STATE                            = 0xe1a
 };
 
 class BattlegroundRV : public Battleground
@@ -105,36 +99,31 @@ class BattlegroundRV : public Battleground
         ~BattlegroundRV();
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d);
+        void AddPlayer(Player* player);
+        void StartingEventCloseDoors();
+        void StartingEventOpenDoors();
+        void Reset();
+        void FillInitialWorldStates(WorldStateBuilder& builder);
 
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* player);
-        bool fencesOpened;
 
     private:
         uint32 Timer;
         uint32 State;
-        uint32 teleportTimer;
         bool   PillarCollision;
 
-        virtual void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff);
 
     protected:
-        uint32 getTimer() { return Timer; };
-        void setTimer(uint32 timer) { Timer = timer; };
-        uint32 fencesTimer;
+        uint32 getTimer() { return Timer; }
+        void setTimer(uint32 timer) { Timer = timer; }
 
-        uint32 getState() { return State; };
-        void setState(uint32 state) { State = state; };
+        uint32 getState() { return State; }
+        void setState(uint32 state) { State = state; }
         void TogglePillarCollision();
-        void UpdateElevatorsType();
         bool GetPillarCollision() { return PillarCollision; }
         void SetPillarCollision(bool apply) { PillarCollision = apply; }
 };

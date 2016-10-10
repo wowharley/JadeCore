@@ -1,6 +1,5 @@
-# Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-# Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2011-2014 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -12,128 +11,145 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Pandaria/boss_sha_of_anger.cpp
-  Pandaria/boss_galion.cpp
-  Pandaria/boss_nalak.cpp
-  Pandaria/boss_chi_ji.cpp
-  Pandaria/boss_ordos.cpp
-
-  Pandaria/MogushanPalace/instance_mogu_shan_palace.cpp
-  Pandaria/MogushanPalace/boss_trial_of_the_king.cpp
-  Pandaria/MogushanPalace/boss_gekkan.cpp
-  Pandaria/MogushanPalace/boss_xin_the_weaponmaster.cpp
-
-  Pandaria/TempleJadeSerpent/instance_temple_of_jade_serpent.cpp
-  Pandaria/TempleJadeSerpent/boss_wise_mari.cpp
-  Pandaria/TempleJadeSerpent/boss_lorewalker_stonestep.cpp
-  Pandaria/TempleJadeSerpent/boss_liu_flameheart.cpp
-  Pandaria/TempleJadeSerpent/boss_sha_of_doubt.cpp
-
-  Pandaria/StormstoutBrewery/boss_hoptallus.cpp
-  Pandaria/StormstoutBrewery/boss_ook_ook.cpp
-  Pandaria/StormstoutBrewery/boss_yanzhu_the_uncasked.cpp
-  Pandaria/StormstoutBrewery/instance_stormstout_brewery.cpp
-  Pandaria/StormstoutBrewery/stormstout_brewery.cpp
-  Pandaria/StormstoutBrewery/stormstout_brewery.h
-
-  Pandaria/GateSettingSun/instance_gate_setting_sun.cpp
-  Pandaria/GateSettingSun/gate_setting_sun.cpp
-  Pandaria/GateSettingSun/gate_setting_sun.h
-  Pandaria/GateSettingSun/boss_saboteur_kiptilak.cpp
-  Pandaria/GateSettingSun/boss_striker_gadok.cpp
-  Pandaria/GateSettingSun/boss_commander_rimok.cpp
-  Pandaria/GateSettingSun/boss_raigonn.cpp
-
-  Pandaria/ShadopanMonastery/instance_shadopan_monastery.cpp
-  Pandaria/ShadopanMonastery/shadopan_monastery.cpp
-  Pandaria/ShadopanMonastery/shadopan_monastery.h
-  Pandaria/ShadopanMonastery/boss_gu_cloudstrike.cpp
-  Pandaria/ShadopanMonastery/boss_master_snowdrift.cpp
-  Pandaria/ShadopanMonastery/boss_sha_of_violence.cpp
-  Pandaria/ShadopanMonastery/boss_taran_zhu.cpp
- 
-
-  Pandaria/MogushanVault/instance_mogu_shan_vault.cpp
-  Pandaria/MogushanVault/mogu_shan_vault.cpp
-  Pandaria/MogushanVault/mogu_shan_vault.h
-  Pandaria/MogushanVault/boss_stone_guard.cpp
-  Pandaria/MogushanVault/boss_feng.cpp
-  Pandaria/MogushanVault/boss_garajal.cpp
-  Pandaria/MogushanVault/boss_spirit_kings.cpp
-  Pandaria/MogushanVault/boss_elegon.cpp
-  Pandaria/MogushanVault/boss_will_of_emperor.cpp
-
-  Pandaria/HeartOfFear/heart_of_fear.cpp
-  Pandaria/HeartOfFear/Imperial_Zorlok.cpp
-  Pandaria/HeartOfFear/Blade_Lord_Tayak.cpp  
-  Pandaria/HeartOfFear/Wind_Lord_Meljarak.cpp
-  Pandaria/HeartOfFear/Garalon.cpp
-  Pandaria/HeartOfFear/Grand_Empress_Shekzeer.cpp
-
-  Pandaria/SiegeNiuzaoTemple/siege_of_the_niuzoa_temple.cpp
-  Pandaria/SiegeNiuzaoTemple/siege_of_the_niuzoa_temple.h
-  Pandaria/SiegeNiuzaoTemple/boss_jinbak.cpp
-  Pandaria/SiegeNiuzaoTemple/boss_vojak.cpp
-  Pandaria/SiegeNiuzaoTemple/boss_pavalak.cpp
-  Pandaria/SiegeNiuzaoTemple/boss_wing_leader.cpp
   
-  Pandaria/TerraceOfEndlessSpring/instance_terrace_of_endless_spring.cpp
-  Pandaria/TerraceOfEndlessSpring/terrace_of_endless_spring.cpp
-  Pandaria/TerraceOfEndlessSpring/terrace_of_endless_spring.h
-  Pandaria/TerraceOfEndlessSpring/boss_protectors_of_the_endless.cpp
-  Pandaria/TerraceOfEndlessSpring/boss_lei_shi.cpp
-  Pandaria/TerraceOfEndlessSpring/boss_tsulong.cpp
+  # Dungeons
+  Pandaria/Dungeons/MoguShanPalace/instance_mogushan_palace.cpp
+  Pandaria/Dungeons/MoguShanPalace/mogushan_palace.h
+  Pandaria/Dungeons/MoguShanPalace/boss_gekkan.cpp
+  Pandaria/Dungeons/MoguShanPalace/boss_trial_of_king.cpp
+  Pandaria/Dungeons/MoguShanPalace/boss_xin_the_weaponmaster.cpp
+  Pandaria/Dungeons/ShadoPanMonastery/shadopan_monastery.h
+  Pandaria/Dungeons/ShadoPanMonastery/instance_shadopan_monastery.cpp
+  Pandaria/Dungeons/ShadoPanMonastery/boss_gu_cloudstrike.cpp
+  Pandaria/Dungeons/ShadoPanMonastery/boss_master_snowdrift.cpp
+  Pandaria/Dungeons/ShadoPanMonastery/boss_sha_of_violence.cpp
+  Pandaria/Dungeons/ShadoPanMonastery/boss_taran_zhu.cpp
+  Pandaria/Dungeons/TempleoftheJadeSerpent/instance_temple_of_the_jade_serpent.cpp
+  Pandaria/Dungeons/TempleoftheJadeSerpent/boss_liu_flameheart.cpp
+  Pandaria/Dungeons/TempleoftheJadeSerpent/boss_lorewalker_stonestep.cpp
+  Pandaria/Dungeons/TempleoftheJadeSerpent/boss_sha_of_doubt.cpp
+  Pandaria/Dungeons/TempleoftheJadeSerpent/boss_wise_mari.cpp
+  Pandaria/Dungeons/StormstoutBrewery/stormstout_brewery.h
+  Pandaria/Dungeons/StormstoutBrewery/instance_stormstout_brewery.cpp
+  Pandaria/Dungeons/StormstoutBrewery/boss_hoptallus.cpp
+  Pandaria/Dungeons/StormstoutBrewery/boss_ook_ook.cpp
+  Pandaria/Dungeons/StormstoutBrewery/boss_yan_zhu.cpp
+  Pandaria/Dungeons/GateoftheSettingSun/gate_of_the_setting_sun.h
+  Pandaria/Dungeons/GateoftheSettingSun/instance_gate_of_the_setting_sun.cpp
+  Pandaria/Dungeons/GateoftheSettingSun/boss_commander_rimok.cpp
+  Pandaria/Dungeons/GateoftheSettingSun/boss_raigonn.cpp
+  Pandaria/Dungeons/GateoftheSettingSun/boss_saboteur_kiptilak.cpp
+  Pandaria/Dungeons/GateoftheSettingSun/boss_striker_gadok.cpp
+  Pandaria/Dungeons/SiegeofNiuzaoTemple/siege_of_niuzao_temple.h
+  Pandaria/Dungeons/SiegeofNiuzaoTemple/instance_siege_of_niuzao_temple.cpp
+  Pandaria/Dungeons/SiegeofNiuzaoTemple/boss_commander_vojak.cpp
+  Pandaria/Dungeons/SiegeofNiuzaoTemple/boss_general_pavalak.cpp
+  Pandaria/Dungeons/SiegeofNiuzaoTemple/boss_vizier_jinbak.cpp
+  Pandaria/Dungeons/SiegeofNiuzaoTemple/boss_wing_leader_neronok.cpp
+  Pandaria/Dungeons/ScarletHalls/scarlet_halls.h
+  Pandaria/Dungeons/ScarletHalls/instance_scarlet_halls.cpp
+  Pandaria/Dungeons/ScarletHalls/boss_armsmaster_harlan.cpp
+  Pandaria/Dungeons/ScarletHalls/boss_flameweaver_koegler.cpp
+  Pandaria/Dungeons/ScarletHalls/boss_houndmaster_braun.cpp
+  Pandaria/Dungeons/ScarletMonastery/scarlet_monastery.h
+  Pandaria/Dungeons/ScarletMonastery/instance_scarlet_monastery.cpp
+  Pandaria/Dungeons/ScarletMonastery/boss_brother_korloff.cpp
+  Pandaria/Dungeons/ScarletMonastery/boss_high_inquisitor_whitemane.cpp
+  Pandaria/Dungeons/ScarletMonastery/boss_thalnos_the_souldrender.cpp
+  Pandaria/Dungeons/Scholomance/scholomance.h
+  Pandaria/Dungeons/Scholomance/instance_scholomance.cpp
+  Pandaria/Dungeons/Scholomance/boss_darkmaster_gandling.cpp
+  Pandaria/Dungeons/Scholomance/boss_instructor_chillheart.cpp
+  Pandaria/Dungeons/Scholomance/boss_jandice_barov.cpp
+  Pandaria/Dungeons/Scholomance/boss_lilian_voss.cpp
+  Pandaria/Dungeons/Scholomance/boss_rattlegore.cpp
 
-  Pandaria/TerraceOfEndlessSpring/boss_sha_of_fear.cpp
+  # Raids
+  Pandaria/Raids/HeartOfFear/instance_heart_of_fear.cpp
+  Pandaria/Raids/HeartOfFear/heart_of_fear.h
+  Pandaria/Raids/HeartOfFear/boss_ambershaper_unsok.cpp
+  Pandaria/Raids/HeartOfFear/boss_blade_lord_tayak.cpp
+  Pandaria/Raids/HeartOfFear/boss_garalon.cpp
+  Pandaria/Raids/HeartOfFear/boss_grand_empress_shekzeer.cpp
+  Pandaria/Raids/HeartOfFear/boss_imperial_vizier_zorlok.cpp
+  Pandaria/Raids/HeartOfFear/boss_wind_lord_meljarak.cpp
+  Pandaria/Raids/MogushanVault/mogu_shan_vault.cpp
+  Pandaria/Raids/MogushanVault/mogu_shan_vault.h
+  Pandaria/Raids/MogushanVault/instance_mogu_shan_vault.cpp
+  Pandaria/Raids/MogushanVault/boss_will_of_emperor.cpp
+  Pandaria/Raids/MogushanVault/boss_stone_guard.cpp
+  Pandaria/Raids/MogushanVault/boss_spirit_kings.cpp
+  Pandaria/Raids/MogushanVault/boss_garajal.cpp
+  Pandaria/Raids/MogushanVault/boss_feng.cpp
+  Pandaria/Raids/MogushanVault/boss_elegon.cpp
+  Pandaria/Raids/TerraceOfEndlessSpring/terrace_of_the_endless_spring.cpp
+  Pandaria/Raids/TerraceOfEndlessSpring/terrace_of_the_endless_spring.h
+  Pandaria/Raids/TerraceOfEndlessSpring/boss_tsulong.cpp
+  Pandaria/Raids/TerraceOfEndlessSpring/boss_sha_of_fear.cpp
+  Pandaria/Raids/TerraceOfEndlessSpring/boss_protectors_of_the_endless.cpp
+  Pandaria/Raids/TerraceOfEndlessSpring/boss_lei_shi.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_Council.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_DarkAnimus.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_Durumu.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_Horridon.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_IronQon.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_JiKun.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_Jinrokh.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_Megaera.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_Primordius.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_Raden.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_Tortos.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_TwinConsorts.cpp
+  Pandaria/Raids/ThroneOfThunder/boss_LeiShen.cpp
+  Pandaria/Raids/ThroneOfThunder/instance_ThroneOfThunder.cpp
+  Pandaria/Raids/ThroneOfThunder/ThroneOfThunder.h
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_Immerseus.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_Galakras.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_GeneralNazgrim.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_KorKron.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_IronJuggernaut.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_Norushen.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_Malkorok.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_ParagonsOfTheKlaxxi.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_ShaOfPride.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_SiegecrafterBlackfuse.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_SpoilsOfPandaria.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_TheFallenProtectors.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_Thok.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_GarroshHellscream.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/instance_SiegeOfOrgrimmar.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/SiegeOfOrgrimmar.h
 
-
-  Pandaria/WanderingIsland/WanderingIsland_North.cpp
-  Pandaria/WanderingIsland/WanderingIsland_East.cpp
-  Pandaria/WanderingIsland/WanderingIsland_West.cpp
-  Pandaria/WanderingIsland/WanderingIsland_South.cpp
-
-  Pandaria/townlong_steppes.cpp
-  Pandaria/dread_wastes.cpp
-  Pandaria/valley_of_the_four_winds.cpp
-  Pandaria/krasarang_wilds.cpp
-  Pandaria/kun_lai_summit.cpp
-  Pandaria/jade_forest.cpp
-  Pandaria/vale_of_eternal_blossoms.cpp
-
-  Pandaria/ThroneOfThunder/instance_throne_of_thunder.cpp
-  Pandaria/ThroneOfThunder/boss_horridon.cpp
-  Pandaria/ThroneOfThunder/boss_council.cpp
-  Pandaria/ThroneOfThunder/boss_tortos.cpp
-  Pandaria/ThroneOfThunder/boss_jinrokh.cpp
-  Pandaria/ThroneOfThunder/boss_megaera.cpp
-  Pandaria/ThroneOfThunder/boss_ji_kun.cpp
-  Pandaria/ThroneOfThunder/boss_durumu.cpp
-  Pandaria/ThroneOfThunder/throne_of_thunder.cpp 
-  
-  Pandaria/SiegeOfOrgrimmar/siege_of_orgrimmar.h
-  Pandaria/SiegeOfOrgrimmar/siege_of_orgrimmar.cpp
-  Pandaria/SiegeOfOrgrimmar/instance_siege_of_orgrimmar.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_fallen_protectors.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_immersius.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_norushen.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_sha_of_pride.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_galakras.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_iron_juggernaut.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_dark_shaman.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_general_nazgrim.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_malkorok.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_spoils_of_pandaria.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_thok_the_bloodthirsty.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_siegecrafter_blackfuse.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_paragons_of_the_klaxxi.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_garrosh_hellscream.cpp
-  Pandaria/SiegeOfOrgrimmar/boss_garrosh_hellscream.h	
-  
-  Pandaria/TimelessIsle/timeless_isle.cpp
-  Pandaria/TimelessIsle/timeless_isle.h
+  # Timeless Island
   Pandaria/TimelessIsle/zone_timeless_isle.cpp
+  Pandaria/TimelessIsle/timeless_isle.h
+  Pandaria/TimelessIsle/timeless_isle.cpp
+  Pandaria/TimelessIsle/boss_chi_ji.cpp
 
+  # World Bosses
+  Pandaria/WorldBosses/boss_ordos.cpp
+  Pandaria/WorldBosses/boss_galion.cpp
+  Pandaria/WorldBosses/boss_sha_of_anger.cpp
+  Pandaria/WorldBosses/boss_oondasta.cpp
+  Pandaria/WorldBosses/boss_nalak_the_storm_lord.cpp
 
+  # Zones
+  Pandaria/Zones/zone_dread_wastes.cpp
+  Pandaria/Zones/zone_isle_of_giants.cpp
+  Pandaria/Zones/zone_isle_of_thunder.cpp
+  Pandaria/Zones/zone_krasarang_wilds.cpp
+  Pandaria/Zones/zone_kun_lai_summit.cpp
+  Pandaria/Zones/zone_the_jade_forest.cpp
+  Pandaria/Zones/zone_the_veiled_stair.cpp
+  Pandaria/Zones/zone_townlong_steppes.cpp
+  Pandaria/Zones/zone_vale_of_eternal_blossoms.cpp
+  Pandaria/Zones/zone_valley_of_the_four_winds.cpp
+
+  # Wandering Island (Panda start zone)
+  Pandaria/Zones/WanderingIsland/WanderingIsland_North.cpp
+  Pandaria/Zones/WanderingIsland/WanderingIsland_East.cpp
+  Pandaria/Zones/WanderingIsland/WanderingIsland_West.cpp
+  Pandaria/Zones/WanderingIsland/WanderingIsland_South.cpp
 )
 
 message("  -> Prepared: Pandaria")

@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,27 +26,37 @@
 
 class ChatHandler;
 
+enum ComplainType
+{
+    COMPLAIN_SPAM           = 0,
+    COMPLAIN_CHEATER        = 1,
+    COMPLAIN_PLAYER_NAME    = 3,
+    COMPLAIN_GUILD_NAME     = 6,
+    COMPLAIN_ARENA_NAME     = 9,
+    COMPLAIN_BAD_LANG       = 10,
+};
+
 // from blizzard lua
 enum GMTicketSystemStatus
 {
     GMTICKET_QUEUE_STATUS_DISABLED = 0,
-    GMTICKET_QUEUE_STATUS_ENABLED = 1,
+    GMTICKET_QUEUE_STATUS_ENABLED  = 1
 };
 
 enum GMTicketStatus
 {
     GMTICKET_STATUS_HASTEXT                      = 0x06,
-    GMTICKET_STATUS_DEFAULT                      = 0x0A,
+    GMTICKET_STATUS_DEFAULT                      = 0x0A
 };
 
-enum GMTicketResponse : uint8
+enum GMTicketResponse
 {
     GMTICKET_RESPONSE_ALREADY_EXIST               = 1,
     GMTICKET_RESPONSE_CREATE_SUCCESS              = 2,
     GMTICKET_RESPONSE_CREATE_ERROR                = 3,
     GMTICKET_RESPONSE_UPDATE_SUCCESS              = 4,
     GMTICKET_RESPONSE_UPDATE_ERROR                = 5,
-    GMTICKET_RESPONSE_TICKET_DELETED              = 9,
+    GMTICKET_RESPONSE_TICKET_DELETED              = 9
 };
 
 // from Blizzard LUA:
@@ -58,14 +69,14 @@ enum GMTicketEscalationStatus
     TICKET_UNASSIGNED                             = 0,
     TICKET_ASSIGNED                               = 1,
     TICKET_IN_ESCALATION_QUEUE                    = 2,
-    TICKET_ESCALATED_ASSIGNED                     = 3,
+    TICKET_ESCALATED_ASSIGNED                     = 3
 };
 
 // from blizzard lua
 enum GMTicketOpenedByGMStatus
 {
     GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED = 0,      // ticket has never been opened by a gm
-    GMTICKET_OPENEDBYGM_STATUS_OPENED = 1,          // ticket has been opened by a gm
+    GMTICKET_OPENEDBYGM_STATUS_OPENED     = 1       // ticket has been opened by a gm
 };
 
 enum LagReportType
@@ -82,7 +93,7 @@ class GmTicket
 {
 public:
     GmTicket();
-    explicit GmTicket(Player* player, WorldPacket& recvData);
+    GmTicket(Player* player, WorldPacket& recvData);
     ~GmTicket();
 
     bool IsClosed() const { return _closedBy; }
@@ -94,8 +105,8 @@ public:
 
     uint32 GetId() const { return _id; }
     Player* GetPlayer() const { return ObjectAccessor::FindPlayer(_playerGuid); }
-    std::string GetPlayerName() const { return _playerName; }
-    std::string GetMessage() const { return _message; }
+    std::string const& GetPlayerName() const { return _playerName; }
+    std::string const& GetMessage() const { return _message; }
     Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
     uint64 GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const
@@ -119,18 +130,18 @@ public:
         else if (_escalatedStatus == TICKET_UNASSIGNED)
             _escalatedStatus = TICKET_ASSIGNED;
     }
-    void SetClosedBy(const int64& value) { _closedBy = value; }
-    void SetMessage(const std::string& message)
+    void SetClosedBy(int64 value) { _closedBy = value; }
+    void SetCompleted() { _completed = true; }
+    void SetMessage(std::string const& message)
     {
         _message = message;
         _lastModifiedTime = uint64(time(NULL));
     }
-    void SetComment(const std::string& comment) { _comment = comment; }
+    void SetComment(std::string const& comment) { _comment = comment; }
     void SetViewed() { _viewed = true; }
     void SetUnassigned();
-    void SetCompleted(bool complete) { _completed = complete; }
 
-    void AppendResponse(const std::string& response) { _response += response; }
+    void AppendResponse(std::string const& response) { _response += response; }
 
     bool LoadFromDB(Field* fields);
     void SaveToDB(SQLTransaction& trans) const;
@@ -142,6 +153,9 @@ public:
     void TeleportTo(Player* player) const;
     std::string FormatMessageString(ChatHandler& handler, bool detailed = false) const;
     std::string FormatMessageString(ChatHandler& handler, const char* szClosedName, const char* szAssignedToName, const char* szUnassignedName, const char* szDeletedName) const;
+
+    void SetChatLog(std::list<uint32> time, std::string const& log);
+    std::string const& GetChatLog() const { return _chatLog; }
 
 private:
     uint32 _id;
@@ -160,9 +174,10 @@ private:
     bool _completed;
     GMTicketEscalationStatus _escalatedStatus;
     bool _viewed;
-    bool _needResponse; // TODO: find out the use of this, and then store it in DB
+    bool _needResponse; /// @todo find out the use of this, and then store it in DB
     bool _haveTicket;
     std::string _response;
+    std::string _chatLog; // No need to store in db, will be refreshed every session client side
 };
 typedef std::map<uint32, GmTicket*> GmTicketList;
 

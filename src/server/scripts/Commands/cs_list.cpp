@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -27,8 +26,10 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "SpellAuraEffects.h"
+#include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include <iostream>
 
 class list_commandscript : public CommandScript
@@ -40,17 +41,17 @@ public:
     {
         static ChatCommand listCommandTable[] =
         {
-            { "creature",       SEC_ADMINISTRATOR,  true,  &HandleListCreatureCommand,          "", NULL },
-            { "item",           SEC_ADMINISTRATOR,  true,  &HandleListItemCommand,              "", NULL },
-            { "object",         SEC_ADMINISTRATOR,  true,  &HandleListObjectCommand,            "", NULL },
-            { "auras",          SEC_ADMINISTRATOR,  false, &HandleListAurasCommand,             "", NULL },
-            { "mail",           SEC_ADMINISTRATOR,  true,  &HandleListMailCommand,              "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "creature", rbac::RBAC_PERM_COMMAND_LIST_CREATURE, true, &HandleListCreatureCommand, "", NULL },
+            { "item",     rbac::RBAC_PERM_COMMAND_LIST_ITEM,     true, &HandleListItemCommand,     "", NULL },
+            { "object",   rbac::RBAC_PERM_COMMAND_LIST_OBJECT,   true, &HandleListObjectCommand,   "", NULL },
+            { "auras",    rbac::RBAC_PERM_COMMAND_LIST_AURAS,   false, &HandleListAurasCommand,    "", NULL },
+            { "mail",     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     true, &HandleListMailCommand,     "", NULL },
+            { NULL,       0,                              false, NULL,                       "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "list",          SEC_ADMINISTRATOR,   true, NULL,                                 "", listCommandTable },
-            { NULL,            0,                   false, NULL,                                "", NULL }
+            { "list", rbac::RBAC_PERM_COMMAND_LIST,true, NULL, "", listCommandTable },
+            { NULL,   0,                    false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -435,10 +436,10 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         {
-            bool talent = false;// GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
+            bool talent = GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
 
             AuraApplication const* aurApp = itr->second;
-            constAuraPtr aura = aurApp->GetBase();
+            Aura const* aura = aurApp->GetBase();
             char const* name = aura->GetSpellInfo()->SpellName;
 
             std::ostringstream ss_name;
@@ -465,7 +466,6 @@ public:
 
         return true;
     }
-
     // handle list mail command
     static bool HandleListMailCommand(ChatHandler* handler, char const* args)
     {
@@ -519,7 +519,7 @@ public:
                     uint32 copp = (money % GOLD) % SILVER;
                     std::string receiverStr = handler->playerLink(receiver);
                     std::string senderStr = handler->playerLink(sender);
-                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1 , messageId, subject.c_str(),gold, silv, copp);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1, messageId, subject.c_str(), gold, silv, copp);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_2, senderStr.c_str(), senderId, receiverStr.c_str(), receiverId);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_3, TimeToTimestampStr(deliverTime).c_str(), TimeToTimestampStr(expireTime).c_str());
                     if (hasItem == 1)
@@ -542,7 +542,7 @@ public:
                                         uint32 item_entry       = fields[0].GetUInt32();
                                         uint32 item_count       = fields[1].GetUInt32();
                                         QueryResult result4;
-                                        result4 = WorldDatabase.PQuery("SELECT name,quality FROM item_template WHERE entry = '%u'", item_entry);
+                                        result4 = WorldDatabase.PQuery("SELECT name, quality FROM item_template WHERE entry = '%u'", item_entry);
                                         Field* fields1          = result4->Fetch();
                                         std::string item_name   = fields1[0].GetString();
                                         int item_quality        = fields1[1].GetUInt8();
@@ -580,4 +580,3 @@ void AddSC_list_commandscript()
 {
     new list_commandscript();
 }
- 

@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -26,6 +27,8 @@ SDComment: all sounds, black hole effect triggers to often (46228)
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 // Muru & Entropius's spells
 enum Spells
@@ -109,9 +112,9 @@ class boss_entropius : public CreatureScript
 public:
     boss_entropius() : CreatureScript("boss_entropius") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_entropiusAI (creature);
+        return new boss_entropiusAI(creature);
     }
 
     struct boss_entropiusAI : public ScriptedAI
@@ -126,7 +129,7 @@ public:
 
         uint32 BlackHoleSummonTimer;
 
-        void Reset()
+        void Reset() override
         {
             BlackHoleSummonTimer = 15000;
             DoCastAOE(SPELL_NEGATIVE_ENERGY_E, false);
@@ -137,7 +140,7 @@ public:
                 instance->SetData(DATA_MURU_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCastAOE(SPELL_NEGATIVE_ENERGY_E, true);
             DoCast(me, SPELL_ENTROPIUS_SPAWN, false);
@@ -146,7 +149,7 @@ public:
                 instance->SetData(DATA_MURU_EVENT, IN_PROGRESS);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             switch (summoned->GetEntry())
             {
@@ -164,7 +167,7 @@ public:
             Summons.Summon(summoned);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Summons.DespawnAll();
 
@@ -172,7 +175,7 @@ public:
                 instance->SetData(DATA_MURU_EVENT, DONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -201,7 +204,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_muru : public CreatureScript
@@ -209,15 +211,16 @@ class boss_muru : public CreatureScript
 public:
     boss_muru() : CreatureScript("boss_muru") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_muruAI (creature);
+        return new boss_muruAI(creature);
     }
 
-    struct boss_muruAI : public Scripted_NoMovementAI
+    struct boss_muruAI : public ScriptedAI
     {
-        boss_muruAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+        boss_muruAI(Creature* creature) : ScriptedAI(creature), Summons(creature)
         {
+            SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 
@@ -229,7 +232,7 @@ public:
 
         bool DarkFiend;
 
-        void Reset()
+        void Reset() override
         {
             DarkFiend = false;
             Phase = 1;
@@ -249,7 +252,7 @@ public:
                 instance->SetData(DATA_MURU_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCastAOE(SPELL_NEGATIVE_ENERGY, false);
 
@@ -257,7 +260,7 @@ public:
                 instance->SetData(DATA_MURU_EVENT, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             if (damage > me->GetHealth() && Phase == 1)
             {
@@ -271,7 +274,7 @@ public:
                 damage = 0;
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             switch (summoned->GetEntry())
             {
@@ -286,7 +289,7 @@ public:
             Summons.Summon(summoned);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -366,7 +369,6 @@ public:
             }
         }
     };
-
 };
 
 class npc_muru_portal : public CreatureScript
@@ -374,15 +376,16 @@ class npc_muru_portal : public CreatureScript
 public:
     npc_muru_portal() : CreatureScript("npc_muru_portal") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_muru_portalAI (creature);
+        return new npc_muru_portalAI(creature);
     }
 
-    struct npc_muru_portalAI : public Scripted_NoMovementAI
+    struct npc_muru_portalAI : public ScriptedAI
     {
-        npc_muru_portalAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+        npc_muru_portalAI(Creature* creature) : ScriptedAI(creature), Summons(creature)
         {
+            SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 
@@ -395,7 +398,7 @@ public:
 
         uint32 SummonTimer;
 
-        void Reset()
+        void Reset() override
         {
             SummonTimer = 5000;
 
@@ -407,16 +410,16 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             if (instance)
-                if (Player* Target = Unit::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
+                if (Player* Target = ObjectAccessor::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
                     summoned->AI()->AttackStart(Target);
 
             Summons.Summon(summoned);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell) override
         {
             float x, y, z, o;
             me->GetHomePosition(x, y, z, o);
@@ -434,7 +437,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!SummonSentinel)
             {
@@ -450,7 +453,6 @@ public:
             } else SummonTimer -= diff;
         }
     };
-
 };
 
 class npc_dark_fiend : public CreatureScript
@@ -458,19 +460,19 @@ class npc_dark_fiend : public CreatureScript
 public:
     npc_dark_fiend() : CreatureScript("npc_dark_fiend") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_dark_fiendAI (creature);
+        return new npc_dark_fiendAI(creature);
     }
 
     struct npc_dark_fiendAI : public ScriptedAI
     {
-        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 WaitTimer;
         bool InAction;
 
-        void Reset()
+        void Reset() override
         {
             WaitTimer = 2000;
             InAction = false;
@@ -478,14 +480,14 @@ public:
             me->AddUnitState(UNIT_STATE_STUNNED);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell) override
         {
             for (uint8 i = 0; i < 3; ++i)
                 if (Spell->Effects[i].Effect == 38)
                     me->DisappearAndDie();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -502,8 +504,7 @@ public:
                 }
                 else
                 {
-
-                    if (me->IsWithinDist(me->getVictim(), 5))
+                    if (me->IsWithinDist(me->GetVictim(), 5))
                     {
                         DoCastAOE(SPELL_DARKFIEND_AOE, false);
                         me->DisappearAndDie();
@@ -513,7 +514,6 @@ public:
             } else WaitTimer -= diff;
         }
     };
-
 };
 
 class npc_void_sentinel : public CreatureScript
@@ -521,19 +521,19 @@ class npc_void_sentinel : public CreatureScript
 public:
     npc_void_sentinel() : CreatureScript("npc_void_sentinel") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_void_sentinelAI (creature);
+        return new npc_void_sentinelAI(creature);
     }
 
     struct npc_void_sentinelAI : public ScriptedAI
     {
-        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature){}
+        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature){ }
 
         uint32 PulseTimer;
         uint32 VoidBlastTimer;
 
-        void Reset()
+        void Reset() override
         {
             PulseTimer = 3000;
             VoidBlastTimer = 45000; //is this a correct timer?
@@ -543,13 +543,13 @@ public:
             DoTeleportTo(x, y, 71);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             for (uint8 i = 0; i < 8; ++i)
                 me->SummonCreature(CREATURE_VOID_SPAWN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -562,14 +562,13 @@ public:
 
             if (VoidBlastTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VOID_BLAST, false);
+                DoCastVictim(SPELL_VOID_BLAST, false);
                 VoidBlastTimer = 45000;
             } else VoidBlastTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_blackhole : public CreatureScript
@@ -577,9 +576,9 @@ class npc_blackhole : public CreatureScript
 public:
     npc_blackhole() : CreatureScript("npc_blackhole") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_blackholeAI (creature);
+        return new npc_blackholeAI(creature);
     }
 
     struct npc_blackholeAI : public ScriptedAI
@@ -596,7 +595,7 @@ public:
         uint8 Phase;
         uint8 NeedForAHack;
 
-        void Reset()
+        void Reset() override
         {
             DespawnTimer = 15000;
             SpellTimer = 5000;
@@ -606,7 +605,7 @@ public:
             DoCastAOE(SPELL_BLACKHOLE_SPAWN, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (SpellTimer <= diff)
             {
@@ -634,7 +633,7 @@ public:
                     case 3:
                         SpellTimer = urand(400, 900);
                         NeedForAHack = 1;
-                        if (Unit* Temp = me->getVictim())
+                        if (Unit* Temp = me->GetVictim())
                         {
                             if (Temp->GetPositionZ() > 73 && Victim)
                                 AttackStart(Victim);
@@ -648,7 +647,6 @@ public:
             else DespawnTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_muru()

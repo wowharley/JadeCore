@@ -56,8 +56,4 @@ void* dtAlloc(int size, dtAllocHint hint);
 /// @see dtAlloc
 void dtFree(void* ptr);
 
-class mmaps_generator
-{
-};
-
 #endif

@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -27,19 +29,19 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "blood_furnace.h"
 
-enum eEnums
+enum Yells
 {
-    SAY_AGGRO_1                 = -1542009,
-    SAY_AGGRO_2                 = -1542010,
-    SAY_AGGRO_3                 = -1542011,
-    SAY_KILL_1                  = -1542012,
-    SAY_KILL_2                  = -1542013,
-    SAY_DIE                     = -1542014,
+    SAY_AGGRO                   = 0,
+    SAY_KILL                    = 1,
+    SAY_DIE                     = 2
+};
 
-    SPELL_ACID_SPRAY            = 38153,                    // heroic 38973 ??? 38153
+enum Spells
+{
+    SPELL_ACID_SPRAY            = 38153,
     SPELL_EXPLODING_BREAKER     = 30925,
     SPELL_KNOCKDOWN             = 20276,
-    SPELL_DOMINATION            = 25772                     // ???
+    SPELL_DOMINATION            = 25772
 };
 
 class boss_the_maker : public CreatureScript
@@ -65,7 +67,7 @@ class boss_the_maker : public CreatureScript
             uint32 Domination_Timer;
             uint32 Knockdown_Timer;
 
-            void Reset()
+            void Reset() override
             {
                 AcidSpray_Timer = 15000;
                 ExplodingBreaker_Timer = 6000;
@@ -79,9 +81,9 @@ class boss_the_maker : public CreatureScript
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
-                DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+                Talk(SAY_AGGRO);
 
                 if (!instance)
                     return;
@@ -90,14 +92,14 @@ class boss_the_maker : public CreatureScript
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR2), false);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) override
             {
-                DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+                Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
-                DoScriptText(SAY_DIE, me);
+                Talk(SAY_DIE);
 
                 if (!instance)
                     return;
@@ -108,14 +110,14 @@ class boss_the_maker : public CreatureScript
 
              }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
 
                 if (AcidSpray_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ACID_SPRAY);
+                    DoCastVictim(SPELL_ACID_SPRAY);
                     AcidSpray_Timer = 15000+rand()%8000;
                 }
                 else
@@ -144,7 +146,7 @@ class boss_the_maker : public CreatureScript
 
                 if (Knockdown_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_KNOCKDOWN);
+                    DoCastVictim(SPELL_KNOCKDOWN);
                     Knockdown_Timer = 4000+rand()%8000;
                 }
                 else
@@ -154,7 +156,7 @@ class boss_the_maker : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_the_makerAI(creature);
         }

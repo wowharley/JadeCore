@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -17,16 +18,100 @@
 
 /*
  * Spells used in holidays/game events that do not fit any other category.
+ * Ordered alphabetically using scriptname.
  * Scriptnames in this file should be prefixed with "spell_#holidayname_".
  */
 
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
+// 45102 Romantic Picnic
+enum SpellsPicnic
+{
+    SPELL_BASKET_CHECK              = 45119, // Holiday - Valentine - Romantic Picnic Near Basket Check
+    SPELL_MEAL_PERIODIC             = 45103, // Holiday - Valentine - Romantic Picnic Meal Periodic - effect dummy
+    SPELL_MEAL_EAT_VISUAL           = 45120, // Holiday - Valentine - Romantic Picnic Meal Eat Visual
+    //SPELL_MEAL_PARTICLE             = 45114, // Holiday - Valentine - Romantic Picnic Meal Particle - unused
+    SPELL_DRINK_VISUAL              = 45121, // Holiday - Valentine - Romantic Picnic Drink Visual
+    SPELL_ROMANTIC_PICNIC_ACHIEV    = 45123, // Romantic Picnic periodic = 5000
+};
+
+class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
+{
+    public:
+        spell_love_is_in_the_air_romantic_picnic() : SpellScriptLoader("spell_love_is_in_the_air_romantic_picnic") { }
+
+        class spell_love_is_in_the_air_romantic_picnic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_love_is_in_the_air_romantic_picnic_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->SetStandState(UNIT_STAND_STATE_SIT);
+                target->CastSpell(target, SPELL_MEAL_PERIODIC, false);
+            }
+
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                // Every 5 seconds
+                Unit* target = GetTarget();
+                Unit* caster = GetCaster();
+
+                // If our player is no longer sit, remove all auras
+                if (target->getStandState() != UNIT_STAND_STATE_SIT)
+                {
+                    target->RemoveAura(SPELL_ROMANTIC_PICNIC_ACHIEV);
+                    target->RemoveAura(GetAura());
+                    return;
+                }
+
+                target->CastSpell(target, SPELL_BASKET_CHECK, false); // unknown use, it targets Romantic Basket
+                target->CastSpell(target, RAND(SPELL_MEAL_EAT_VISUAL, SPELL_DRINK_VISUAL), false);
+
+                bool foundSomeone = false;
+                // For nearby players, check if they have the same aura. If so, cast Romantic Picnic (45123)
+                // required by achievement and "hearts" visual
+                std::list<Player*> playerList;
+                Trinity::AnyPlayerInObjectRangeCheck checker(target, INTERACTION_DISTANCE*2);
+                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(target, playerList, checker);
+                target->VisitNearbyWorldObject(INTERACTION_DISTANCE*2, searcher);
+                for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                {
+                    if ((*itr) != target && (*itr)->HasAura(GetId())) // && (*itr)->getStandState() == UNIT_STAND_STATE_SIT)
+                    {
+                        if (caster)
+                        {
+                            caster->CastSpell(*itr, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
+                            caster->CastSpell(target, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
+                        }
+                        foundSomeone = true;
+                        // break;
+                    }
+                }
+
+                if (!foundSomeone && target->HasAura(SPELL_ROMANTIC_PICNIC_ACHIEV))
+                    target->RemoveAura(SPELL_ROMANTIC_PICNIC_ACHIEV);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_love_is_in_the_air_romantic_picnic_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_love_is_in_the_air_romantic_picnic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_love_is_in_the_air_romantic_picnic_AuraScript();
+        }
+};
 
 // 24750 Trick
 enum TrickSpells
@@ -40,18 +125,19 @@ enum TrickSpells
     SPELL_SKELETON_COSTUME              = 24723,
     SPELL_GHOST_COSTUME_MALE            = 24735,
     SPELL_GHOST_COSTUME_FEMALE          = 24736,
-    SPELL_TRICK_BUFF                    = 24753
+    SPELL_TRICK_BUFF                    = 24753,
 };
 
-class spell_trick : public SpellScriptLoader
+class spell_hallow_end_trick : public SpellScriptLoader
 {
     public:
-        spell_trick() : SpellScriptLoader("spell_trick") {}
+        spell_hallow_end_trick() : SpellScriptLoader("spell_hallow_end_trick") { }
 
-        class spell_trick_SpellScript : public SpellScript
+        class spell_hallow_end_trick_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_trick_SpellScript);
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            PrepareSpellScript(spell_hallow_end_trick_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE)
                     || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE)
@@ -88,19 +174,19 @@ class spell_trick : public SpellScriptLoader
                             break;
                     }
 
-                    caster->CastSpell(target, spellId, true, NULL);
+                    caster->CastSpell(target, spellId, true);
                 }
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_trick_SpellScript();
+            return new spell_hallow_end_trick_SpellScript();
         }
 };
 
@@ -115,16 +201,16 @@ enum TrickOrTreatSpells
     SPELL_UPSET_TUMMY           = 42966
 };
 
-class spell_trick_or_treat : public SpellScriptLoader
+class spell_hallow_end_trick_or_treat : public SpellScriptLoader
 {
     public:
-        spell_trick_or_treat() : SpellScriptLoader("spell_trick_or_treat") {}
+        spell_hallow_end_trick_or_treat() : SpellScriptLoader("spell_hallow_end_trick_or_treat") { }
 
-        class spell_trick_or_treat_SpellScript : public SpellScript
+        class spell_hallow_end_trick_or_treat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_trick_or_treat_SpellScript);
+            PrepareSpellScript(spell_hallow_end_trick_or_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICK) || !sSpellMgr->GetSpellInfo(SPELL_TREAT) || !sSpellMgr->GetSpellInfo(SPELL_TRICKED_OR_TREATED))
                     return false;
@@ -136,33 +222,33 @@ class spell_trick_or_treat : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Player* target = GetHitPlayer())
                 {
-                    caster->CastSpell(target, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true, NULL);
-                    caster->CastSpell(target, SPELL_TRICKED_OR_TREATED, true, NULL);
+                    caster->CastSpell(target, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true);
+                    caster->CastSpell(target, SPELL_TRICKED_OR_TREATED, true);
                 }
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_trick_or_treat_SpellScript();
+            return new spell_hallow_end_trick_or_treat_SpellScript();
         }
 };
 
-class spell_tricky_treat : public SpellScriptLoader
+class spell_hallow_end_tricky_treat : public SpellScriptLoader
 {
     public:
-        spell_tricky_treat() : SpellScriptLoader("spell_tricky_treat") {}
+        spell_hallow_end_tricky_treat() : SpellScriptLoader("spell_hallow_end_tricky_treat") { }
 
-        class spell_tricky_treat_SpellScript : public SpellScript
+        class spell_hallow_end_tricky_treat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_tricky_treat_SpellScript);
+            PrepareSpellScript(spell_hallow_end_tricky_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_SPEED))
                     return false;
@@ -182,95 +268,124 @@ class spell_tricky_treat : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_hallow_end_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_tricky_treat_SpellScript();
+            return new spell_hallow_end_tricky_treat_SpellScript();
         }
 };
 
-// 45102 Romantic Picnic
-enum SpellsPicnic
+enum Mistletoe
 {
-    SPELL_BASKET_CHECK              = 45119, // Holiday - Valentine - Romantic Picnic Near Basket Check
-    SPELL_MEAL_PERIODIC             = 45103, // Holiday - Valentine - Romantic Picnic Meal Periodic - effect dummy
-    SPELL_MEAL_EAT_VISUAL           = 45120, // Holiday - Valentine - Romantic Picnic Meal Eat Visual
-    //SPELL_MEAL_PARTICLE             = 45114, // Holiday - Valentine - Romantic Picnic Meal Particle - unused
-    SPELL_DRINK_VISUAL              = 45121, // Holiday - Valentine - Romantic Picnic Drink Visual
-    SPELL_ROMANTIC_PICNIC_ACHIEV    = 45123, // Romantic Picnic periodic = 5000
+    SPELL_CREATE_MISTLETOE          = 26206,
+    SPELL_CREATE_HOLLY              = 26207,
+    SPELL_CREATE_SNOWFLAKES         = 45036
 };
 
-class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
+class spell_winter_veil_mistletoe : public SpellScriptLoader
 {
     public:
-        spell_love_is_in_the_air_romantic_picnic() : SpellScriptLoader("spell_love_is_in_the_air_romantic_picnic") { }
+        spell_winter_veil_mistletoe() : SpellScriptLoader("spell_winter_veil_mistletoe") { }
 
-        class spell_love_is_in_the_air_romantic_picnic_AuraScript : public AuraScript
+        class spell_winter_veil_mistletoe_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_love_is_in_the_air_romantic_picnic_AuraScript);
+            PrepareSpellScript(spell_winter_veil_mistletoe_SpellScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                Unit* target = GetTarget();
-                target->SetStandState(UNIT_STAND_STATE_SIT);
-                target->CastSpell(target, SPELL_MEAL_PERIODIC, false);
+                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_MISTLETOE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_HOLLY) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_SNOWFLAKES))
+                    return false;
+                return true;
             }
 
-            void OnPeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                // Every 5 seconds
-                Unit* target = GetTarget();
-                Unit* caster = GetCaster();
-
-                // If our player is no longer sit, remove all auras
-                if (target->getStandState() != UNIT_STAND_STATE_SIT)
+                if (Player* target = GetHitPlayer())
                 {
-                    target->RemoveAura(SPELL_ROMANTIC_PICNIC_ACHIEV);
-                    target->RemoveAura(GetAura());
-                    return;
+                    uint32 spellId = RAND(SPELL_CREATE_HOLLY, SPELL_CREATE_MISTLETOE, SPELL_CREATE_SNOWFLAKES);
+                    GetCaster()->CastSpell(target, spellId, true);
                 }
-
-                target->CastSpell(target, SPELL_BASKET_CHECK, false); // unknown use, it targets Romantic Basket
-                target->CastSpell(target, RAND(SPELL_MEAL_EAT_VISUAL, SPELL_DRINK_VISUAL), false);
-
-                bool foundSomeone = false;
-                // For nearby players, check if they have the same aura. If so, cast Romantic Picnic (45123)
-                // required by achievement and "hearts" visual
-                std::list<Player*> playerList;
-                JadeCore::AnyPlayerInObjectRangeCheck checker(target, INTERACTION_DISTANCE*2);
-                JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(target, playerList, checker);
-                target->VisitNearbyWorldObject(INTERACTION_DISTANCE*2, searcher);
-                for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                {
-                    if ((*itr) != target && (*itr)->HasAura(GetId())) // && (*itr)->getStandState() == UNIT_STAND_STATE_SIT)
-                    {
-                        if (caster)
-                        {
-                            caster->CastSpell(*itr, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
-                            caster->CastSpell(target, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
-                        }
-                        foundSomeone = true;
-                        // break;
-                    }
-                }
-
-                if (!foundSomeone && target->HasAura(SPELL_ROMANTIC_PICNIC_ACHIEV))
-                    target->RemoveAura(SPELL_ROMANTIC_PICNIC_ACHIEV);
             }
 
             void Register()
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_love_is_in_the_air_romantic_picnic_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_love_is_in_the_air_romantic_picnic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_winter_veil_mistletoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_love_is_in_the_air_romantic_picnic_AuraScript();
+            return new spell_winter_veil_mistletoe_SpellScript();
+        }
+};
+
+// 26275 - PX-238 Winter Wondervolt TRAP
+enum PX238WinterWondervolt
+{
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1  = 26157,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2  = 26272,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3  = 26273,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4  = 26274
+};
+
+class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
+{
+    public:
+        spell_winter_veil_px_238_winter_wondervolt() : SpellScriptLoader("spell_winter_veil_px_238_winter_wondervolt") { }
+
+        class spell_winter_veil_px_238_winter_wondervolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_winter_veil_px_238_winter_wondervolt_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                uint32 const spells[4] =
+                {
+                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1,
+                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2,
+                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3,
+                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4
+                };
+
+                if (Unit* target = GetHitUnit())
+                {
+                    for (uint8 i = 0; i < 4; ++i)
+                        if (target->HasAura(spells[i]))
+                            return;
+
+                    target->CastSpell(target, spells[urand(0, 3)], true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_winter_veil_px_238_winter_wondervolt_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+
+        private:
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_winter_veil_px_238_winter_wondervolt_SpellScript();
         }
 };
 
@@ -278,9 +393,11 @@ void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
     new spell_love_is_in_the_air_romantic_picnic();
-
-    //Hallow's End
-    new spell_trick();
-    new spell_trick_or_treat();
-    new spell_tricky_treat();
+    // Hallow's End
+    new spell_hallow_end_trick();
+    new spell_hallow_end_trick_or_treat();
+    new spell_hallow_end_tricky_treat();
+    // Winter Veil
+    new spell_winter_veil_mistletoe();
+    new spell_winter_veil_px_238_winter_wondervolt();
 }

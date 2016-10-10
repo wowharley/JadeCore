@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -33,12 +34,12 @@ enum ConnectionFlags
 {
     CONNECTION_ASYNC = 0x1,
     CONNECTION_SYNCH = 0x2,
-    CONNECTION_BOTH = CONNECTION_ASYNC | CONNECTION_SYNCH,
+    CONNECTION_BOTH = CONNECTION_ASYNC | CONNECTION_SYNCH
 };
 
 struct MySQLConnectionInfo
 {
-    MySQLConnectionInfo() {}
+    MySQLConnectionInfo() { }
     MySQLConnectionInfo(const std::string& infoString)
     {
         Tokenizer tokens(infoString, ';');
@@ -62,9 +63,7 @@ struct MySQLConnectionInfo
     std::string port_or_socket;
 };
 
-typedef std::map<uint32 /*index*/, std::pair<const char* /*query*/, ConnectionFlags /*sync/async*/> > PreparedStatementMap;
-
-#define PREPARE_STATEMENT(a, b, c) m_queries[a] = std::make_pair(strdup(b), c);
+typedef std::map<uint32 /*index*/, std::pair<std::string /*query*/, ConnectionFlags /*sync/async*/> > PreparedStatementMap;
 
 class MySQLConnection
 {

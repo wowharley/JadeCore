@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _BLACK_MARKET_MGR_H
-#define _BLACK_MARKET_MGR_H
+#ifndef BLACK_MARKET_H
+#define BLACK_MARKET_H
 
 #include <ace/Singleton.h>
 
@@ -31,8 +31,8 @@ class WorldPacket;
 
 enum BMMailAuctionAnswers
 {
-    BM_AUCTION_OUTBIDDED           = 0,
-    BM_AUCTION_WON                 = 1
+    BM_AUCTION_OUTBIDDED    = 0,
+    BM_AUCTION_WON          = 1
 };
 
 #define BLACKMARKET_AUCTION_HOUSE 7
@@ -47,6 +47,7 @@ struct BMAuctionTemplate
     uint32 startBid;
     uint32 chance;
 };
+typedef struct BMAuctionTemplate BMAuctionTemplate;
 
 struct BMAuctionEntry
 {
@@ -55,80 +56,68 @@ struct BMAuctionEntry
     uint32 startTime;
     uint32 bid;
     uint32 bidder;
-    uint32 bidderCount;
     BMAuctionTemplate* bm_template;
 
-    // helpers
     void DeleteFromDB(SQLTransaction& trans);
     void SaveToDB(SQLTransaction& trans);
     bool LoadFromDB(Field* fields);
     void UpdateToDB(SQLTransaction& trans);
-
     uint32 EndTime() { return startTime + bm_template->duration; }
     uint32 TimeLeft();
-    bool IsActive() { return time(NULL) > startTime; }
-    bool IsExpired() { return EndTime() <= time(NULL); }
-
+    bool IsActive() { return (time(NULL) >= startTime); }
+    bool IsExpired() { return EndTime() < time(NULL); }
     std::string BuildAuctionMailSubject(BMMailAuctionAnswers response);
     std::string BuildAuctionMailBody(uint32 lowGuid);
 };
 
-typedef struct BMAuctionTemplate BMAuctionTemplate;
 typedef struct BMAuctionEntry BMAuctionEntry;
 
 class BlackMarketMgr
 {
-    friend class ACE_Singleton<BlackMarketMgr, ACE_Null_Mutex>;
+    friend class ACE_Singleton <BlackMarketMgr, ACE_Null_Mutex>;
 
-    private:
-        BlackMarketMgr();
-        ~BlackMarketMgr();
+private:
+    BlackMarketMgr();
+    ~BlackMarketMgr();
 
-        typedef std::map<uint32, BMAuctionTemplate*> BMAuctionTemplateMap;
-        typedef std::map<uint32, BMAuctionEntry*> BMAuctionEntryMap;
+    typedef std::map<uint32, BMAuctionTemplate*> BMAuctionTemplateMap;
+    typedef std::map<uint32, BMAuctionEntry*> BMAuctionEntryMap;
 
-        BMAuctionTemplateMap BMTemplatesMap;
-        BMAuctionEntryMap BMAuctionsMap;
+    BMAuctionTemplateMap BMTemplatesMap;
+    BMAuctionEntryMap BMAuctionsMap;
 
-    public:
+public:
+    BMAuctionTemplate* GetTemplate(uint32 id) const
+    {
+        BMAuctionTemplateMap::const_iterator itr = BMTemplatesMap.find(id);
+        return itr != BMTemplatesMap.end() ? itr->second : NULL;
+    }
 
-        BMAuctionTemplate* GetTemplate(uint32 id) const
-        {
-            BMAuctionTemplateMap::const_iterator itr = BMTemplatesMap.find(id);
-            return itr != BMTemplatesMap.end() ? itr->second : NULL;
-        }
+    uint32 GetTemplatesCount() { return BMTemplatesMap.size(); }
 
-        uint32 GetTemplatesCount() { return BMTemplatesMap.size(); }
+    BMAuctionTemplateMap::iterator GetTemplatesBegin() { return BMTemplatesMap.begin(); }
+    BMAuctionTemplateMap::iterator GetTemplatesEnd() { return BMTemplatesMap.end(); }
 
-        BMAuctionTemplateMap::iterator GetTemplatesBegin() { return BMTemplatesMap.begin(); }
-        BMAuctionTemplateMap::iterator GetTemplatesEnd() { return BMTemplatesMap.end(); }
+    BMAuctionEntry* GetAuction(uint32 id) const
+    {
+        BMAuctionEntryMap::const_iterator itr = BMAuctionsMap.find(id);
+        return itr != BMAuctionsMap.end() ? itr->second : NULL;
+    }
 
-        BMAuctionEntry* GetAuction(uint32 id) const
-        {
-            BMAuctionEntryMap::const_iterator itr = BMAuctionsMap.find(id);
-            return itr != BMAuctionsMap.end() ? itr->second : NULL;
-        }
+    uint32 GetAuctionCount() { return BMAuctionsMap.size(); }
 
-        uint32 GetAuctionCount() { return BMAuctionsMap.size(); }
+    BMAuctionEntryMap::iterator GetAuctionsBegin() { return BMAuctionsMap.begin(); }
+    BMAuctionEntryMap::iterator GetAuctionsEnd() { return BMAuctionsMap.end(); }
 
-        BMAuctionEntryMap::iterator GetAuctionsBegin() { return BMAuctionsMap.begin(); }
-        BMAuctionEntryMap::iterator GetAuctionsEnd() { return BMAuctionsMap.end(); }
-
-        // Auction messages
-        void SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& trans);
-        void SendAuctionOutbidded(BMAuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
-
-        void LoadTemplates();
-        void LoadAuctions();
-
-        uint32 GetNewAuctionId();
-        uint32 GetAuctionOutBid(uint32 bid);
-        void CreateAuctions(uint32 number, SQLTransaction& trans);
-        void UpdateAuction(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder);
-
-        void Update();
-
-        void BuildBlackMarketAuctionsPacket(WorldPacket& data, uint32 guidLow);
+    void SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& trans);
+    void SendAuctionOutbidded(BMAuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
+    void LoadTemplates();
+    void LoadAuctions();
+    uint32 GetNewAuctionId();
+    void CreateAuctions(uint32 number, SQLTransaction& trans);
+    void UpdateAuction(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder);
+    void Update();
+    void BuildBlackMarketAuctionsPacket(WorldPacket& data, uint32 guidLow);
 };
 
 #define sBlackMarketMgr ACE_Singleton<BlackMarketMgr, ACE_Null_Mutex>::instance()

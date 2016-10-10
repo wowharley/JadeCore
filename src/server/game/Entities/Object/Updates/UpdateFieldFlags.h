@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -23,23 +24,29 @@
 
 enum UpdatefieldFlags
 {
-    UF_FLAG_NONE         = 0x000,
-    UF_FLAG_PUBLIC       = 0x001,
-    UF_FLAG_PRIVATE      = 0x002,
-    UF_FLAG_OWNER        = 0x004,
-    UF_FLAG_ITEM_OWNER   = 0x008,
-    UF_FLAG_SPECIAL_INFO = 0x010,
-    UF_FLAG_PARTY_MEMBER = 0x020,
-    UF_FLAG_UNUSED2      = 0x040,
-    UF_FLAG_DYNAMIC      = 0x080,
-    UF_FLAG_0x100        = 0x100,
+    UF_FLAG_NONE                = 0x000,
+    UF_FLAG_PUBLIC              = 0x001,
+    UF_FLAG_PRIVATE             = 0x002,
+    UF_FLAG_OWNER               = 0x004,
+    UF_FLAG_UNUSED              = 0x008,
+    UF_FLAG_ITEM_OWNER          = 0x010,
+    UF_FLAG_PARTY_MEMBER        = 0x020,
+    UF_FLAG_SPECIAL_INFO        = 0x040,
+    UF_FLAG_VIEWER_DEPENDENT    = 0x080,
+    UF_FLAG_URGENT              = 0x100,
+    UF_FLAG_URGENT_SELF_ONLY    = 0x200
 };
 
 extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
 extern uint32 UnitUpdateFieldFlags[PLAYER_END];
 extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
 extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];
+extern uint32 DynamicItemUpdateFieldFlags[ITEM_DYNAMIC_END];
 extern uint32 CorpseUpdateFieldFlags[CORPSE_END];
 extern uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END];
+extern uint32 SceneObjectUpdateFieldFlags[SCENEOBJECT_FIELD_END];
+extern uint32 ObjectUpdateFieldFlags[OBJECT_END];
+extern uint32 UnitDynamicField[UNIT_DYNAMIC_END];
+extern uint32 PlayerDynamicField[PLAYER_DYNAMIC_END];
 
 #endif // _UPDATEFIELDFLAGS_H

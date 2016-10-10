@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -31,16 +32,26 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 /*######
 ## npc_kalecgos
 ######*/
 
-enum eEnums
+enum Spells
 {
     SPELL_TRANSFORM_TO_KAEL     = 44670,
-    SPELL_ORB_KILL_CREDIT       = 46307,
-    NPC_KAEL                    = 24848,                    //human form entry
+    SPELL_ORB_KILL_CREDIT       = 46307
+};
+
+enum Creatures
+{
+    NPC_KAEL                    = 24848 //human form entry
+};
+
+enum Misc
+{
     POINT_ID_LAND               = 1
 };
 
@@ -59,7 +70,7 @@ class npc_kalecgos : public CreatureScript
 public:
     npc_kalecgos() : CreatureScript("npc_kalecgos") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -88,9 +99,9 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAEL_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -99,18 +110,18 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_kalecgosAI(creature);
     }
 
     struct npc_kalecgosAI : public ScriptedAI
     {
-        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 m_uiTransformTimer;
 
-        void Reset()
+        void Reset() override
         {
             m_uiTransformTimer = 0;
 
@@ -119,7 +130,7 @@ public:
                 me->GetMotionMaster()->MovePoint(POINT_ID_LAND, afKaelLandPoint[0], afKaelLandPoint[1], afKaelLandPoint[2]);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 uiType, uint32 uiPointId) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -141,19 +152,19 @@ public:
             if (lList.isEmpty())
                 return;
 
-            SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(SPELL_ORB_KILL_CREDIT);
+            SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_ORB_KILL_CREDIT);
 
             for (Map::PlayerList::const_iterator i = lList.begin(); i != lList.end(); ++i)
             {
-                if (Player* player = i->getSource())
+                if (Player* player = i->GetSource())
                 {
-                    if (pSpell && pSpell->Effects[0].MiscValue)
-                        player->KilledMonsterCredit(pSpell->Effects[0].MiscValue, 0);
+                    if (spell && spell->Effects[0].MiscValue)
+                        player->KilledMonsterCredit(spell->Effects[0].MiscValue, 0);
                 }
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) override
         {
             if (m_uiTransformTimer)
             {
@@ -171,7 +182,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_magisters_terrace()

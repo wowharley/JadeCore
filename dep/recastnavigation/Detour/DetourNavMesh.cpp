@@ -288,7 +288,6 @@ const dtNavMeshParams* dtNavMesh::getParams() const
 	return &m_params;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////
 int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 								   const dtMeshTile* tile, int side,

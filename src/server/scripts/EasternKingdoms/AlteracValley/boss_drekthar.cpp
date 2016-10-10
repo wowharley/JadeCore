@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -47,7 +48,7 @@ public:
 
     struct boss_drektharAI : public ScriptedAI
     {
-        boss_drektharAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_drektharAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 WhirlwindTimer;
         uint32 Whirlwind2Timer;
@@ -56,7 +57,7 @@ public:
         uint32 YellTimer;
         uint32 ResetTimer;
 
-        void Reset()
+        void Reset() override
         {
             WhirlwindTimer    = urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
             Whirlwind2Timer   = urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
@@ -66,61 +67,51 @@ public:
             YellTimer         = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(YELL_AGGRO);
         }
 
-        void JustRespawned()
+        void JustRespawned() override
         {
             Reset();
             Talk(YELL_RESPAWN);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
             if (WhirlwindTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_WHIRLWIND);
+                DoCastVictim(SPELL_WHIRLWIND);
                 WhirlwindTimer =  urand(8 * IN_MILLISECONDS, 18 * IN_MILLISECONDS);
-            }
-            else
-                WhirlwindTimer -= diff;
+            } else WhirlwindTimer -= diff;
 
             if (Whirlwind2Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_WHIRLWIND2);
+                DoCastVictim(SPELL_WHIRLWIND2);
                 Whirlwind2Timer = urand(7 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
-            }
-            else
-                Whirlwind2Timer -= diff;
+            } else Whirlwind2Timer -= diff;
 
             if (KnockdownTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKDOWN);
+                DoCastVictim(SPELL_KNOCKDOWN);
                 KnockdownTimer = urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
-            }
-            else
-                KnockdownTimer -= diff;
+            } else KnockdownTimer -= diff;
 
             if (FrenzyTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FRENZY);
+                DoCastVictim(SPELL_FRENZY);
                 FrenzyTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
-            }
-            else
-                FrenzyTimer -= diff;
+            } else FrenzyTimer -= diff;
 
             if (YellTimer <= diff)
             {
                 Talk(YELL_RANDOM);
                 YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
-            }
-            else
-                YellTimer -= diff;
+            } else YellTimer -= diff;
 
             // check if creature is not outside of building
             if (ResetTimer <= diff)
@@ -131,15 +122,13 @@ public:
                     Talk(YELL_EVADE);
                 }
                 ResetTimer = 5 * IN_MILLISECONDS;
-            }
-            else
-                ResetTimer -= diff;
+            } else ResetTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_drektharAI(creature);
     }

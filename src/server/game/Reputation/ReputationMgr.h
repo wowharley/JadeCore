@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -44,16 +44,16 @@ enum FactionFlags
     FACTION_FLAG_RIVAL              = 0x40,                 // flag for the two competing outland factions
     FACTION_FLAG_SPECIAL            = 0x80                  // horde and alliance home cities and their northrend allies have this flag
 };
-
+typedef uint8 FactionIndex;
 typedef uint32 RepListID;
 struct FactionState
 {
-    uint32 ID;
-    RepListID ReputationListID;
-    int32  Standing;
-    uint8 Flags;
-    bool needSend;
-    bool needSave;
+	uint32 ID;
+	RepListID ReputationListID;
+	int32  Standing;
+	uint8 Flags;
+	bool needSend;
+	bool needSave;
 };
 
 typedef std::map<RepListID, FactionState> FactionStateList;
@@ -65,8 +65,8 @@ class ReputationMgr
 {
     public:                                                 // constructors and global modifiers
         explicit ReputationMgr(Player* owner) : _player(owner),
-            _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0), _sendFactionIncreased(false) {}
-        ~ReputationMgr() {}
+            _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0), _sendFactionIncreased(false) { }
+        ~ReputationMgr() { }
 
         void SaveToDB(SQLTransaction& trans);
         void LoadFromDB(PreparedQueryResult result);
@@ -126,7 +126,9 @@ class ReputationMgr
         }
 
         void SetVisible(FactionTemplateEntry const* factionTemplateEntry);
-        void SetVisible(FactionEntry const* factionEntry);
+		void SetVisible(FactionEntry const* factionEntry);
+		void SetAtWar(FactionIndex FactionIndexID);
+		void SetNotAtWar(FactionIndex FactionIndexID);
         void SetAtWar(RepListID repListID, bool on);
         void SetInactive(RepListID repListID, bool on);
 
@@ -140,6 +142,7 @@ class ReputationMgr
         void SendForceReactions();
         void SendState(FactionState const* faction);
         void SendStates();
+        void UpdateReputationFlags();
 
     private:                                                // internal helper functions
         void Initialize();

@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,18 +25,18 @@
 #include "ObjectDefines.h"
 #include "Vehicle.h"
 #include "VehicleDefines.h"
+#include "Player.h"
+#include "Opcodes.h"
 
 void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    uint8 bitsOrder[8] = { 1, 5, 7, 0, 4, 6, 3, 2 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    recvData.ReadGuidMask(guid, 6, 5, 7, 0, 3, 1, 4, 2);
 
-    uint8 bytesOrder[8] = { 1, 2, 5, 7, 0, 3, 6, 4 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
+    recvData.ReadGuidBytes(guid, 6, 7, 1, 3, 2, 0, 4, 5);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACK_SWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
 
     Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
 
@@ -54,14 +54,14 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
         return;
     }
 
-    //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
+    //! Client explicitly checks the following before sending CMSG_ATTACK_SWING packet,
     //! so we'll place the same check here. Note that it might be possible to reuse this snippet
     //! in other places as well.
     if (Vehicle* vehicle = _player->GetVehicle())
     {
         VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(_player);
         ASSERT(seat);
-        if (!(seat && seat->m_flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
+        if (!(seat->m_flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
         {
             SendAttackStop(pEnemy);
             return;
@@ -79,64 +79,30 @@ void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/)
 void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
 {
     uint32 sheathed;
-    bool unk;
+    bool hasData = false;
 
     recvData >> sheathed;
-    unk = recvData.ReadBit();
+    hasData = recvData.ReadBit();
 
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
+    //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_SHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
 
-    if (sheathed >= MAX_SHEATH_STATE)
+    if (hasData)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Unknown sheath state %u ??", sheathed);
-        return;
-    }
+        if (sheathed >= MAX_SHEATH_STATE)
+        {
+            TC_LOG_ERROR("network", "Unknown sheath state %u ??", sheathed);
+            return;
+        }
 
-    GetPlayer()->SetSheath(SheathState(sheathed));
+        GetPlayer()->SetSheath(SheathState(sheathed));
+    }
 }
 
 void WorldSession::SendAttackStop(Unit const* enemy)
 {
-    WorldPacket data(SMSG_ATTACK_STOP);
-
-    ObjectGuid victimGUID = enemy ? enemy->GetGUID() : 0;
-    ObjectGuid attackerGUID = GetPlayer()->GetGUID();
-
-    data.WriteBit(victimGUID[0]);
-    data.WriteBit(attackerGUID[4]);
-    data.WriteBit(victimGUID[1]);
-    data.WriteBit(attackerGUID[7]);
-    data.WriteBit(victimGUID[6]);
-    data.WriteBit(victimGUID[3]);
-
-    data.WriteBit(0);                   // Unk bit - updating rotation ?
-
-    data.WriteBit(victimGUID[5]);
-    data.WriteBit(attackerGUID[1]);
-    data.WriteBit(attackerGUID[0]);
-    data.WriteBit(victimGUID[7]);
-    data.WriteBit(attackerGUID[6]);
-    data.WriteBit(victimGUID[4]);
-    data.WriteBit(victimGUID[2]);
-    data.WriteBit(attackerGUID[3]);
-    data.WriteBit(attackerGUID[2]);
-    data.WriteBit(attackerGUID[5]);
-
-    data.WriteByteSeq(attackerGUID[2]);
-    data.WriteByteSeq(attackerGUID[7]);
-    data.WriteByteSeq(victimGUID[0]);
-    data.WriteByteSeq(attackerGUID[5]);
-    data.WriteByteSeq(victimGUID[5]);
-    data.WriteByteSeq(attackerGUID[3]);
-    data.WriteByteSeq(victimGUID[7]);
-    data.WriteByteSeq(victimGUID[1]);
-    data.WriteByteSeq(victimGUID[3]);
-    data.WriteByteSeq(attackerGUID[0]);
-    data.WriteByteSeq(victimGUID[4]);
-    data.WriteByteSeq(victimGUID[6]);
-    data.WriteByteSeq(attackerGUID[1]);
-    data.WriteByteSeq(attackerGUID[6]);
-    data.WriteByteSeq(victimGUID[2]);
-    data.WriteByteSeq(attackerGUID[4]);
+    WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));             // we guess size
+    data.append(GetPlayer()->GetPackGUID());
+    data.append(enemy ? enemy->GetPackGUID() : 0);          // must be packed guid
+    data << uint32(0);                                      // unk, can be 1 also
     SendPacket(&data);
 }

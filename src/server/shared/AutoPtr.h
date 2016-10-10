@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -20,34 +21,34 @@
 
 #include <ace/Bound_Ptr.h>
 
-namespace JadeCore
+namespace Trinity
 {
-    template <class Pointer, class Lock>
-    class AutoPtr : public ACE_Strong_Bound_Ptr<Pointer, Lock>
+
+template <class Pointer, class Lock>
+class AutoPtr : public ACE_Strong_Bound_Ptr<Pointer, Lock>
+{
+    typedef ACE_Strong_Bound_Ptr<Pointer, Lock> Base;
+
+public:
+    AutoPtr()
+        : Base()
+    { }
+
+    AutoPtr(Pointer* x)
+        : Base(x)
+    { }
+
+    operator bool() const
     {
-        public:
-            AutoPtr() : ACE_Strong_Bound_Ptr<Pointer, Lock>() {}
+        return !Base::null();
+    }
 
-            AutoPtr(Pointer* x)
-            {
-                ACE_Strong_Bound_Ptr<Pointer, Lock>::reset(x);
-            }
+    bool operator !() const
+    {
+        return Base::null();
+    }
+};
 
-            operator bool() const
-            {
-                return ACE_Strong_Bound_Ptr<Pointer, Lock>::get() != NULL;
-            }
-
-            bool operator !() const
-            {
-                return ACE_Strong_Bound_Ptr<Pointer, Lock>::get() == NULL;
-            }
-
-            bool operator !=(Pointer* x) const
-            {
-                return ACE_Strong_Bound_Ptr<Pointer, Lock>::get() != x;
-            }
-    };
-}
+} // namespace Trinity
 
 #endif

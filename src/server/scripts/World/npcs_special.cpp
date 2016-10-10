@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -49,6 +49,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "World.h"
 #include "PetAI.h"
+#include "Pet.h"
 #include "PassiveAI.h"
 #include "CombatAI.h"
 #include "GameEventMgr.h"
@@ -59,7 +60,6 @@ EndContentData */
 #include "SpellAuras.h"
 #include "Vehicle.h"
 #include "Player.h"
-#include "MoveSplineInit.h"
 
 /*########
 # npc_air_force_bots
@@ -143,14 +143,14 @@ class npc_air_force_bots : public CreatureScript
                 }
 
                 if (!SpawnAssoc)
-                    sLog->outError(LOG_FILTER_SQL, "TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
+                    TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
                 else
                 {
                     CreatureTemplate const* spawnedTemplate = sObjectMgr->GetCreatureTemplate(SpawnAssoc->spawnedCreatureEntry);
 
                     if (!spawnedTemplate)
                     {
-                        sLog->outError(LOG_FILTER_SQL, "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
+                        TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
                         SpawnAssoc = NULL;
                         return;
                     }
@@ -170,7 +170,7 @@ class npc_air_force_bots : public CreatureScript
                     SpawnedGUID = summoned->GetGUID();
                 else
                 {
-                    sLog->outError(LOG_FILTER_SQL, "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
+                    TC_LOG_ERROR("sql.sql", "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
                     SpawnAssoc = NULL;
                 }
 
@@ -181,7 +181,7 @@ class npc_air_force_bots : public CreatureScript
             {
                 Creature* creature = Unit::GetCreature(*me, SpawnedGUID);
 
-                if (creature && creature->isAlive())
+                if (creature && creature->IsAlive())
                     return creature;
 
                 return NULL;
@@ -200,7 +200,7 @@ class npc_air_force_bots : public CreatureScript
                     if (!playerTarget)
                         return;
 
-                    if (!playerTarget->isAlive())
+                    if (!playerTarget->IsAlive())
                         return;
 
                     Creature* lastSpawnedGuard = SpawnedGUID == 0 ? NULL : GetSummonedGuard();
@@ -216,7 +216,7 @@ class npc_air_force_bots : public CreatureScript
                             if (!who->IsWithinDistInMap(me, RANGE_GUARDS_MARK))
                                 return;
 
-                            AuraPtr markAura = who->GetAura(SPELL_GUARDS_MARK);
+                            Aura* markAura = who->GetAura(SPELL_GUARDS_MARK);
                             if (markAura)
                             {
                                 // the target wasn't able to move out of our range within 25 seconds
@@ -229,7 +229,7 @@ class npc_air_force_bots : public CreatureScript
                                 }
 
                                 if (markAura->GetDuration() < AURA_DURATION_TIME_LEFT)
-                                    if (!lastSpawnedGuard->getVictim())
+                                    if (!lastSpawnedGuard->GetVictim())
                                         lastSpawnedGuard->AI()->AttackStart(who);
                             }
                             else
@@ -256,7 +256,7 @@ class npc_air_force_bots : public CreatureScript
                                 return;
 
                             // ROOFTOP only triggers if the player is on the ground
-                            if (!playerTarget->IsFlying() && !lastSpawnedGuard->getVictim())
+                            if (!playerTarget->IsFlying() && !lastSpawnedGuard->GetVictim())
                                 lastSpawnedGuard->AI()->AttackStart(who);
 
                             break;
@@ -317,95 +317,99 @@ class npc_lunaclaw_spirit : public CreatureScript
 # npc_chicken_cluck
 #########*/
 
-#define EMOTE_HELLO         -1070004
-#define EMOTE_CLUCK_TEXT    -1070006
+enum ChickenCluck
+{
+    EMOTE_HELLO_A       = 0,
+    EMOTE_HELLO_H       = 1,
+    EMOTE_CLUCK_TEXT    = 2,
 
-#define QUEST_CLUCK         3861
-#define FACTION_FRIENDLY    35
-#define FACTION_CHICKEN     31
+    QUEST_CLUCK         = 3861,
+    FACTION_FRIENDLY    = 35,
+    FACTION_CHICKEN     = 31
+};
 
 class npc_chicken_cluck : public CreatureScript
 {
-    public:
-        npc_chicken_cluck() : CreatureScript("npc_chicken_cluck") { }
+public:
+    npc_chicken_cluck() : CreatureScript("npc_chicken_cluck") { }
 
-        struct npc_chicken_cluckAI : public ScriptedAI
+    struct npc_chicken_cluckAI : public ScriptedAI
+    {
+        npc_chicken_cluckAI(Creature* creature) : ScriptedAI(creature) { }
+
+        uint32 ResetFlagTimer;
+
+        void Reset()
         {
-            npc_chicken_cluckAI(Creature* creature) : ScriptedAI(creature) {}
+            ResetFlagTimer = 120000;
+            me->setFaction(FACTION_CHICKEN);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+        }
 
-            uint32 ResetFlagTimer;
+        void EnterCombat(Unit* /*who*/) { }
 
-            void Reset()
+        void UpdateAI(uint32 diff)
+        {
+            // Reset flags after a certain time has passed so that the next player has to start the 'event' again
+            if (me->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
             {
-                ResetFlagTimer = 120000;
-                me->setFaction(FACTION_CHICKEN);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                if (ResetFlagTimer <= diff)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+                else
+                    ResetFlagTimer -= diff;
             }
 
-            void EnterCombat(Unit* /*who*/) {}
+            if (UpdateVictim())
+                DoMeleeAttackIfReady();
+        }
 
-            void UpdateAI(uint32 const diff)
+        void ReceiveEmote(Player* player, uint32 emote)
+        {
+            switch (emote)
             {
-                // Reset flags after a certain time has passed so that the next player has to start the 'event' again
-                if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
-                {
-                    if (ResetFlagTimer <= diff)
+                case TEXT_EMOTE_CHICKEN:
+                    if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand() % 30 == 1)
                     {
-                        EnterEvadeMode();
-                        return;
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->setFaction(FACTION_FRIENDLY);
+                        Talk(player->GetTeam() == HORDE ? EMOTE_HELLO_H : EMOTE_HELLO_A);
                     }
-                    else
-                        ResetFlagTimer -= diff;
-                }
-
-                if (UpdateVictim())
-                    DoMeleeAttackIfReady();
+                    break;
+                case TEXT_EMOTE_CHEER:
+                    if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
+                    {
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->setFaction(FACTION_FRIENDLY);
+                        Talk(EMOTE_CLUCK_TEXT);
+                    }
+                    break;
             }
-
-            void ReceiveEmote(Player* player, uint32 emote)
-            {
-                switch (emote)
-                {
-                    case TEXT_EMOTE_CHICKEN:
-                        if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand() % 30 == 1)
-                        {
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                            me->setFaction(FACTION_FRIENDLY);
-                            DoScriptText(EMOTE_HELLO, me);
-                        }
-                        break;
-                    case TEXT_EMOTE_CHEER:
-                        if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
-                        {
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                            me->setFaction(FACTION_FRIENDLY);
-                            DoScriptText(EMOTE_CLUCK_TEXT, me);
-                        }
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_chicken_cluckAI(creature);
         }
+    };
 
-        bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
-        {
-            if (quest->GetQuestId() == QUEST_CLUCK)
-                CAST_AI(npc_chicken_cluck::npc_chicken_cluckAI, creature->AI())->Reset();
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_chicken_cluckAI(creature);
+    }
 
-            return true;
-        }
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
+    {
+        if (quest->GetQuestId() == QUEST_CLUCK)
+            CAST_AI(npc_chicken_cluck::npc_chicken_cluckAI, creature->AI())->Reset();
 
-        bool OnQuestComplete(Player* /*player*/, Creature* creature, Quest const* quest)
-        {
-            if (quest->GetQuestId() == QUEST_CLUCK)
-                CAST_AI(npc_chicken_cluck::npc_chicken_cluckAI, creature->AI())->Reset();
+        return true;
+    }
 
-            return true;
-        }
+    bool OnQuestComplete(Player* /*player*/, Creature* creature, Quest const* quest)
+    {
+        if (quest->GetQuestId() == QUEST_CLUCK)
+            CAST_AI(npc_chicken_cluck::npc_chicken_cluckAI, creature->AI())->Reset();
+
+        return true;
+    }
 };
 
 /*######
@@ -440,11 +444,11 @@ class npc_dancing_flames : public CreatureScript
                 me->SetDisableGravity(true);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
                 WorldPacket data;                       //send update position to client
-                me->BuildHeartBeatMsg(&data);
+                //me->BuildHeartBeatMsg(&data);
                 me->SendMessageToSet(&data, true);
             }
 
-            void UpdateAI(uint32 const diff)
+			void UpdateAI(uint32 diff)
             {
                 if (!Active)
                 {
@@ -469,7 +473,7 @@ class npc_dancing_flames : public CreatureScript
                     Active = false;
 
                     WorldPacket data;
-                    me->BuildHeartBeatMsg(&data);
+                    //me->BuildHeartBeatMsg(&data);
                     me->SendMessageToSet(&data, true);
                     switch (emote)
                     {
@@ -504,15 +508,15 @@ class npc_dancing_flames : public CreatureScript
 ## Triage quest
 ######*/
 
-//signed for 9623
-#define SAY_DOC1    -1000201
-#define SAY_DOC2    -1000202
-#define SAY_DOC3    -1000203
+enum Doctor
+{
+    SAY_DOC             = 0,
 
-#define DOCTOR_ALLIANCE     12939
-#define DOCTOR_HORDE        12920
-#define ALLIANCE_COORDS     7
-#define HORDE_COORDS        6
+    DOCTOR_ALLIANCE     = 12939,
+    DOCTOR_HORDE        = 12920,
+    ALLIANCE_COORDS     = 7,
+    HORDE_COORDS        = 6
+};
 
 struct Location
 {
@@ -690,7 +694,7 @@ class npc_doctor : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff);
+			void UpdateAI(uint32 diff);
 
             void EnterCombat(Unit* /*who*/){}
         };
@@ -715,114 +719,115 @@ class npc_doctor : public CreatureScript
 
 class npc_injured_patient : public CreatureScript
 {
-    public:
-        npc_injured_patient() : CreatureScript("npc_injured_patient") { }
+public:
+    npc_injured_patient() : CreatureScript("npc_injured_patient") { }
 
-        struct npc_injured_patientAI : public ScriptedAI
+    struct npc_injured_patientAI : public ScriptedAI
+    {
+        npc_injured_patientAI(Creature* creature) : ScriptedAI(creature) { }
+
+        uint64 DoctorGUID;
+        Location* Coord;
+
+        void Reset()
         {
-            npc_injured_patientAI(Creature* creature) : ScriptedAI(creature) {}
+            DoctorGUID = 0;
+            Coord = NULL;
 
-            uint64 DoctorGUID;
-            Location* Coord;
+            //no select
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            void Reset()
-            {
-                DoctorGUID = 0;
-                Coord = NULL;
+            //no regen health
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-                //no select
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            //to make them lay with face down
+            me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, UNIT_STAND_STATE_DEAD);
 
-                //no regen health
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+            uint32 mobId = me->GetEntry();
 
-                //to make them lay with face down
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
-
-                uint32 mobId = me->GetEntry();
-
-                switch (mobId)
-                {                                                   //lower max health
-                    case 12923:
-                    case 12938:                                     //Injured Soldier
-                        me->SetHealth(me->CountPctFromMaxHealth(75));
-                        break;
-                    case 12924:
-                    case 12936:                                     //Badly injured Soldier
-                        me->SetHealth(me->CountPctFromMaxHealth(50));
-                        break;
-                    case 12925:
-                    case 12937:                                     //Critically injured Soldier
-                        me->SetHealth(me->CountPctFromMaxHealth(25));
-                        break;
-                }
+            switch (mobId)
+            {                                                   //lower max health
+                case 12923:
+                case 12938:                                     //Injured Soldier
+                    me->SetHealth(me->CountPctFromMaxHealth(75));
+                    break;
+                case 12924:
+                case 12936:                                     //Badly injured Soldier
+                    me->SetHealth(me->CountPctFromMaxHealth(50));
+                    break;
+                case 12925:
+                case 12937:                                     //Critically injured Soldier
+                    me->SetHealth(me->CountPctFromMaxHealth(25));
+                    break;
             }
-
-            void EnterCombat(Unit* /*who*/){}
-
-            void SpellHit(Unit* caster, SpellInfo const* spell)
-            {
-                if (caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && spell->Id == 20804)
-                {
-                    if ((CAST_PLR(caster)->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (CAST_PLR(caster)->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE))
-                        if (DoctorGUID)
-                            if (Creature* doctor = Unit::GetCreature(*me, DoctorGUID))
-                                CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, CAST_PLR(caster), Coord);
-
-                    //make not selectable
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                    //regen health
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-
-                    //stand up
-                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
-
-                    DoScriptText(RAND(SAY_DOC1, SAY_DOC2, SAY_DOC3), me);
-
-                    uint32 mobId = me->GetEntry();
-                    me->SetWalk(false);
-
-                    switch (mobId)
-                    {
-                        case 12923:
-                        case 12924:
-                        case 12925:
-                            me->GetMotionMaster()->MovePoint(0, H_RUNTOX, H_RUNTOY, H_RUNTOZ);
-                            break;
-                        case 12936:
-                        case 12937:
-                        case 12938:
-                            me->GetMotionMaster()->MovePoint(0, A_RUNTOX, A_RUNTOY, A_RUNTOZ);
-                            break;
-                    }
-                }
-            }
-
-            void UpdateAI(uint32 const /*diff*/)
-            {
-                //lower HP on every world tick makes it a useful counter, not officlone though
-                if (me->isAlive() && me->GetHealth() > 6)
-                    me->ModifyHealth(-5);
-
-                if (me->isAlive() && me->GetHealth() <= 6)
-                {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->setDeathState(JUST_DIED);
-                    me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, 32);
-
-                    if (DoctorGUID)
-                        if (Creature* doctor = Unit::GetCreature((*me), DoctorGUID))
-                            CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientDied(Coord);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_injured_patientAI(creature);
         }
+
+        void EnterCombat(Unit* /*who*/)override { }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell)
+        {
+            Player* player = caster->ToPlayer();
+            if (!player || !me->IsAlive() || spell->Id != 20804)
+                return;
+
+            if (player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
+                if (DoctorGUID)
+                    if (Creature* doctor = Unit::GetCreature(*me, DoctorGUID))
+                        CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
+
+            //make not selectable
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+            //regen health
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
+            //stand up
+            me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, UNIT_STAND_STATE_STAND);
+
+            Talk(SAY_DOC);
+
+            uint32 mobId = me->GetEntry();
+            me->SetWalk(false);
+
+            switch (mobId)
+            {
+                case 12923:
+                case 12924:
+                case 12925:
+                    me->GetMotionMaster()->MovePoint(0, H_RUNTOX, H_RUNTOY, H_RUNTOZ);
+                    break;
+                case 12936:
+                case 12937:
+                case 12938:
+                    me->GetMotionMaster()->MovePoint(0, A_RUNTOX, A_RUNTOY, A_RUNTOZ);
+                    break;
+            }
+        }
+
+        void UpdateAI(uint32 /*diff*/)
+        {
+            //lower HP on every world tick makes it a useful counter, not officlone though
+            if (me->IsAlive() && me->GetHealth() > 6)
+                me->ModifyHealth(-5);
+
+            if (me->IsAlive() && me->GetHealth() <= 6)
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->setDeathState(JUST_DIED);
+                me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, 32);
+
+                if (DoctorGUID)
+                    if (Creature* doctor = Unit::GetCreature((*me), DoctorGUID))
+                        CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientDied(Coord);
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_injured_patientAI(creature);
+    }
 };
 
 void npc_doctor::npc_doctorAI::UpdateAI(uint32 const diff)
@@ -852,7 +857,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 const diff)
                     patientEntry = HordeSoldierId[rand() % 3];
                     break;
                 default:
-                    sLog->outError(LOG_FILTER_TSCR, "Invalid entry for Triage doctor. Please check your database");
+                    TC_LOG_ERROR("scripts", "Invalid entry for Triage doctor. Please check your database");
                     return;
             }
 
@@ -882,9 +887,9 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 const diff)
 ## npc_garments_of_quests
 ######*/
 
-//TODO: get text for each NPC
+/// @todo get text for each NPC
 
-enum eGarments
+enum Garments
 {
     SPELL_LESSER_HEAL_R2    = 2052,
     SPELL_FORTITUDE_R1      = 1243,
@@ -901,213 +906,208 @@ enum eGarments
     ENTRY_KORJA             = 12430,
     ENTRY_DG_KEL            = 12428,
 
-    //used by 12429, 12423, 12427, 12430, 12428, but signed for 12429
-    SAY_COMMON_HEALED       = -1000164,
-    SAY_DG_KEL_THANKS       = -1000165,
-    SAY_DG_KEL_GOODBYE      = -1000166,
-    SAY_ROBERTS_THANKS      = -1000167,
-    SAY_ROBERTS_GOODBYE     = -1000168,
-    SAY_KORJA_THANKS        = -1000169,
-    SAY_KORJA_GOODBYE       = -1000170,
-    SAY_DOLF_THANKS         = -1000171,
-    SAY_DOLF_GOODBYE        = -1000172,
-    SAY_SHAYA_THANKS        = -1000173,
-    SAY_SHAYA_GOODBYE       = -1000174, //signed for 21469
+    // used by 12429, 12423, 12427, 12430, 12428, but signed for 12429
+    SAY_THANKS              = 0,
+    SAY_GOODBYE             = 1,
+    SAY_HEALED              = 2,
 };
 
 class npc_garments_of_quests : public CreatureScript
 {
-    public:
-        npc_garments_of_quests() : CreatureScript("npc_garments_of_quests") { }
+public:
+    npc_garments_of_quests() : CreatureScript("npc_garments_of_quests") { }
 
-        struct npc_garments_of_questsAI : public npc_escortAI
+    struct npc_garments_of_questsAI : public npc_escortAI
+    {
+        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature)
         {
-            npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature) {Reset();}
+            Reset();
+        }
 
-            uint64 CasterGUID;
+        uint64 CasterGUID;
 
-            bool IsHealed;
-            bool CanRun;
+        bool IsHealed;
+        bool CanRun;
 
-            uint32 RunAwayTimer;
+        uint32 RunAwayTimer;
 
-            void Reset()
+        void Reset()
+        {
+            CasterGUID = 0;
+
+            IsHealed = false;
+            CanRun = false;
+
+            RunAwayTimer = 5000;
+
+            me->SetStandState(UNIT_STAND_STATE_KNEEL);
+            // expect database to have RegenHealth=0
+            me->SetHealth(me->CountPctFromMaxHealth(70));
+        }
+
+        void EnterCombat(Unit* /*who*/) { }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_LESSER_HEAL_R2 || spell->Id == SPELL_FORTITUDE_R1)
             {
-                CasterGUID = 0;
+                //not while in combat
+                if (me->IsInCombat())
+                    return;
 
-                IsHealed = false;
-                CanRun = false;
+                //nothing to be done now
+                if (IsHealed && CanRun)
+                    return;
 
-                RunAwayTimer = 5000;
-
-                me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                //expect database to have RegenHealth=0
-                me->SetHealth(me->CountPctFromMaxHealth(70));
-            }
-
-            void EnterCombat(Unit* /*who*/) {}
-
-            void SpellHit(Unit* caster, SpellInfo const* Spell)
-            {
-                if (Spell->Id == SPELL_LESSER_HEAL_R2 || Spell->Id == SPELL_FORTITUDE_R1)
+                if (Player* player = caster->ToPlayer())
                 {
-                    //not while in combat
-                    if (me->isInCombat())
-                        return;
+                    switch (me->GetEntry())
+                    {
+                        case ENTRY_SHAYA:
+                            if (player->GetQuestStatus(QUEST_MOON) == QUEST_STATUS_INCOMPLETE)
+                            {
+                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
+                                {
+                                    Talk(SAY_THANKS, caster);
+                                    CanRun = true;
+                                }
+                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
+                                {
+                                    CasterGUID = caster->GetGUID();
+                                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                                    Talk(SAY_HEALED, caster);
+                                    IsHealed = true;
+                                }
+                            }
+                            break;
+                        case ENTRY_ROBERTS:
+                            if (player->GetQuestStatus(QUEST_LIGHT_1) == QUEST_STATUS_INCOMPLETE)
+                            {
+                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
+                                {
+                                    Talk(SAY_THANKS, caster);
+                                    CanRun = true;
+                                }
+                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
+                                {
+                                    CasterGUID = caster->GetGUID();
+                                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                                    Talk(SAY_HEALED, caster);
+                                    IsHealed = true;
+                                }
+                            }
+                            break;
+                        case ENTRY_DOLF:
+                            if (player->GetQuestStatus(QUEST_LIGHT_2) == QUEST_STATUS_INCOMPLETE)
+                            {
+                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
+                                {
+                                    Talk(SAY_THANKS, caster);
+                                    CanRun = true;
+                                }
+                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
+                                {
+                                    CasterGUID = caster->GetGUID();
+                                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                                    Talk(SAY_HEALED, caster);
+                                    IsHealed = true;
+                                }
+                            }
+                            break;
+                        case ENTRY_KORJA:
+                            if (player->GetQuestStatus(QUEST_SPIRIT) == QUEST_STATUS_INCOMPLETE)
+                            {
+                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
+                                {
+                                    Talk(SAY_THANKS, caster);
+                                    CanRun = true;
+                                }
+                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
+                                {
+                                    CasterGUID = caster->GetGUID();
+                                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                                    Talk(SAY_HEALED, caster);
+                                    IsHealed = true;
+                                }
+                            }
+                            break;
+                        case ENTRY_DG_KEL:
+                            if (player->GetQuestStatus(QUEST_DARKNESS) == QUEST_STATUS_INCOMPLETE)
+                            {
+                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
+                                {
+                                    Talk(SAY_THANKS, caster);
+                                    CanRun = true;
+                                }
+                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
+                                {
+                                    CasterGUID = caster->GetGUID();
+                                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                                    Talk(SAY_HEALED, caster);
+                                    IsHealed = true;
+                                }
+                            }
+                            break;
+                    }
 
-                    //nothing to be done now
-                    if (IsHealed && CanRun)
-                        return;
+                    // give quest credit, not expect any special quest objectives
+                    if (CanRun)
+                        player->TalkedToCreature(me->GetEntry(), me->GetGUID());
+                }
+            }
+        }
 
-                    if (Player* player = caster->ToPlayer())
+        void WaypointReached(uint32 /*waypointId*/)
+        {
+
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            if (CanRun && !me->IsInCombat())
+            {
+                if (RunAwayTimer <= diff)
+                {
+                    if (Unit* unit = Unit::GetUnit(*me, CasterGUID))
                     {
                         switch (me->GetEntry())
                         {
                             case ENTRY_SHAYA:
-                                if (player->GetQuestStatus(QUEST_MOON) == QUEST_STATUS_INCOMPLETE)
-                                {
-                                    if (IsHealed && !CanRun && Spell->Id == SPELL_FORTITUDE_R1)
-                                    {
-                                        DoScriptText(SAY_SHAYA_THANKS, me, caster);
-                                        CanRun = true;
-                                    }
-                                    else if (!IsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
-                                    {
-                                        CasterGUID = caster->GetGUID();
-                                        me->SetStandState(UNIT_STAND_STATE_STAND);
-                                        DoScriptText(SAY_COMMON_HEALED, me, caster);
-                                        IsHealed = true;
-                                    }
-                                }
+                                Talk(SAY_GOODBYE, unit);
                                 break;
                             case ENTRY_ROBERTS:
-                                if (player->GetQuestStatus(QUEST_LIGHT_1) == QUEST_STATUS_INCOMPLETE)
-                                {
-                                    if (IsHealed && !CanRun && Spell->Id == SPELL_FORTITUDE_R1)
-                                    {
-                                        DoScriptText(SAY_ROBERTS_THANKS, me, caster);
-                                        CanRun = true;
-                                    }
-                                    else if (!IsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
-                                    {
-                                        CasterGUID = caster->GetGUID();
-                                        me->SetStandState(UNIT_STAND_STATE_STAND);
-                                        DoScriptText(SAY_COMMON_HEALED, me, caster);
-                                        IsHealed = true;
-                                    }
-                                }
+                                Talk(SAY_GOODBYE, unit);
                                 break;
                             case ENTRY_DOLF:
-                                if (player->GetQuestStatus(QUEST_LIGHT_2) == QUEST_STATUS_INCOMPLETE)
-                                {
-                                    if (IsHealed && !CanRun && Spell->Id == SPELL_FORTITUDE_R1)
-                                    {
-                                        DoScriptText(SAY_DOLF_THANKS, me, caster);
-                                        CanRun = true;
-                                    }
-                                    else if (!IsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
-                                    {
-                                        CasterGUID = caster->GetGUID();
-                                        me->SetStandState(UNIT_STAND_STATE_STAND);
-                                        DoScriptText(SAY_COMMON_HEALED, me, caster);
-                                        IsHealed = true;
-                                    }
-                                }
+                                Talk(SAY_GOODBYE, unit);
                                 break;
                             case ENTRY_KORJA:
-                                if (player->GetQuestStatus(QUEST_SPIRIT) == QUEST_STATUS_INCOMPLETE)
-                                {
-                                    if (IsHealed && !CanRun && Spell->Id == SPELL_FORTITUDE_R1)
-                                    {
-                                        DoScriptText(SAY_KORJA_THANKS, me, caster);
-                                        CanRun = true;
-                                    }
-                                    else if (!IsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
-                                    {
-                                        CasterGUID = caster->GetGUID();
-                                        me->SetStandState(UNIT_STAND_STATE_STAND);
-                                        DoScriptText(SAY_COMMON_HEALED, me, caster);
-                                        IsHealed = true;
-                                    }
-                                }
+                                Talk(SAY_GOODBYE, unit);
                                 break;
                             case ENTRY_DG_KEL:
-                                if (player->GetQuestStatus(QUEST_DARKNESS) == QUEST_STATUS_INCOMPLETE)
-                                {
-                                    if (IsHealed && !CanRun && Spell->Id == SPELL_FORTITUDE_R1)
-                                    {
-                                        DoScriptText(SAY_DG_KEL_THANKS, me, caster);
-                                        CanRun = true;
-                                    }
-                                    else if (!IsHealed && Spell->Id == SPELL_LESSER_HEAL_R2)
-                                    {
-                                        CasterGUID = caster->GetGUID();
-                                        me->SetStandState(UNIT_STAND_STATE_STAND);
-                                        DoScriptText(SAY_COMMON_HEALED, me, caster);
-                                        IsHealed = true;
-                                    }
-                                }
+                                Talk(SAY_GOODBYE, unit);
                                 break;
                         }
 
-                        //give quest credit, not expect any special quest objectives
-                        if (CanRun)
-                            player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-                    }
-                }
-            }
-
-            void WaypointReached(uint32 /*waypointId*/)
-            {
-
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (CanRun && !me->isInCombat())
-                {
-                    if (RunAwayTimer <= diff)
-                    {
-                        if (Unit* unit = Unit::GetUnit(*me, CasterGUID))
-                        {
-                            switch (me->GetEntry())
-                            {
-                                case ENTRY_SHAYA:
-                                    DoScriptText(SAY_SHAYA_GOODBYE, me, unit);
-                                    break;
-                                case ENTRY_ROBERTS:
-                                    DoScriptText(SAY_ROBERTS_GOODBYE, me, unit);
-                                    break;
-                                case ENTRY_DOLF:
-                                    DoScriptText(SAY_DOLF_GOODBYE, me, unit);
-                                    break;
-                                case ENTRY_KORJA:
-                                    DoScriptText(SAY_KORJA_GOODBYE, me, unit);
-                                    break;
-                                case ENTRY_DG_KEL:
-                                    DoScriptText(SAY_DG_KEL_GOODBYE, me, unit);
-                                    break;
-                            }
-
-                            Start(false, true, true);
-                        }
-                        else
-                            EnterEvadeMode();                       //something went wrong
-
-                        RunAwayTimer = 30000;
+                        Start(false, true, true);
                     }
                     else
-                        RunAwayTimer -= diff;
+                        EnterEvadeMode();                       //something went wrong
+
+                    RunAwayTimer = 30000;
                 }
-
-                npc_escortAI::UpdateAI(diff);
+                else
+                    RunAwayTimer -= diff;
             }
-        };
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_garments_of_questsAI(creature);
+            npc_escortAI::UpdateAI(diff);
         }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_garments_of_questsAI(creature);
+    }
 };
 
 /*######
@@ -1134,14 +1134,14 @@ class npc_guardian : public CreatureScript
             {
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+			void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
 
                 if (me->isAttackReady())
                 {
-                    DoCast(me->getVictim(), SPELL_DEATHTOUCH, true);
+                    DoCast(me->GetVictim(), SPELL_DEATHTOUCH, true);
                     me->resetAttackTimer();
                 }
             }
@@ -1164,7 +1164,7 @@ class npc_mount_vendor : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
-            if (creature->isQuestGiver())
+            if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
 
             bool canBuy = false;
@@ -1241,7 +1241,7 @@ class npc_mount_vendor : public CreatureScript
 
             if (canBuy)
             {
-                if (creature->isVendor())
+                if (creature->IsVendor())
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
                 player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
             }
@@ -1274,17 +1274,14 @@ class npc_rogue_trainer : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
-            if (creature->isQuestGiver())
+            if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
 
-            if (creature->isTrainer())
+            if (creature->IsTrainer())
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
             if (creature->isCanTrainingAndResetTalentsOf(player))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_ROGUE1, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_UNLEARNTALENTS);
-
-            if (creature->isCanTrainingAndResetTalentsOf(player))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_ROGUE4, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_UNLEARNSPECIALIZATION);
 
             if (player->GetSpecsCount() == 1 && creature->isCanTrainingAndResetTalentsOf(player) && player->getLevel() >= sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_ROGUE3, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_LEARNDUALSPEC);
@@ -1315,10 +1312,6 @@ class npc_rogue_trainer : public CreatureScript
                     player->CLOSE_GOSSIP_MENU();
                     player->SendTalentWipeConfirm(creature->GetGUID(), false);
                     break;
-                case GOSSIP_OPTION_UNLEARNSPECIALIZATION:
-                    player->CLOSE_GOSSIP_MENU();
-                    player->SendTalentWipeConfirm(creature->GetGUID(), true);
-                    break;
                 case GOSSIP_OPTION_LEARNDUALSPEC:
                     if (player->GetSpecsCount() == 1 && !(player->getLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
                     {
@@ -1334,8 +1327,8 @@ class npc_rogue_trainer : public CreatureScript
 
                             // Cast spells that teach dual spec
                             // Both are also ImplicitTarget self and must be cast by player
-                            player->CastSpell(player, 63680, true, NULL, NULLAURA_EFFECT, player->GetGUID());
-                            player->CastSpell(player, 63624, true, NULL, NULLAURA_EFFECT, player->GetGUID());
+                            player->CastSpell(player, 63680, true, NULL, NULL, player->GetGUID());
+                            player->CastSpell(player, 63624, true, NULL, NULL, player->GetGUID());
 
                             // Should show another Gossip text with "Congratulations..."
                             player->PlayerTalkClass->SendCloseGossip();
@@ -1387,7 +1380,7 @@ class npc_sayge : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
-            if (creature->isQuestGiver())
+            if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
 
             if (player->HasSpellCooldown(SPELL_INT) ||
@@ -1565,7 +1558,7 @@ class npc_tonk_mine : public CreatureScript
             void AttackStart(Unit* /*who*/) {}
             void MoveInLineOfSight(Unit* /*who*/) {}
 
-            void UpdateAI(uint32 const diff)
+			void UpdateAI(uint32 diff)
             {
                 if (ExplosionTimer <= diff)
                 {
@@ -1612,50 +1605,6 @@ class npc_brewfest_reveler : public CreatureScript
 };
 
 /*####
-## npc_winter_reveler
-####*/
-
-enum WinterReveler
-{
-    SPELL_MISTLETOE_DEBUFF       = 26218,
-    SPELL_CREATE_MISTLETOE       = 26206,
-    SPELL_CREATE_HOLLY           = 26207,
-    SPELL_CREATE_SNOWFLAKES      = 45036,
-};
-
-class npc_winter_reveler : public CreatureScript
-{
-    public:
-        npc_winter_reveler() : CreatureScript("npc_winter_reveler") { }
-
-        struct npc_winter_revelerAI : public ScriptedAI
-        {
-            npc_winter_revelerAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void ReceiveEmote(Player* player, uint32 emote)
-            {
-                if (player->HasAura(SPELL_MISTLETOE_DEBUFF))
-                    return;
-
-                if (!IsHolidayActive(HOLIDAY_FEAST_OF_WINTER_VEIL))
-                    return;
-
-                if (emote == TEXT_EMOTE_KISS)
-                {
-                    uint32 spellId = RAND<uint32>(SPELL_CREATE_MISTLETOE, SPELL_CREATE_HOLLY, SPELL_CREATE_SNOWFLAKES);
-                    me->CastSpell(player, spellId, false);
-                    me->CastSpell(player, SPELL_MISTLETOE_DEBUFF, false);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_winter_revelerAI(creature);
-        }
-};
-
-/*####
 ## npc_snake_trap_serpents
 ####*/
 
@@ -1693,11 +1642,11 @@ class npc_snake_trap : public CreatureScript
                 me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
                 //Add delta to make them not all hit the same time
                 uint32 delta = (rand() % 7) * 100;
-                me->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, float(Info->baseattacktime + delta));
+                me->SetStatFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME, float(Info->baseattacktime + delta));
                 me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, float(Info->attackpower));
 
                 // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
-                if (!me->getVictim() && me->IsSummon())
+                if (!me->GetVictim() && me->IsSummon())
                     if (Unit* Owner = me->ToTempSummon()->GetSummoner())
                         if (Owner->getAttackerForHelper())
                             AttackStart(Owner->getAttackerForHelper());
@@ -1706,7 +1655,7 @@ class npc_snake_trap : public CreatureScript
             //Redefined for random target selection:
             void MoveInLineOfSight(Unit* who)
             {
-                if (!me->getVictim() && me->canCreatureAttack(who))
+                if (!me->GetVictim() && me->CanCreatureAttack(who))
                 {
                     if (me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;
@@ -1724,12 +1673,12 @@ class npc_snake_trap : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+			void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                if (me->getVictim()->HasCrowdControlAura(me))
+                if (me->GetVictim()->HasBreakableByDamageCrowdControlAura(me))
                 {
                     me->InterruptNonMeleeSpells(false);
                     return;
@@ -1747,7 +1696,7 @@ class npc_snake_trap : public CreatureScript
                             else
                                 spell = SPELL_CRIPPLING_POISON;
 
-                            DoCast(me->getVictim(), spell);
+                            DoCast(me->GetVictim(), spell);
                         }
 
                         SpellTimer = VIPER_TIMER;
@@ -1755,7 +1704,7 @@ class npc_snake_trap : public CreatureScript
                     else //Venomous Snake
                     {
                         if (urand(0, 2) == 0) //33% chance to cast
-                            DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                            DoCast(me->GetVictim(), SPELL_DEADLY_POISON);
                         SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() % 5) * 100;
                     }
                 }
@@ -1802,7 +1751,7 @@ class mob_mojo : public CreatureScript
 
             void EnterCombat(Unit* /*who*/){}
 
-            void UpdateAI(uint32 const diff)
+			void UpdateAI(uint32 diff)
             {
                 if (me->HasAura(20372))
                 {
@@ -1818,7 +1767,7 @@ class mob_mojo : public CreatureScript
             {
                 me->HandleEmoteCommand(emote);
                 Unit* own = me->GetOwner();
-                if (!own || own->GetTypeId() != TYPEID_PLAYER || CAST_PLR(own)->GetTeam() != player->GetTeam())
+				if (!own || own->GetTypeId() != TYPEID_PLAYER || player->GetTeam() != player->GetTeam())
                     return;
                 if (emote == TEXT_EMOTE_KISS)
                 {
@@ -1853,7 +1802,6 @@ class mob_mojo : public CreatureScript
                             break;
                     }
 
-                    me->MonsterWhisper(whisp.c_str(), player->GetGUID());
                     if (victimGUID)
                         if (Player* victim = Unit::GetPlayer(*me, victimGUID))
                             victim->RemoveAura(43906);//remove polymorph frog thing
@@ -1872,10 +1820,6 @@ class mob_mojo : public CreatureScript
         }
 };
 
-#define SPELL_ARCANE_SPEC 78832
-#define SPELL_FIRE_SPEC 99062
-#define SPELL_FROST_SPEC 59638
-
 class npc_mirror_image : public CreatureScript
 {
 public:
@@ -1885,33 +1829,12 @@ public:
     {
         npc_mirror_imageAI(Creature* creature) : CasterAI(creature) {}
 
-        uint32 spell_id;
-
         void InitializeAI()
         {
-            spell_id = SPELL_FROST_SPEC;
-
             CasterAI::InitializeAI();
             Unit* owner = me->GetOwner();
             if (!owner)
                 return;
-
-            if (Player* player = owner->ToPlayer())
-            {
-                if (player->HasGlyph(63093))
-                {
-                    switch (player->GetSpecializationId(player->GetActiveSpec()))
-                    {
-                        case SPEC_MAGE_ARCANE:
-                            spell_id = SPELL_ARCANE_SPEC;
-                            break;
-                        case SPEC_MAGE_FIRE:
-                            spell_id = SPELL_FIRE_SPEC;
-                            break;
-                    }
-                }
-            }
-
             // Inherit Master's Threat List (not yet implemented)
             owner->CastSpell((Unit*)NULL, 58838, true);
             // here mirror image casts on summoner spell (not present in client dbc) 49866
@@ -1920,18 +1843,10 @@ public:
             owner->CastSpell(me, 45204, true);
         }
 
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            DoCastVictim(spell_id);
-        }
-
         // Do not reload Creature templates on evade mode enter - prevent visual lost
         void EnterEvadeMode()
         {
-            if (me->IsInEvadeMode() || !me->isAlive())
+            if (me->IsInEvadeMode() || !me->IsAlive())
                 return;
 
             Unit* owner = me->GetCharmerOrOwner();
@@ -1951,424 +1866,275 @@ public:
     }
 };
 
-class npc_ebon_gargoyle : public CreatureScript
-{
-public:
-    npc_ebon_gargoyle() : CreatureScript("npc_ebon_gargoyle") { }
+//class npc_ebon_gargoyle : public CreatureScript
+//{
+//    public:
+//        npc_ebon_gargoyle() : CreatureScript("npc_ebon_gargoyle") { }
+//
+//        struct npc_ebon_gargoyleAI : CasterAI
+//        {
+//            npc_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) {}
+//
+//            uint32 despawnTimer;
+//
+//            void InitializeAI()
+//            {
+//                CasterAI::InitializeAI();
+//                uint64 ownerGuid = me->GetOwnerGUID();
+//                if (!ownerGuid)
+//                    return;
+//                // Not needed to be despawned now
+//                despawnTimer = 0;
+//            }
+//
+//            void DoSearchTarget()
+//            {
+//                Unit* owner = me->GetOwner();
+//                if (!owner)
+//                    return;
+//
+//                // Find victim of Summon Gargoyle spell
+//                std::list<Unit*> targets;
+//                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
+//                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+//                me->VisitNearbyObject(30, searcher);
+//                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+//                    if ((*iter)->GetAura(49206, owner->GetGUID()))
+//                    {
+//                        me->Attack((*iter), false);
+//                        break;
+//                    }
+//                    else
+//                    {
+//                        owner->AddAura(49206, (*iter));
+//                        break;
+//                    }
+//            }
+//
+//            void EnterEvadeMode() { }
+//
+//            void JustDied(Unit* /*killer*/)
+//            {
+//                // Stop Feeding Gargoyle when it dies
+//                if (Unit* owner = me->GetOwner())
+//                    owner->RemoveAurasDueToSpell(50514);
+//            }
+//
+//            void AttackStart(Unit *target)
+//            {
+//                if (target && !target->HasAura(49206))
+//                {
+//                    DoSearchTarget();
+//                    return;
+//                }
+//
+//                AttackStartCaster(target, 30.0f);
+//            }
+//
+//            // Fly away when dismissed
+//            void SpellHit(Unit* source, SpellInfo const* spell)
+//            {
+//                if (spell->Id != 50515 || !me->IsAlive())
+//                    return;
+//
+//                Unit* owner = me->GetOwner();
+//
+//                if (!owner || owner != source)
+//                    return;
+//
+//                // Stop Fighting
+//                me->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, true);
+//                // Sanctuary
+//                me->CastSpell(me, 54661, true);
+//                me->SetReactState(REACT_PASSIVE);
+//
+//                //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
+//                // Fly Away
+//                me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_ASCENDING|MOVEMENTFLAG_FLYING);
+//                me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
+//                me->SetSpeed(MOVE_RUN, 0.75f, true);
+//                float x = me->GetPositionX() + 20 * std::cos(me->GetOrientation());
+//                float y = me->GetPositionY() + 20 * std::sin(me->GetOrientation());
+//                float z = me->GetPositionZ() + 40;
+//                me->GetMotionMaster()->Clear(false);
+//                me->GetMotionMaster()->MovePoint(0, x, y, z);
+//
+//                // Despawn as soon as possible
+//                despawnTimer = 4 * IN_MILLISECONDS;
+//            }
+//
+//			void UpdateAI(uint32 diff)
+//            {
+//                if (despawnTimer > 0)
+//                {
+//                    if (despawnTimer > diff)
+//                        despawnTimer -= diff;
+//                    else
+//                        me->DespawnOrUnsummon();
+//                    return;
+//                }
+//                CasterAI::UpdateAI(diff);
+//            }
+//        };
+//
+//        CreatureAI* GetAI(Creature* creature) const
+//        {
+//            return new npc_ebon_gargoyleAI(creature);
+//        }
+//};
 
-    struct npc_ebon_gargoyleAI : CasterAI
-    {
-        npc_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) {}
+//class npc_lightwell : public CreatureScript
+//{
+//    public:
+//        npc_lightwell() : CreatureScript("npc_lightwell") { }
+//
+//        struct npc_lightwellAI : public PassiveAI
+//        {
+//            npc_lightwellAI(Creature* creature) : PassiveAI(creature)
+//            {
+//                DoCast(me, 59907, false);
+//            }
+//
+//            void EnterEvadeMode()
+//            {
+//                if (!me->IsAlive())
+//                    return;
+//
+//                me->DeleteThreatList();
+//                me->CombatStop(true);
+//                me->ResetPlayerDamageReq();
+//            }
+//        };
+//
+//        CreatureAI* GetAI(Creature* creature) const
+//        {
+//            return new npc_lightwellAI(creature);
+//        }
+//};
 
-        uint32 despawnTimer;
-        uint32 attackTimer;
-        bool justSummoned;
-        bool despawned;
-
-        void InitializeAI()
-        {
-            // Not needed to be despawned now
-            despawnTimer = 0;
-
-            CasterAI::InitializeAI();
-            uint64 ownerGuid = me->GetOwnerGUID();
-            if (!ownerGuid)
-                return;
-
-            attackTimer = 100;
-            justSummoned = true;
-            despawned = false;
-
-            me->SetReactState(REACT_PASSIVE);
-            //me->SetCanFly(true);
-            //me->SetDisableGravity(true);
-            me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
-            me->SetSpeed(MOVE_RUN, 0.75f, true);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            // Stop Feeding Gargoyle when it dies
-            if (Unit* owner = me->GetOwner())
-                owner->RemoveAurasDueToSpell(50514);
-        }
-
-        void AttackStart(Unit *target)
-        {
-            if (me->GetReactState() == REACT_PASSIVE)
-                return;
-
-            if (target && !target->HasAura(49206))
-            {
-                DoSearchTarget();
-                return;
-            }
-
-            AttackStartCaster(target, 30.0f);
-        }
-
-        void DoSearchTarget()
-        {
-            uint64 ownerGuid = me->GetOwnerGUID();
-            if (!ownerGuid)
-                return;
-
-            Unit* owner = me->GetOwner();
-            if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            std::list<Unit*> targets;
-            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 60);
-            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-            me->VisitNearbyObject(30, searcher);
-            for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-            {
-                Unit *victim = *itr;
-                if (victim->GetAura(49206, ownerGuid) && !victim->HasAura(5384))
-                {
-                    if (me->canStartAttack(victim, true) && owner->canSeeOrDetect(victim, false))
-                    {
-                        me->Attack(victim, false);
-                        return;
-                    }
-                }
-            }
-
-            if (Pet* pet = owner->ToPlayer()->GetPet())
-            {
-                if (Unit* victim = pet->getVictim())
-                {
-                    if (me->canStartAttack(victim, true) && owner->canSeeOrDetect(victim, false))
-                    {
-                        me->Attack(victim, false);
-                        return;
-                    }
-                }
-            }
-
-            if (Unit* target = me->SelectNearbyTarget(0, 40.0f))
-                if (me->canStartAttack(target, true) && owner->canSeeOrDetect(target, false))
-                    me->Attack(target, false);
-        }
-
-        // Fly away when dismissed
-        void SpellHit(Unit* source, SpellInfo const* spell)
-        {
-            if (spell->Id != 50515 || !me->isAlive())
-                return;
-
-            Unit* owner = me->GetOwner();
-
-            if (!owner || owner != source)
-                return;
-
-            // Stop Fighting
-            me->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, true);
-            // Sanctuary
-            me->CastSpell(me, 54661, true);
-            me->SetReactState(REACT_PASSIVE);
-            me->InterruptNonMeleeSpells(false);
-
-            //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
-            // Fly Away
-            me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_ASCENDING|MOVEMENTFLAG_FLYING);
-            me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
-            me->SetSpeed(MOVE_RUN, 0.75f, true);
-            float x = me->GetPositionX() + 20 * cos(me->GetOrientation());
-            float y = me->GetPositionY() + 20 * sin(me->GetOrientation());
-            float z = me->GetPositionZ() + 40;
-            me->GetMotionMaster()->Clear(false);
-            me->GetMotionMaster()->MovePoint(0, x, y, z);
-
-            // Despawn as soon as possible
-            despawnTimer = 4 * IN_MILLISECONDS;
-            despawned = true;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (justSummoned)
-            {
-                justSummoned = false;
-                //me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() - 25.0f);
-            }
-
-            if (attackTimer > 0 && !despawned)
-            {
-                if (attackTimer > diff)
-                    attackTimer -= diff;
-                else
-                {
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    DoSearchTarget();
-                }
-            }
-
-            if (despawnTimer > 0)
-            {
-                if (despawnTimer > diff)
-                    despawnTimer -= diff;
-                else
-                    me->DespawnOrUnsummon();
-                return;
-            }
-
-            CasterAI::UpdateAI(diff);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_ebon_gargoyleAI(creature);
-    }
-};
-
-// Lightwell - 64571
-class npc_new_lightwell : public CreatureScript
-{
-    public:
-        npc_new_lightwell() : CreatureScript("npc_new_lightwell") { }
-
-        struct npc_new_lightwellAI : public PassiveAI
-        {
-            npc_new_lightwellAI(Creature* creature) : PassiveAI(creature)
-            {
-                DoCast(me, 59907, false);
-                renewTimer = 1000;
-
-                if (AuraPtr charges = me->GetAura(59907))
-                {
-                    if (Unit* owner = me->GetOwner())
-                    {
-                        // Glyph of Deep Wells
-                        if (owner->HasAura(55673))
-                        {
-                            charges->SetCharges(17);
-                            charges->GetEffect(0)->ChangeAmount(17);
-                        }
-                    }
-                }
-            }
-
-            uint32 renewTimer;
-
-            void Reset()
-            {
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->setFaction(35);
-            }
-
-            void EnterEvadeMode()
-            {
-                if (!me->isAlive())
-                    return;
-
-                me->DeleteThreatList();
-                me->CombatStop(true);
-                me->ResetPlayerDamageReq();
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (renewTimer)
-                {
-                    if (renewTimer <= diff)
-                    {
-                        if (me->GetOwner())
-                        {
-                            if (Player* plr = me->GetOwner()->ToPlayer())
-                            {
-                                std::list<Unit*> party;
-                                std::list<Unit*> tempList;
-                                plr->GetPartyMembers(party);
-
-                                for (auto itr : party)
-                                {
-                                    if (itr->GetHealthPct() >= 50.0f ||
-                                        itr->GetDistance(me) >= 40.0f ||
-                                        itr->HasAura(7001))
-                                        continue;
-
-                                    tempList.push_back(itr);
-                                }
-
-                                for (auto itr : tempList)
-                                    me->CastSpell(itr, 60123, true);
-                            }
-                        }
-
-                        renewTimer = 1000;
-                    }
-                    else
-                        renewTimer -= diff;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_new_lightwellAI(creature);
-        }
-};
-
-// Lightwell - 31897
-class npc_lightwell : public CreatureScript
-{
-    public:
-        npc_lightwell() : CreatureScript("npc_lightwell") { }
-
-        struct npc_lightwellAI : public PassiveAI
-        {
-            npc_lightwellAI(Creature* creature) : PassiveAI(creature)
-            {
-                DoCast(me, 59907, false);
-
-                if (AuraPtr charges = me->GetAura(59907))
-                {
-                    if (Unit* owner = me->GetOwner())
-                    {
-                        // Glyph of Deep Wells
-                        if (owner->HasAura(55673))
-                        {
-                            charges->SetCharges(17);
-                            charges->GetEffect(0)->ChangeAmount(17);
-                        }
-                    }
-                }
-            }
-
-            void Reset()
-            {
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->setFaction(35);
-            }
-
-            void EnterEvadeMode()
-            {
-                if (!me->isAlive())
-                    return;
-
-                me->DeleteThreatList();
-                me->CombatStop(true);
-                me->ResetPlayerDamageReq();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_lightwellAI(creature);
-        }
-};
-
-enum eTrainingDummy
+enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
-    NPC_TARGET_DUMMY                           = 2673
+    NPC_TARGET_DUMMY                           = 2673,
+
+    EVENT_TD_CHECK_COMBAT                      = 1,
+    EVENT_TD_DESPAWN                           = 2
 };
 
 class npc_training_dummy : public CreatureScript
 {
-    public:
-        npc_training_dummy() : CreatureScript("npc_training_dummy") { }
+public:
+    npc_training_dummy() : CreatureScript("npc_training_dummy") { }
 
-        struct npc_training_dummyAI : Scripted_NoMovementAI
+    struct npc_training_dummyAI : ScriptedAI
+    {
+        npc_training_dummyAI(Creature* creature) : ScriptedAI(creature)
         {
-            npc_training_dummyAI(Creature* creature) : Scripted_NoMovementAI(creature)
-            {
-                entry = creature->GetEntry();
-            }
-
-            uint32 entry;
-            uint32 resetTimer;
-            uint32 despawnTimer;
-
-            void Reset()
-            {
-                me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);   // Immune to knock back effects like Whiplash
-
-                resetTimer = 5000;
-                despawnTimer = 15000;
-            }
-
-            void EnterEvadeMode()
-            {
-                if (!_EnterEvadeMode())
-                    return;
-
-                Reset();
-            }
-
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage)
-            {
-                resetTimer = 5000;
-                damage = 0;
-            }
-
-            void EnterCombat(Unit* /*who*/)
-            {
-                if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
-                    return;
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (!me->HasUnitState(UNIT_STATE_STUNNED))
-                    me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
-
-                if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
-                {
-                    if (resetTimer <= diff)
-                    {
-                        EnterEvadeMode();
-                        resetTimer = 5000;
-                    }
-                    else
-                        resetTimer -= diff;
-                    return;
-                }
-                else
-                {
-                    if (despawnTimer <= diff)
-                        me->DespawnOrUnsummon();
-                    else
-                        despawnTimer -= diff;
-                }
-            }
-            void MoveInLineOfSight(Unit* /*who*/){return;}
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_training_dummyAI(creature);
+            SetCombatMovement(false);
         }
+
+        EventMap _events;
+        std::unordered_map<uint64, time_t> _damageTimes;
+
+        void Reset()
+        {
+            me->SetControlled(true, UNIT_STATE_STUNNED);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+
+            _events.Reset();
+            _damageTimes.clear();
+            if (me->GetEntry() != NPC_ADVANCED_TARGET_DUMMY && me->GetEntry() != NPC_TARGET_DUMMY)
+                _events.ScheduleEvent(EVENT_TD_CHECK_COMBAT, 1000);
+            else
+                _events.ScheduleEvent(EVENT_TD_DESPAWN, 15000);
+        }
+
+        void EnterEvadeMode()
+        {
+            if (!_EnterEvadeMode())
+                return;
+
+            Reset();
+        }
+
+        void DamageTaken(Unit* doneBy, uint32& damage)
+        {
+            me->AddThreat(doneBy, float(damage));
+            _damageTimes[doneBy->GetGUID()] = time(NULL);
+            damage = 0;
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            if (!me->IsInCombat())
+                return;
+
+            if (!me->HasUnitState(UNIT_STATE_STUNNED))
+                me->SetControlled(true, UNIT_STATE_STUNNED);
+
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_TD_CHECK_COMBAT:
+                    {
+                        time_t now = time(NULL);
+                        for (std::unordered_map<uint64, time_t>::iterator itr = _damageTimes.begin(); itr != _damageTimes.end();)
+                        {
+                            if (itr->second < now - 5)
+                            {
+                                if (Unit* unit = ObjectAccessor::GetUnit(*me, itr->first))
+                                    unit->getHostileRefManager().deleteReference(me);
+
+                                itr = _damageTimes.erase(itr);
+                            }
+                            else
+                                ++itr;
+                        }
+                        _events.ScheduleEvent(EVENT_TD_CHECK_COMBAT, 1000);
+                        break;
+                    }
+                    case EVENT_TD_DESPAWN:
+                        me->DespawnOrUnsummon(1);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+		void SpellHit(Unit* caster, SpellInfo const* spell) {
+			//Get the player who cast the spell
+			if (Player* p = caster->ToPlayer()){
+				//Get the id of the spell 
+				if (spell->Id == 2098){
+					//if player has that quest incomplete
+					if (p->GetQuestStatus(24967) == QUEST_STATUS_INCOMPLETE){
+						//reward the monster
+						Quest const* qInfo = sObjectMgr->GetQuestTemplate(24967);
+						if (qInfo)
+						{
+							p->KilledMonsterCredit(qInfo->GetQuestObjectiveXIndex(0)->ObjectId);
+						}
+					}
+				}
+			}
+		}
+
+        void MoveInLineOfSight(Unit* /*who*/) { }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_training_dummyAI(creature);
+    }
 };
 
 /*######
 # npc_fire_elemental
 ######*/
-#define SPELL_FIRENOVA        12470
-#define SPELL_FIRESHIELD      13376
-#define SPELL_FIREBLAST       57984
-
-enum fireEvents
-{
-    EVENT_FIRE_NOVA     = 1,
-    EVENT_FIRE_BLAST    = 2,
-    EVENT_FIRE_SHIELD   = 3
-};
-
-enum fireSpells
-{
-    SPELL_SHAMAN_FIRE_BLAST     = 57984,
-    SPELL_SHAMAN_FIRE_NOVA      = 12470,
-    SPELL_SHAMAN_FIRE_SHIELD    = 13376
-};
 
 class npc_fire_elemental : public CreatureScript
 {
@@ -2379,64 +2145,35 @@ class npc_fire_elemental : public CreatureScript
         {
             npc_fire_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
-            EventMap events;
+            uint32 FireBlastTimer;
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_FIRE_NOVA, urand(5000, 20000));
-                events.ScheduleEvent(EVENT_FIRE_BLAST, urand(5000, 20000));
-                events.ScheduleEvent(EVENT_FIRE_SHIELD, 0);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
+                FireBlastTimer = 6000;
             }
 
-            void UpdateAI(const uint32 diff)
+			void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
-                {
-                    if (Unit* owner = me->GetOwner())
-                    {
-                        Unit* ownerTarget = NULL;
-                        if (Player* plr = owner->ToPlayer())
-                            ownerTarget = plr->GetSelectedUnit();
-                        else
-                            ownerTarget = owner->getVictim();
-
-                        if (ownerTarget)
-                            AttackStart(ownerTarget);
-                    }
-
                     return;
-                }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                events.Update(diff);
-
-                switch (events.ExecuteEvent())
+                if (FireBlastTimer <= diff)
                 {
-                    case EVENT_FIRE_NOVA:
-                        DoCastVictim(SPELL_SHAMAN_FIRE_NOVA);
-                        events.ScheduleEvent(EVENT_FIRE_NOVA, urand(5000, 20000));
-                        break;
-                    case EVENT_FIRE_BLAST:
-                        DoCastVictim(SPELL_SHAMAN_FIRE_BLAST);
-                        events.ScheduleEvent(EVENT_FIRE_BLAST, urand(5000, 20000));
-                        break;
-                    case EVENT_FIRE_SHIELD:
-                        DoCastVictim(SPELL_SHAMAN_FIRE_SHIELD);
-                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 4000);
-                        break;
-                    default:
-                        break;
+                    me->CastSpell(me->GetVictim(), 57984, true);
+                    FireBlastTimer = 6000;
                 }
+                else
+                    FireBlastTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
         };
- 
-        CreatureAI *GetAI(Creature* creature) const
+
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_fire_elementalAI(creature);
         }
@@ -2464,28 +2201,14 @@ class npc_earth_elemental : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             }
 
-            void UpdateAI(const uint32 diff)
+			void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
-                {
-                    if (Unit* owner = me->GetOwner())
-                    {
-                        Unit* ownerTarget = NULL;
-                        if (Player* plr = owner->ToPlayer())
-                            ownerTarget = plr->GetSelectedUnit();
-                        else
-                            ownerTarget = owner->getVictim();
-
-                        if (ownerTarget)
-                            AttackStart(ownerTarget);
-                    }
-
                     return;
-                }
 
                 if (AngeredEarth_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ANGEREDEARTH);
+                    DoCast(me->GetVictim(), SPELL_ANGEREDEARTH);
                     AngeredEarth_Timer = 5000 + rand() % 15000; // 5-20 sec cd
                 }
                 else
@@ -2529,18 +2252,18 @@ enum WormholeSpells
 class npc_wormhole : public CreatureScript
 {
     public:
-        npc_wormhole() : CreatureScript("npc_wormhole") {}
+        npc_wormhole() : CreatureScript("npc_wormhole") { }
 
         struct npc_wormholeAI : public PassiveAI
         {
-            npc_wormholeAI(Creature* creature) : PassiveAI(creature) {}
+            npc_wormholeAI(Creature* creature) : PassiveAI(creature) { }
 
             void InitializeAI()
             {
                 _showUnderground = urand(0, 100) == 0; // Guessed value, it is really rare though
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 return (type == DATA_SHOW_UNDERGROUND && _showUnderground) ? 1 : 0;
             }
@@ -2635,7 +2358,7 @@ class npc_pet_trainer : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
-            if (creature->isQuestGiver())
+            if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
 
             if (player->getClass() == CLASS_HUNTER)
@@ -2843,7 +2566,7 @@ class npc_experience : public CreatureScript
         bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
         {
             player->PlayerTalkClass->ClearMenus();
-            bool noXPGain = player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+			bool noXPGain = player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             bool doSwitch = false;
 
             switch (action)
@@ -2868,12 +2591,12 @@ class npc_experience : public CreatureScript
                 else if (noXPGain)
                 {
                     player->ModifyMoney(-int64(EXP_COST));
-                    player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+					player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
                 }
                 else if (!noXPGain)
                 {
                     player->ModifyMoney(-EXP_COST);
-                    player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+                    player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
                 }
             }
             player->PlayerTalkClass->SendCloseGossip();
@@ -3207,14 +2930,14 @@ class npc_spring_rabbit : public CreatureScript
 
             void EnterCombat(Unit * /*who*/) { }
 
-            void DoAction(const int32 /*param*/)
+			void DoAction(int32 /*param*/)
             {
                 inLove = true;
                 if (Unit* owner = me->GetOwner())
                     owner->CastSpell(owner, SPELL_SPRING_FLING, true);
             }
 
-            void UpdateAI(const uint32 diff)
+			void UpdateAI(uint32 diff)
             {
                 if (inLove)
                 {
@@ -3280,135 +3003,6 @@ class npc_generic_harpoon_cannon : public CreatureScript
 };
 
 /*######
-## npc_experience
-######*/
-
-#define GOSSIP_CHOOSE_FACTION     "I would like to choose my faction"
-#define GOSSIP_TP_STORMIND        "I would like to go to Stormwind"
-#define GOSSIP_TP_ORGRI           "I would like to go to Orgrimmar"
-
-class npc_choose_faction : public CreatureScript
-{
-    public:
-        npc_choose_faction() : CreatureScript("npc_choose_faction") { }
-
-        bool OnGossipHello(Player* player, Creature* creature)
-        {
-            if (player->getRace() == RACE_PANDAREN_NEUTRAL)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            else if (player->getRace() == RACE_PANDAREN_ALLI)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            else if (player->getRace() == RACE_PANDAREN_HORDE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->ShowNeutralPlayerFactionSelectUI();
-            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-                player->TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
-            else if (action == GOSSIP_ACTION_INFO_DEF + 3)
-                player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
-
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
-        }
-};
-
-class npc_choose_faction_after_shop : public CreatureScript
-{
-    public:
-        npc_choose_faction_after_shop() : CreatureScript("npc_choose_faction_after_shop") { }
-
-        bool OnGossipHello(Player* player, Creature* creature)
-        {
-            if (player->getRace() == RACE_PANDAREN_NEUTRAL)
-            {
-                if (player->getLevel() > 69) // minimum level sale = 70
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            }
-            else if (player->getRace() == RACE_PANDAREN_ALLI)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            else if (player->getRace() == RACE_PANDAREN_HORDE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->ShowNeutralPlayerFactionSelectUI();
-            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-                player->TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
-            else if (action == GOSSIP_ACTION_INFO_DEF + 3)
-                player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
-
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
-        }
-};
-
-/*######
-## npc_rate_xp_modifier
-######*/
-
-#define GOSSIP_TEXT_EXP_MODIF    1587
-#define GOSSIP_TEXT_EXP_MODIF_OK 1588
-#define GOSSIP_TEXT_EXP_NORMAL   1589
-#define GOSSIP_ITEM_XP_CLOSE     "Good bye."
-
-class npc_rate_xp_modifier : public CreatureScript
-{
-    public:
-        npc_rate_xp_modifier() : CreatureScript("npc_rate_xp_modifier") { }
-
-        bool OnGossipHello(Player *pPlayer, Creature *pCreature)
-        {
-            uint32 maxRates = sWorld->getRate(RATE_XP_KILL);
-
-            for (uint32 i = 1; i < sWorld->getRate(RATE_XP_KILL); ++i)
-            {
-                std::ostringstream gossipText;
-                gossipText << "I would like to change my rates" << i;
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, i);
-            }
-
-            if (pPlayer->GetPersonnalXpRate())
-            {
-                std::ostringstream gossipText;
-                gossipText << "I would like to restore my rates (" << sWorld->getRate(RATE_XP_KILL) << ")";
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, 0);
-            }
-
-            pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP_MODIF, pCreature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-        {
-            if (uiAction < 0 || uiAction >= sWorld->getRate(RATE_XP_KILL))
-            {
-                pPlayer->PlayerTalkClass->SendCloseGossip();
-                return true;
-            }
-        
-            pPlayer->SetPersonnalXpRate(float(uiAction));
-
-            pPlayer->PlayerTalkClass->ClearMenus();
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_XP_CLOSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP_MODIF_OK, pCreature->GetGUID());
-
-            return true;
-        }
-};
-
-/*######
 ## npc_capacitor_totem
 ######*/
 
@@ -3423,7 +3017,7 @@ class npc_capacitor_totem : public CreatureScript
 
         npc_capacitor_totemAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void UpdateAI(uint32 const diff)
+		void UpdateAI(uint32 diff)
         {
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -3458,7 +3052,7 @@ class npc_feral_spirit : public CreatureScript
                 SpiritBiteTimer = 6000;
             }
 
-            void UpdateAI(const uint32 diff)
+			void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -3468,7 +3062,7 @@ class npc_feral_spirit : public CreatureScript
 
                 if (SpiritBiteTimer <= diff)
                 {
-                    me->CastSpell(me->getVictim(), 58859, true);
+                    me->CastSpell(me->GetVictim(), 58859, true);
                     SpiritBiteTimer = 6000;
                 }
                 else
@@ -3511,7 +3105,7 @@ class npc_spirit_link_totem : public CreatureScript
             }
         }
 
-        void UpdateAI(uint32 const diff)
+		void UpdateAI(uint32 diff)
         {
             if (CastTimer >= diff)
             {
@@ -3558,7 +3152,7 @@ class npc_demoralizing_banner : public CreatureScript
                     owner->CastSpell(creature, 114205, true);
             }
 
-            void UpdateAI(const uint32 diff)
+			void UpdateAI(uint32 diff)
             {
                 Unit* owner = me->GetOwner();
 
@@ -3581,126 +3175,72 @@ class npc_demoralizing_banner : public CreatureScript
         }
 };
 
+/*######
+# npc_frozen_orb
+######*/
+
 enum frozenOrbSpells
 {
-    SPELL_FINGERS_OF_FROST_VISUAL = 44544,
-    SPELL_SELF_SNARE_90 = 82736,
-    SPELL_SNARE_DAMAGE = 84721,
-    SPELL_FINGERS_OF_FROST = 126084,
+    SPELL_FINGERS_OF_FROST_VISUAL   = 44544,
+    SPELL_SELF_SNARE_90             = 82736,
+    SPELL_SNARE_DAMAGE              = 84721,
+    SPELL_FINGERS_OF_FROST          = 126084,
 };
 
 class npc_frozen_orb : public CreatureScript
 {
-public:
-    npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
+    public:
+        npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
 
-    struct npc_frozen_orbAI : public ScriptedAI
-    {
-        npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_frozen_orbAI : public ScriptedAI
         {
-            frozenOrbTimer = 0;
-        }
-
-        uint32 frozenOrbTimer;
-        bool follow;
-
-
-        void Reset()
-        {
-            follow = false;
-        }
-        void IsSummonedBy(Unit* owner)
-        {
-            if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+            npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
             {
-                owner->CastSpell(me, SPELL_SNARE_DAMAGE, true);
-                owner->CastSpell(owner, SPELL_FINGERS_OF_FROST_VISUAL, true);
-                owner->CastSpell(owner, SPELL_FINGERS_OF_FROST, true);
-                me->AddAura(SPELL_SELF_SNARE_90, me);
-
-                frozenOrbTimer = 1000;
+                frozenOrbTimer = 0;
             }
-            else
-                me->DespawnOrUnsummon();
-        }
 
-        void UpdateAI(const uint32 diff)
-        {
-            Unit* owner = me->GetOwner();
+            uint32 frozenOrbTimer;
 
-            if (!owner)
-                return;
-
-            if (!follow)
+            void IsSummonedBy(Unit* owner)
             {
-                //follow = true;
-
-                std::list<Unit*> list_p;
-                JadeCore::AnyUnitInObjectRangeCheck check(me, 35.0f);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(me, list_p, check);
-                me->VisitNearbyObject(35.0f, searcher);
-
-                for (std::list<Unit*>::const_iterator itr = list_p.begin(); itr != list_p.end(); itr++)
+                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if ((*itr)->HasAura(91022, owner->GetGUID()))
-                    {
-                        if (MotionMaster* motion = me->GetMotionMaster())
-                        {
-                            motion->MoveFollow((*itr), 0.0, 0.0, MOTION_SLOT_ACTIVE);
-                        }
-                    }
+                    owner->CastSpell(me, SPELL_SNARE_DAMAGE, true);
+                    owner->CastSpell(owner, SPELL_FINGERS_OF_FROST_VISUAL, true);
+                    owner->CastSpell(owner, SPELL_FINGERS_OF_FROST, true);
+                    me->AddAura(SPELL_SELF_SNARE_90, me);
+
+                    frozenOrbTimer = 1000;
                 }
+                else
+                    me->DespawnOrUnsummon();
             }
 
-            if (frozenOrbTimer <= diff)
+			void UpdateAI(uint32 diff)
             {
-                if (owner && owner->ToPlayer())
-                    if (owner->ToPlayer()->HasSpellCooldown(SPELL_SNARE_DAMAGE))
-                        owner->ToPlayer()->RemoveSpellCooldown(SPELL_SNARE_DAMAGE);
+                Unit* owner = me->GetOwner();
 
-                owner->CastSpell(me, SPELL_SNARE_DAMAGE, true);
-                frozenOrbTimer = 1000;
-            }
-            else
-                frozenOrbTimer -= diff;
-        }
-    };
+                if (!owner)
+                    return;
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_frozen_orbAI(creature);
-    }
-};
-class spell_frozen_orb_target : public SpellScriptLoader
-{
-public:
-    spell_frozen_orb_target() : SpellScriptLoader("spell_frozen_orb_target") { }
-
-    class spell_frozen_orb_target_spell_script : public SpellScript
-    {
-        PrepareSpellScript(spell_frozen_orb_target_spell_script);
-
-        void HandleAfterCast()
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-            {
-                if (Unit* target = _player->GetSelectedUnit())
+                if (frozenOrbTimer <= diff)
                 {
-                    _player->AddAura(91022, target);
+                    if (owner && owner->ToPlayer())
+                        if (owner->ToPlayer()->HasSpellCooldown(SPELL_SNARE_DAMAGE))
+                            owner->ToPlayer()->RemoveSpellCooldown(SPELL_SNARE_DAMAGE);
+
+                    owner->CastSpell(me, SPELL_SNARE_DAMAGE, true);
+                    frozenOrbTimer = 1000;
                 }
+                else
+                    frozenOrbTimer -= diff;
             }
-        }
+        };
 
-        void Register()
+        CreatureAI* GetAI(Creature* creature) const
         {
-            AfterCast += SpellCastFn(spell_frozen_orb_target_spell_script::HandleAfterCast);
+            return new npc_frozen_orbAI(creature);
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_frozen_orb_target_spell_script();
-    }
 };
 
 /*######
@@ -3746,8 +3286,8 @@ class npc_guardian_of_ancient_kings : public CreatureScript
                 {
                     if (me->GetOwner())
                     {
-                        if (me->GetOwner()->getVictim())
-                            AttackStart(me->GetOwner()->getVictim());
+                        if (me->GetOwner()->GetVictim())
+                            AttackStart(me->GetOwner()->GetVictim());
 
                         DoCast(me, 86703, true);
                     }
@@ -3757,20 +3297,18 @@ class npc_guardian_of_ancient_kings : public CreatureScript
                         me->GetOwner()->CastSpell(me->GetOwner(), SPELL_ANCIENT_HEALER, true);
             }
 
-            void OwnerAttacked(Unit* target)
-            {
-                if (me->getVictim() != target)
-                    AttackStart(target);
-            }
-
-            void UpdateAI(const uint32 diff)
+			void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
 
+                if (me->GetOwner())
+                    if (Unit* newVictim = me->GetOwner()->GetVictim())
+                        if (me->GetVictim() != newVictim)
+                            AttackStart(newVictim);
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
 
                 DoMeleeAttackIfReady();
             }
@@ -3788,546 +3326,259 @@ class npc_guardian_of_ancient_kings : public CreatureScript
 
 class npc_power_word_barrier : public CreatureScript
 {
-public:
-    npc_power_word_barrier() : CreatureScript("npc_power_word_barrier") { }
-
-    struct npc_power_word_barrierAI : public ScriptedAI
-    {
-        uint32 frozenOrbTimer;
-
-        npc_power_word_barrierAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Unit* owner = creature->GetOwner();
-
-            if (owner)
-            {
-                creature->CastSpell(creature, 115725, true); // Barrier visual
-                creature->CastSpell(creature, 81781, true);  // Periodic Trigger Spell
-            }
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            Unit* owner = me->GetOwner();
-
-            if (!owner)
-                return;
-
-            if (!me->HasAura(115725))
-                me->CastSpell(me, 115725, true);
-            if (!me->HasAura(81781))
-                me->CastSpell(me, 81781, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_power_word_barrierAI(creature);
-    }
-};
-
-
-const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
-const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
-
-/*######
-# npc_demonic_gateway_purple - 59271
-######*/
-
-class npc_demonic_gateway_purple : public CreatureScript
-{
     public:
-        npc_demonic_gateway_purple() : CreatureScript("npc_demonic_gateway_purple") { }
+        npc_power_word_barrier() : CreatureScript("npc_power_word_barrier") { }
 
-        struct npc_demonic_gateway_purpleAI : public ScriptedAI
+        struct npc_power_word_barrierAI : public ScriptedAI
         {
-            npc_demonic_gateway_purpleAI(Creature* creature) : ScriptedAI(creature) { }
+            uint32 frozenOrbTimer;
 
-            void Reset()
+            npc_power_word_barrierAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->CastSpell(me, 113901, true); // Periodic add charge
-                me->CastSpell(me, 113900, true); // Portal Visual
-                me->CastSpell(me, 113931, true); // 0 Purple Charge
-                me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->setFaction(35);
+                Unit* owner = creature->GetOwner();
+
+                if (owner)
+                {
+                    creature->CastSpell(creature, 115725, true); // Barrier visual
+                    creature->CastSpell(creature, 81781, true);  // Periodic Trigger Spell
+                }
             }
 
-            void OnSpellClick(Unit* clicker)
+			void UpdateAI(uint32 diff)
             {
-                if (clicker->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                // Demonic Gateway cooldown marker
-                if (clicker->HasAura(113942))
-                    return;
-
                 Unit* owner = me->GetOwner();
-                if (!owner || !owner->ToPlayer())
-                    return;
 
-                if (Group* group = clicker->ToPlayer()->GetGroup())
-                {
-                    if (group != owner->ToPlayer()->GetGroup())
-                        return;
-                }
-                else if (owner != clicker)
-                    return;
-
-                AuraEffectPtr charges = me->GetAuraEffect(113901, EFFECT_0);
-                if (!charges)
-                    return;
-
-                if (charges->GetAmount() == 0)
-                    return;
-
-                std::list<Creature*> greenGates;
-                me->GetCreatureListWithEntryInGrid(greenGates, 59262, 75.0f);
-
-                if (greenGates.empty())
-                    return;
-
-                greenGates.sort(JadeCore::DistanceCompareOrderPred(me));
-                for (auto itr : greenGates)
-                {
-                    clicker->CastSpell(clicker, 113942, true);
-
-                    // Init dest coordinates
-                    float x, y, z;
-                    itr->GetPosition(x, y, z);
-
-                    float speedXY;
-                    float speedZ = 5;
-
-                    speedXY = clicker->GetExactDist2d(x, y) * 10.0f / speedZ;
-                    clicker->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
-                    break;
-                }
-
-                charges->SetAmount(charges->GetAmount() - 1);
-
-                for (int i = 0; i < 6; ++i)
-                {
-                    if (i <= charges->GetAmount())
-                        me->CastSpell(me, purpleAuras[i], true);
-                    else
-                        me->RemoveAura(purpleAuras[i]);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_demonic_gateway_purpleAI(creature);
-        }
-};
-
-/*######
-# new npc_demonic_gateway_green - 59262
-######*/
-
-class npc_demonic_gateway_green : public CreatureScript
-{
-    public:
-        npc_demonic_gateway_green() : CreatureScript("npc_demonic_gateway_green") { }
-
-        struct npc_demonic_gateway_greenAI : public ScriptedAI
-        {
-            npc_demonic_gateway_greenAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset()
-            {
-                me->CastSpell(me, 113901, true); // Periodic add charges
-                me->CastSpell(me, 113900, true); // Portal Visual
-                me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->setFaction(35);
-            }
-
-            void OnSpellClick(Unit* clicker)
-            {
-                if (clicker->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                // Demonic Gateway cooldown marker
-                if (clicker->HasAura(113942))
-                    return;
-
-                Unit* owner = me->GetOwner();
-                if (!owner || !owner->ToPlayer())
-                    return;
-
-                if (Group* group = clicker->ToPlayer()->GetGroup())
-                {
-                    if (group != owner->ToPlayer()->GetGroup())
-                        return;
-                }
-                else if (owner != clicker)
-                    return;
-
-                AuraEffectPtr charges = me->GetAuraEffect(113901, EFFECT_0);
-                if (!charges)
-                    return;
-
-                if (charges->GetAmount() == 0)
-                    return;
-
-                std::list<Creature*> purpleGates;
-                me->GetCreatureListWithEntryInGrid(purpleGates, 59271, 75.0f);
-
-                if (purpleGates.empty())
-                    return;
-
-                purpleGates.sort(JadeCore::DistanceCompareOrderPred(me));
-                for (auto itr : purpleGates)
-                {
-                    clicker->CastSpell(clicker, 113942, true);
-
-                    // Init dest coordinates
-                    float x, y, z;
-                    itr->GetPosition(x, y, z);
-
-                    float speedXY;
-                    float speedZ = 5;
-
-                    speedXY = clicker->GetExactDist2d(x, y) * 10.0f / speedZ;
-                    clicker->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
-                    break;
-                }
-
-                charges->SetAmount(charges->GetAmount() - 1);
-
-                for (int i = 0; i < 6; ++i)
-                {
-                    if (i <= charges->GetAmount())
-                        me->CastSpell(me, greenAuras[i], true);
-                    else
-                        me->RemoveAura(greenAuras[i]);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_demonic_gateway_greenAI(creature);
-        }
-};
-
-/*######
-# npc_xuen_the_white_tiger
-######*/
-
-enum xuenSpells
-{
-    CRACKLING_TIGER_LIGHTNING   = 123996,
-    PROVOKE                     = 130793,
-    TIGER_LEAP                  = 124007,
-    TIGER_LUST                  = 124009,
-};
-
-enum xuenEvents
-{
-    EVENT_LIGHTNING = 1,
-    EVENT_PROVOKE   = 2,
-    EVENT_LEAP      = 3,
-};
-
-class npc_xuen_the_white_tiger : public CreatureScript
-{
-    public:
-        npc_xuen_the_white_tiger() : CreatureScript("npc_xuen_the_white_tiger") { }
-
-        struct npc_xuen_the_white_tigerAI : public ScriptedAI
-        {
-            EventMap events;
-
-            npc_xuen_the_white_tigerAI(Creature* creature) : ScriptedAI(creature)
-            {
-                me->SetReactState(REACT_DEFENSIVE);
-            }
-
-            void Reset()
-            {
-                events.Reset();
-
-                events.ScheduleEvent(EVENT_LIGHTNING, 500);
-                events.ScheduleEvent(EVENT_LEAP,      200);
-                events.ScheduleEvent(EVENT_PROVOKE,   200);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                {
-                    if (me->GetOwner())
-                        if (Unit* victim = me->GetOwner()->getAttackerForHelper())
-                            AttackStart(victim);
-
-                    return;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_LIGHTNING:
-                        {
-                            if (Unit* target = me->getVictim())
-                            {
-                                me->CastSpell(target, CRACKLING_TIGER_LIGHTNING, false);
-                            }
-                            else if (me->GetOwner())
-                            {
-                                if (Unit* target = me->GetOwner()->getAttackerForHelper())
-                                    me->CastSpell(target, CRACKLING_TIGER_LIGHTNING, false);
-                            }
-
-                            events.ScheduleEvent(EVENT_LIGHTNING, 6000);
-                            break;
-                        }
-                        case EVENT_LEAP:
-                        {
-                            if (Unit* target = me->getVictim())
-                            {
-                                me->CastSpell(target, TIGER_LEAP, false);
-                            }
-                            else if (me->GetOwner())
-                            {
-                                if (Unit* target = me->GetOwner()->getAttackerForHelper())
-                                    me->CastSpell(target, TIGER_LEAP, false);
-                            }
-
-                            me->CastSpell(me, TIGER_LUST, false);
-                            events.ScheduleEvent(EVENT_LEAP, 15000);
-
-                            break;
-                        }
-                        case EVENT_PROVOKE:
-                        {
-                            Unit* m_owner = me->GetOwner();
-                            if (!m_owner || m_owner->GetTypeId() != TYPEID_PLAYER)
-                                break;
-
-                            Player* p_owner = m_owner->ToPlayer();
-                            if (p_owner->GetSpecializationId(p_owner->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
-                                break;
-
-                            if (Unit* target = me->getVictim())
-                            {
-                                if (target->GetTypeId() == TYPEID_UNIT)
-                                    if (target->ToCreature()->IsDungeonBoss() || target->ToCreature()->isWorldBoss())
-                                        break;
-
-                                me->CastSpell(target, PROVOKE, false);
-                            }
-                            else if (me->GetOwner())
-                            {
-                                if (Unit* target = me->GetOwner()->getAttackerForHelper())
-                                {
-                                    if (target->GetTypeId() == TYPEID_UNIT)
-                                        if (target->ToCreature()->IsDungeonBoss() || target->ToCreature()->isWorldBoss())
-                                            break;
-
-                                    me->CastSpell(target, PROVOKE, false);
-                                }
-                            }
-
-                            events.ScheduleEvent(EVENT_PROVOKE, 15000);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_xuen_the_white_tigerAI(creature);
-        }
-};
-
-/*######
-# npc_murder_of_crows
-######*/
-
-class npc_murder_of_crows : public CreatureScript
-{
-    public:
-        npc_murder_of_crows() : CreatureScript("npc_murder_of_crows") { }
-
-        struct npc_murder_of_crowsAI : public ScriptedAI
-        {
-            npc_murder_of_crowsAI(Creature *creature) : ScriptedAI(creature)
-            {
-                me->SetReactState(REACT_DEFENSIVE);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (me->GetReactState() != REACT_DEFENSIVE)
-                    me->SetReactState(REACT_DEFENSIVE);
-
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_murder_of_crowsAI(creature);
-        }
-};
-
-/*######
-# npc_dire_beast
-######*/
-
-class npc_dire_beast : public CreatureScript
-{
-    public:
-        npc_dire_beast() : CreatureScript("npc_dire_beast") { }
-
-        struct npc_dire_beastAI : public ScriptedAI
-        {
-            npc_dire_beastAI(Creature *creature) : ScriptedAI(creature) {}
-
-            void Reset()
-            {
-                me->SetReactState(REACT_DEFENSIVE);
-
-                if (me->GetOwner())
-                    if (me->GetOwner()->getVictim() || me->GetOwner()->getAttackerForHelper())
-                        AttackStart(me->GetOwner()->getVictim() ? me->GetOwner()->getVictim() : me->GetOwner()->getAttackerForHelper());
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (me->GetReactState() != REACT_DEFENSIVE)
-                    me->SetReactState(REACT_DEFENSIVE);
-
-                if (!UpdateVictim())
-                {
-                    if (Unit* owner = me->GetOwner())
-                        if (Unit* newVictim = owner->getAttackerForHelper())
-                            AttackStart(newVictim);
-
-                    return;
-                }
-
-                if (me->getVictim())
-                    if (Unit* owner = me->GetOwner())
-                        if (Unit* ownerVictim = owner->getAttackerForHelper())
-                            if (me->getVictim()->GetGUID() != ownerVictim->GetGUID())
-                                AttackStart(ownerVictim);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_dire_beastAI(creature);
-        }
-};
-
-#define FIREBOLT   104318
-
-/*######
-# npc_wild_imp
-######*/
-
-class npc_wild_imp : public CreatureScript
-{
-    public:
-        npc_wild_imp() : CreatureScript("npc_wild_imp") { }
-
-        struct npc_wild_impAI : public ScriptedAI
-        {
-            uint32 charges;
-
-            npc_wild_impAI(Creature *creature) : ScriptedAI(creature)
-            {
-                charges = 10;
-                me->SetReactState(REACT_HELPER);
-            }
-
-            void Reset()
-            {
-                me->SetReactState(REACT_HELPER);
-
-                if (me->GetOwner())
-                    if (me->GetOwner()->getVictim())
-                        AttackStart(me->GetOwner()->getVictim());
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (me->GetReactState() != REACT_HELPER)
-                    me->SetReactState(REACT_HELPER);
-
-                Unit* owner = me->GetOwner();
                 if (!owner)
                     return;
 
-                Player* pOwner = owner->ToPlayer();
-                if (!pOwner)
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (!charges)
-                {
-                    me->DespawnOrUnsummon();
-                    return;
-                }
-
-                if ((me->getVictim() || pOwner->getAttackerForHelper()))
-                {
-                    me->CastSpell(me->getVictim() ? me->getVictim() : pOwner->getAttackerForHelper(), FIREBOLT, false);
-                    pOwner->EnergizeBySpell(pOwner, FIREBOLT, 5, POWER_DEMONIC_FURY);
-                    charges--;
-
-                    if (pOwner->HasAura(122351) && pOwner->getLevel() >= 69)
-                        if (roll_chance_i(8))
-                            pOwner->CastSpell(pOwner, 122355, true);
-                }
-                else if (Pet* pet = pOwner->GetPet())
-                {
-                    if (pet->getAttackerForHelper())
-                    {
-                        me->CastSpell(me->getVictim() ? me->getVictim() : pet->getAttackerForHelper(), FIREBOLT, false);
-                        pOwner->EnergizeBySpell(pOwner, FIREBOLT, 5, POWER_DEMONIC_FURY);
-                        charges--;
-
-                        if (pOwner->HasAura(122351) && pOwner->getLevel() >= 69)
-                            if (roll_chance_i(8))
-                                pOwner->CastSpell(pOwner, 122355, true);
-                    }
-                }
+                if (!me->HasAura(115725))
+                    me->CastSpell(me, 115725, true);
+                if (!me->HasAura(81781))
+                    me->CastSpell(me, 81781, true);
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_wild_impAI(creature);
+            return new npc_power_word_barrierAI(creature);
+        }
+};
+
+/*######
+# npc_demonic_gateway
+######*/
+
+class npc_demonic_gateway : public CreatureScript
+{
+    public:
+        npc_demonic_gateway() : CreatureScript("npc_demonic_gateway") { }
+
+        struct npc_demonic_gatewayAI : public ScriptedAI
+        {
+            npc_demonic_gatewayAI(Creature* creature) : ScriptedAI(creature)
+            {
+                need_check = true;
+                visual_buff_purple[0] = 113915;
+                visual_buff_purple[1] = 113916;
+                visual_buff_purple[2] = 113917;
+                visual_buff_purple[3] = 113918;
+                visual_buff_purple[4] = 113919;
+
+                visual_buff_green[0] = 113903;
+                visual_buff_green[1] = 113911;
+                visual_buff_green[2] = 113912;
+                visual_buff_green[3] = 113913;
+                visual_buff_green[4] = 113914;
+
+                aura_update = 10000;
+            }
+
+            uint32 aura_update;
+
+            uint64 visual_buff_purple[5];
+            uint64 visual_buff_green[5];
+
+            Unit * owner;
+
+            bool need_check;
+
+			void IsSummonedBy(Unit * summoner)
+			{
+
+               if (summoner && summoner->GetTypeId() == TYPEID_PLAYER)
+               {
+                   me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                   owner = summoner;
+
+               }
+               else
+               me->DespawnOrUnsummon();
+            }
+
+			void UpdateAI(uint32 diff)
+            {
+                if (!owner)
+                return;
+
+                if (!me->GetOwner())
+                return;
+
+                if(!owner->IsInWorld())
+                {
+                     std::list<Creature*> tempList;
+                     std::list<Creature*> gatewayList;
+
+                     me->GetOwner()->GetCreatureListWithEntryInGrid(tempList, 59271, 500.0f);
+
+                if (!tempList.empty())
+                {
+                       for (auto itr : tempList)
+                          gatewayList.push_back(itr);
+
+                 for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
+                {
+                    Unit* owner = (*i)->GetOwner();
+                    if (owner && owner == me->GetOwner() && (*i)->IsSummon())
+                        continue;
+
+                    gatewayList.remove((*i));
+                }
+
+                if ((int32)gatewayList.size() >= 1)
+                    gatewayList.back()->ToTempSummon()->UnSummon();
+                }
+                }
+
+                if (!me->GetOwner()->ToPlayer())
+                    return;
+
+                if (me->GetEntry() == 59262)
+                    return;
+
+                if (need_check)
+                    if (!owner->HasAura(113901)) {
+                        owner->CastSpell(owner, 113901, true);
+                        owner->GetAura(113901)->SetCharges(0);
+                    }
+
+                if (aura_update <= diff)
+                {
+                    aura_update = 15000;
+                    if (owner && owner->HasAura(113901))
+                    {
+                    if (Aura* demonicGateway = owner->GetAura(113901))
+                       {
+                           need_check = false;
+                           uint8 charges = demonicGateway->GetCharges() + 1;
+
+                           if (charges > 5)
+                               return;
+
+                           demonicGateway->SetCharges(charges);
+                           demonicGateway->GetEffect(EFFECT_0)->SetAmount(charges);
+
+                           std::list< Creature* > creature_list;
+
+                           me->GetCreatureListWithEntryInGrid(creature_list,  59262, 101);
+
+                           Creature * target;
+
+                           for (auto itr : creature_list)
+                           {
+                                   target = itr;
+                                   break;
+                           }
+
+                           if (!target)
+                               return;
+
+                           if (visual_buff_purple[-1] || visual_buff_green[-1])
+                           {
+                               visual_buff_purple[1];
+                               visual_buff_green[1];
+                           }
+
+                           me->CastSpell(me, visual_buff_purple[charges - 1]);
+                           //target->CastSpell(target, visual_buff_green[charges - 1]);
+                       }
+                       }
+                }
+                else
+                    aura_update -= diff;
+            }
+
+			void OnSpellClick(Unit* clicker, bool& /*result*/)
+			{
+                if (!owner)
+					return;
+
+                if (!me->GetOwner())
+                 return;
+
+                if(!owner->IsInWorld())
+                return;
+
+                if (!me->GetOwner()->ToPlayer())
+                    return;
+
+				if (clicker && clicker->GetTypeId() != TYPEID_PLAYER)
+					return;
+
+				if (clicker->HasAura(113942))
+					return;
+
+                if (!clicker->IsWithinLOSInMap(me))
+                    return;
+
+
+
+				Aura* aura = owner->GetAura(113901);
+
+				if (!aura)
+					return;
+
+                uint8 charges = aura->GetCharges();
+
+				if (charges == 0)
+					return;
+
+				std::list< Creature* > creature_list;
+				Creature * target;
+
+				me->GetCreatureListWithEntryInGrid(creature_list, (me->GetEntry() == 59262 ? 59271 : 59262), 101);
+
+				for (auto itr : creature_list)
+				{
+						target = itr;
+						break;
+				}
+
+				if (!target)
+					return;
+
+                float z = me->GetPositionZ();
+                float z2 = target->GetPositionZ();
+                float diff = z - z2;
+                if (diff > 4)
+                return;
+
+				aura->SetCharges(charges - 1);
+
+                aura->GetEffect(EFFECT_0)->SetAmount(charges - 1);
+
+				clicker->CastSpell(target, (me->GetEntry() == 59271 ? 120729 : 113896 ));
+
+                if (Aura* demonicGateway = me->GetAura(( me->GetEntry() == 59271 ? visual_buff_purple[charges - 1] : visual_buff_green[charges -1])))
+                    me->RemoveAura(demonicGateway);
+
+                if (Aura* demonicGateway = target->GetAura(( target->GetEntry() == 59271 ? visual_buff_purple[charges - 1] : visual_buff_green[charges - 1])))
+                    target->RemoveAura(demonicGateway);
+			}
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_demonic_gatewayAI(creature);
         }
 };
 
@@ -4349,7 +3600,7 @@ class npc_stone_bulwark_totem : public CreatureScript
             creature->CastSpell(creature, STONE_BULWARK_TOTEM_ABSORB, true);
         }
 
-        void UpdateAI(uint32 const diff)
+		void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(STONE_BULWARK_TOTEM_ABSORB))
                 me->CastSpell(me, STONE_BULWARK_TOTEM_ABSORB, true);
@@ -4380,7 +3631,7 @@ class npc_earthgrab_totem : public CreatureScript
             creature->CastSpell(creature, EARTHGRAB, true);
         }
 
-        void UpdateAI(uint32 const diff)
+		void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(EARTHGRAB))
                 me->CastSpell(me, EARTHGRAB, true);
@@ -4411,7 +3662,7 @@ class npc_windwalk_totem : public CreatureScript
             creature->CastSpell(creature, WINDWALK, true);
         }
 
-        void UpdateAI(uint32 const diff)
+		void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(WINDWALK))
                 me->CastSpell(me, WINDWALK, true);
@@ -4442,7 +3693,7 @@ class npc_healing_tide_totem : public CreatureScript
             creature->CastSpell(creature, HEALING_TIDE, true);
         }
 
-        void UpdateAI(uint32 const diff)
+		void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(HEALING_TIDE))
                 me->CastSpell(me, HEALING_TIDE, true);
@@ -4453,101 +3704,6 @@ class npc_healing_tide_totem : public CreatureScript
     {
         return new npc_healing_tide_totemAI(creature);
     }
-};
-
-/*######
-## npc_ring_of_frost
-######*/
-
-class npc_ring_of_frost : public CreatureScript
-{
-    public:
-        npc_ring_of_frost() : CreatureScript("npc_ring_of_frost") { }
-
-        struct npc_ring_of_frostAI : public Scripted_NoMovementAI
-        {
-            npc_ring_of_frostAI(Creature *c) : Scripted_NoMovementAI(c)
-            {
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            }
-            bool isReady;
-            uint32 releaseTimer;
-
-            void Reset()
-            {
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                releaseTimer = 3000;
-                isReady = false;
-            }
-
-            void InitializeAI()
-            {
-                ScriptedAI::InitializeAI();
-                Unit * owner = me->GetOwner();
-                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                std::list<Creature*> templist;
-                me->GetCreatureListWithEntryInGrid(templist, me->GetEntry(), 200.0f);
-                if (!templist.empty())
-                    for (std::list<Creature*>::const_iterator itr = templist.begin(); itr != templist.end(); ++itr)
-                        if ((*itr)->GetOwner() == me->GetOwner() && *itr != me)
-                            (*itr)->DisappearAndDie();
-            }
-
-            void CheckIfMoveInRing(Unit *who)
-            {
-                if (who->isAlive() && me->IsInRange(who, 4.0f, 8.0f, true, false) && me->IsWithinLOSInMap(who) && isReady)
-                {
-                    if (!who->HasAura(82691))
-                    {
-                        if (!who->HasAura(91264))
-                        {
-                            me->CastSpell(who, 82691, true);
-                            me->CastSpell(who, 91264, true);
-                        }
-                    }
-                    else me->CastSpell(who, 91264, true);
-                }
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (releaseTimer <= diff)
-                {
-                    if (!isReady)
-                    {
-                        isReady = true;
-                        releaseTimer = 9000; // 9sec
-                    }
-                    else
-                        me->DisappearAndDie();
-                }
-                else releaseTimer -= diff;
-
-                // Find all the enemies
-                std::list<Unit*> targets;
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 5.0f);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(5.0f, searcher);
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                    if (!(*iter)->isTotem())
-                        CheckIfMoveInRing(*iter);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* pCreature) const
-        {
-            return new npc_ring_of_frostAI(pCreature);
-        }
 };
 
 /*######
@@ -4573,7 +3729,7 @@ class npc_wild_mushroom : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void UpdateAI(const uint32 diff)
+			void UpdateAI(uint32 diff)
             {
                 if (CastTimer <= diff && !stealthed)
                 {
@@ -4608,9 +3764,9 @@ class npc_fungal_growth : public CreatureScript
     public:
         npc_fungal_growth() : CreatureScript("npc_fungal_growth") { }
 
-        struct npc_fungal_growthAI : public Scripted_NoMovementAI
+        struct npc_fungal_growthAI : public ScriptedAI
         {
-            npc_fungal_growthAI(Creature *c) : Scripted_NoMovementAI(c)
+			npc_fungal_growthAI(Creature *c) : ScriptedAI(c)
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -4639,7 +3795,7 @@ class npc_fungal_growth : public CreatureScript
                 me->CastSpell(me, FUNGAL_GROWTH_AREA, true);        // Persistent Area
             }
 
-            void UpdateAI(const uint32 diff)
+			void UpdateAI(uint32 diff)
             {
                 if (!me->HasAura(FUNGAL_GROWTH_PERIODIC))
                     me->CastSpell(me, FUNGAL_GROWTH_PERIODIC, true);
@@ -4676,7 +3832,7 @@ class npc_bloodworm : public CreatureScript
 
             void Burst()
             {
-                if (AuraPtr bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
+                if (Aura* bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
                 {
                     uint32 stacks = std::min<uint32>(bloodGorged->GetStackAmount(), 10);
                     int32 damage = stacks *  10;
@@ -4698,7 +3854,7 @@ class npc_bloodworm : public CreatureScript
                 uiCheckBloodChargesTimer = 1500;
             }
 
-            void UpdateAI(const uint32 diff)
+			void UpdateAI(uint32 diff)
             {
                 if (uiBurstTimer <= diff)
                     Burst();
@@ -4709,7 +3865,7 @@ class npc_bloodworm : public CreatureScript
                 {
                     if (me->GetOwner())
                     {
-                        if (AuraPtr bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
+                        if (Aura* bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
                         {
                             // 10% per stack
                             int32 stacks = bloodGorged->GetStackAmount() * 10;
@@ -4772,9 +3928,9 @@ class npc_past_self : public CreatureScript
     public:
         npc_past_self() : CreatureScript("npc_past_self") { }
 
-        struct npc_past_selfAI : public Scripted_NoMovementAI
+        struct npc_past_selfAI : public ScriptedAI
         {
-            npc_past_selfAI(Creature* c) : Scripted_NoMovementAI(c)
+            npc_past_selfAI(Creature* c) : ScriptedAI(c)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_PASSIVE);
@@ -4802,7 +3958,7 @@ class npc_past_self : public CreatureScript
                     Unit::AuraApplicationMap const& appliedAuras = owner->GetAppliedAuras();
                     for (Unit::AuraApplicationMap::const_iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
                     {
-                        if (AuraPtr aura = itr->second->GetBase())
+                        if (Aura* aura = itr->second->GetBase())
                         {
                             SpellInfo const* auraInfo = aura->GetSpellInfo();
                             if (!auraInfo)
@@ -4812,9 +3968,6 @@ class npc_past_self : public CreatureScript
                                 continue;
 
                             if (auraInfo->IsPassive())
-                                continue;
-
-                            if (auraInfo->Id == 23333 || auraInfo->Id == 23335)
                                 continue;
 
                             auras.insert(new auraData(auraInfo->Id, aura->GetDuration()));
@@ -4831,7 +3984,7 @@ class npc_past_self : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void DoAction(const int32 action)
+			void DoAction(int32 action)
             {
                 if (action == ACTION_ALTER_TIME)
                 {
@@ -4841,14 +3994,14 @@ class npc_past_self : public CreatureScript
                         {
                             if (m_owner->ToPlayer())
                             {
-                                if (!m_owner->isAlive())
+                                if (!m_owner->IsAlive())
                                     return;
 
                                 m_owner->RemoveNonPassivesAuras();
 
                                 for (std::set<auraData*>::iterator itr = auras.begin(); itr != auras.end(); ++itr)
                                 {
-                                    AuraPtr aura = !m_owner->HasAura((*itr)->m_id) ? m_owner->AddAura((*itr)->m_id, m_owner) : m_owner->GetAura((*itr)->m_id);
+                                    Aura* aura = !m_owner->HasAura((*itr)->m_id) ? m_owner->AddAura((*itr)->m_id, m_owner) : m_owner->GetAura((*itr)->m_id);
                                     if (aura)
                                     {
                                         aura->SetDuration((*itr)->m_duration);
@@ -4901,11 +4054,18 @@ class npc_transcendence_spirit : public CreatureScript
     public:
         npc_transcendence_spirit() : CreatureScript("npc_transcendence_spirit") { }
 
-        struct npc_transcendence_spiritAI : public Scripted_NoMovementAI
+        struct npc_transcendence_spiritAI : public ScriptedAI
         {
-            npc_transcendence_spiritAI(Creature* c) : Scripted_NoMovementAI(c)
+            npc_transcendence_spiritAI(Creature* c) : ScriptedAI(c)
             {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
+            }
+
+            void JustDied(Unit *pWho)
+            {
+                if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                    me->GetOwner()->ToPlayer()->SetTransSpirit(NULL);
             }
 
             void Reset()
@@ -4914,19 +4074,16 @@ class npc_transcendence_spirit : public CreatureScript
                     me->AddAura(SPELL_MEDITATE, me);
             }
 
+            void CorpseRemoved(uint32& /*respawnDelay*/)
+            {
+                if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                    me->GetOwner()->ToPlayer()->SetTransSpirit(NULL);
+            }
+
             void IsSummonedBy(Unit* owner)
             {
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                {
-                    me->SetMaxHealth(owner->GetMaxHealth() / 2);
-                    me->SetHealth(me->GetMaxHealth());
-
-                    me->CastSpell(me, SPELL_VISUAL_SPIRIT, true);
-                    owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
-                    owner->CastSpell(me, SPELL_CLONE_CASTER, true);
-                    owner->AddAura(SPELL_MEDITATE, me);
-                    me->AddAura(SPELL_ROOT_FOR_EVER, me);
-                }
+                    owner->ToPlayer()->SetTransSpirit(me);
                 else
                     me->DespawnOrUnsummon();
             }
@@ -4940,14 +4097,14 @@ class npc_transcendence_spirit : public CreatureScript
                     me->SetSpeed(MOVE_RUN, 0.0f);
             }
 
-            void DoAction(int32 const action)
+			void DoAction(int32 action)
             {
                 switch (action)
                 {
                     case ACTION_TELEPORT:
                         if (!me->GetOwner())
                         {
-                            me->DespawnOrUnsummon(500);
+                            me->DespawnOrUnsummon(600);
                             break;
                         }
 
@@ -4981,9 +4138,9 @@ class npc_void_tendrils : public CreatureScript
     public:
         npc_void_tendrils() : CreatureScript("npc_void_tendrils") { }
 
-        struct npc_void_tendrilsAI : public Scripted_NoMovementAI
+        struct npc_void_tendrilsAI : public ScriptedAI
         {
-            npc_void_tendrilsAI(Creature* c) : Scripted_NoMovementAI(c)
+            npc_void_tendrilsAI(Creature* c) : ScriptedAI(c)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 targetGUID = 0;
@@ -5015,7 +4172,7 @@ class npc_void_tendrils : public CreatureScript
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER)
                 {
                     me->SetLevel(owner->getLevel());
-                    me->SetMaxHealth(CalculatePct(owner->GetMaxHealth(), 2.5f));
+                    me->SetMaxHealth(owner->CountPctFromMaxHealth(20));
                     me->SetHealth(me->GetMaxHealth());
                     // Set no damage
                     me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0.0f);
@@ -5027,7 +4184,7 @@ class npc_void_tendrils : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const diff)
+			void UpdateAI(uint32 diff)
             {
                 if (!(ObjectAccessor::FindUnit(targetGUID)))
                     me->DespawnOrUnsummon();
@@ -5054,69 +4211,69 @@ class npc_psyfiend : public CreatureScript
     public:
         npc_psyfiend() : CreatureScript("npc_psyfiend") { }
 
-        struct npc_psyfiendAI : public Scripted_NoMovementAI
+        struct npc_psyfiendAI : public ScriptedAI
         {
-            npc_psyfiendAI(Creature* c) : Scripted_NoMovementAI(c)
+            npc_psyfiendAI(Creature* c) : ScriptedAI(c)
             {
-                me->SetReactState(REACT_PASSIVE);
-                psychicHorrorTimer = 2500;
+                me->SetReactState(REACT_AGGRESSIVE);
+                targetGUID = 0;
             }
 
-            void OwnerDamagedBy(Unit* attacker)
-            {
-                //
-            }
-
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (psychicHorrorTimer <= diff)
-                {
-                    Unit* target = NULL;
-                    NearestTarget u_check(me);
-                    JadeCore::UnitSearcher<NearestTarget> searcher(me, target, u_check);
-                    me->VisitNearbyGridObject(20.0f, searcher);
-                    
-                    if (target)
-                        me->CastSpell(target, SPELL_PSYCHIC_HORROR);
-                    
-                    psychicHorrorTimer = 2500;
-                }
-                else
-                    psychicHorrorTimer -= diff;
-            }
-
-        private:
+            uint64 targetGUID;
             uint32 psychicHorrorTimer;
 
-            class NearestTarget
+            void Reset()
             {
-                public:
-                    NearestTarget(Creature const* me) : _me(me) { ; }
+                if (!me->HasAura(SPELL_ROOT_FOR_EVER))
+                    me->AddAura(SPELL_ROOT_FOR_EVER, me);
 
-                    bool operator()(Unit* u)
+                psychicHorrorTimer = 1500;
+            }
+
+            void SetGUID(uint64 guid, int32)
+            {
+                targetGUID = guid;
+            }
+
+            void IsSummonedBy(Unit* owner)
+            {
+                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                {
+                    me->SetLevel(owner->getLevel());
+                    me->SetMaxHealth(owner->GetMaxHealth() / 2);
+                    me->SetHealth(me->GetMaxHealth());
+                    // Set no damage
+                    me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0.0f);
+                    me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0.0f);
+
+                    me->AddAura(SPELL_ROOT_FOR_EVER, me);
+                }
+                else
+                    me->DespawnOrUnsummon();
+            }
+
+			void UpdateAI(uint32 diff)
+            {
+                if (psychicHorrorTimer)
+                {
+                    if (psychicHorrorTimer <= diff)
                     {
-                        if (u->GetDistance(_me) > 20.0f)
-                            return false;
+                        if (Unit* m_target = ObjectAccessor::FindUnit(targetGUID))
+                        {
+                            if (m_target->GetDistance2d(me) <= 20.0f)
+                                me->AddAura(SPELL_PSYCHIC_HORROR, m_target);
+                            else
+                                me->CastSpell(me, SPELL_PSYCHIC_HORROR, true);
+                        }
+                        else
+                            me->CastSpell(me, SPELL_PSYCHIC_HORROR, true);
 
-                        if (!u->IsHostileTo(_me))
-                            return false;
-
-                        if (!_me->IsValidAttackTarget(u))
-                            return false;
-
-                        if (!u->IsWithinLOSInMap(_me))
-                            return false;
-
-                        if (u->HasAura(SPELL_PSYCHIC_HORROR))
-                            return false;
-
-                        return true;
+                        psychicHorrorTimer = 1500;
                     }
-
-            private:
-                Creature const* _me;
-            };
+                    else
+                        psychicHorrorTimer -= diff;
+                }
+            }
         };
 
         CreatureAI* GetAI(Creature *creature) const
@@ -5141,9 +4298,9 @@ class npc_spectral_guise : public CreatureScript
     public:
         npc_spectral_guise() : CreatureScript("npc_spectral_guise") { }
 
-        struct npc_spectral_guiseAI : public Scripted_NoMovementAI
+        struct npc_spectral_guiseAI : public ScriptedAI
         {
-            npc_spectral_guiseAI(Creature* c) : Scripted_NoMovementAI(c)
+            npc_spectral_guiseAI(Creature* c) : ScriptedAI(c)
             {
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -5166,14 +4323,14 @@ class npc_spectral_guise : public CreatureScript
                     owner->AddAura(SPELL_SPECTRAL_GUISE_CLONE, me);
 
                     me->CastSpell(me, SPELL_SPECTRAL_GUISE_CHARGES, true);
-                    Aura::TryRefreshStackOrCreate(sSpellMgr->GetSpellInfo(SPELL_SPECTRAL_GUISE_STEALTH), MAX_EFFECT_MASK, owner, owner, sSpellMgr->GetSpellInfo(SPELL_SPECTRAL_GUISE_STEALTH)->spellPower);
+                    Aura::TryRefreshStackOrCreate(sSpellMgr->GetSpellInfo(SPELL_SPECTRAL_GUISE_STEALTH), MAX_EFFECT_MASK, owner, owner, NULL);
 
                     std::list<HostileReference*> threatList = owner->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                         if (Unit* unit = (*itr)->getTarget())
                             if (unit->GetTypeId() == TYPEID_UNIT)
                                 if (Creature* creature = unit->ToCreature())
-                                    if (creature->canStartAttack(me, false))
+                                    if (creature->CanStartAttack(me, false))
                                         creature->Attack(me, true);
 
                     // Set no damage
@@ -5193,819 +4350,51 @@ class npc_spectral_guise : public CreatureScript
         }
 };
 
-// Winter Weil - Metzen
-enum GossipMenuMetzen
-{
-    SPELL_REINDEER_DUST_EFFECT  = 25952,
-    GOSSIP_METZEN               = 15664
-};
+#define GOSSIP_CHOOSE_FACTION     "I'm ready to choose my destiny."
+#define GOSSIP_TP_ALLIANCE        "I would like to be Alliance"
+#define GOSSIP_TP_HORDE           "I would like to be Horde"
 
-class npc_metzen : public CreatureScript
+class npc_pandaren_choose_faction : public CreatureScript
 {
     public:
-        npc_metzen() : CreatureScript("npc_metzen") { }
+		npc_pandaren_choose_faction() : CreatureScript("npc_pandaren_choose_faction") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        uint32 questid_metz;
-        
-        if (player->getRaceMask() & RACEMASK_ALLIANCE)
-            questid_metz = 8762;
-        else
-            questid_metz = 8746;
-
-        if (player->GetQuestStatus(questid_metz) == QUEST_STATUS_INCOMPLETE && !creature->HasUnitState(UNIT_STATE_CASTING))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Sprinkle the fairy dust", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        player->PlayerTalkClass->SendGossipMenu(GOSSIP_METZEN, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-
-        switch (uiAction)
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            case GOSSIP_ACTION_INFO_DEF + 1:
+            if (creature->IsQuestGiver())
+                player->PrepareQuestMenu(creature->GetGUID());
+
+            if (player->getRace() == RACE_PANDAREN_NEUTRAL)
             {
-                player->KilledMonsterCredit(creature->GetEntry(), creature->GetGUID());
-                creature->CastSpell(creature, SPELL_REINDEER_DUST_EFFECT, false);
+                if (player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             }
-            break;
-        }
+            else if (player->getRace() == RACE_PANDAREN_ALLIANCE)
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ALLIANCE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            else if (player->getRace() == RACE_PANDAREN_HORDE)
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_HORDE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
-        player->PlayerTalkClass->SendCloseGossip();
-        return true;
-    }
-};
-
-class npc_moonwell_chalice : public CreatureScript
-{
-    public:
-        npc_moonwell_chalice() : CreatureScript("npc_moonwell_chalice") {}
-
-        CreatureAI *GetAI(Creature *creature) const
-        {
-            return new npc_moonwell_chaliceAI(creature);
-        }
-
-        struct npc_moonwell_chaliceAI : public Scripted_NoMovementAI
-        {
-            npc_moonwell_chaliceAI(Creature *c) : Scripted_NoMovementAI(c)
-            {
-                me->SetReactState(REACT_PASSIVE);
-                uiTimer = 500;
-                bReady = false;
-                owner = NULL;
-            }
-
-            uint32 uiTimer;
-            bool bReady;
-            Unit* owner;
-
-            void IsSummonedBy(Unit* who)
-            {
-                if (who)
-                    owner = who;
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!bReady)
-                {
-                    if (uiTimer <= diff)
-                    {
-                        bReady = true;
-                        if (owner)
-                            DoCast(owner, 100403);
-                    }
-                    else
-                        uiTimer -= diff;
-                }
-            }
-        }; 
-};
-
-/*######
-# npc_shadowfiend
-######*/
-#define GLYPH_OF_SHADOWFIEND_MANA         58227
-#define GLYPH_OF_SHADOWFIEND              58228
-
-class npc_shadowfiend : public CreatureScript
-{
-    public:
-        npc_shadowfiend() : CreatureScript("npc_shadowfiend") { }
-
-        struct npc_shadowfiendAI : public PetAI
-        {
-            npc_shadowfiendAI(Creature* creature) : PetAI(creature) {}
-
-            void IsSummonedBy(Unit* owner)
-            {
-                me->SetReactState(REACT_AGGRESSIVE);
-                Unit* target = NULL;
-                if (owner->GetTypeId() == TYPEID_PLAYER)
-                    target = owner->ToPlayer()->GetSelectedUnit();
-                else
-                    target = owner->getVictim();
-
-                if (target && me->IsValidAttackTarget(target))
-                    AttackStart(target);                
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (me->IsSummon())
-                    if (Unit* owner = me->ToTempSummon()->GetSummoner())
-                        if (owner->HasAura(GLYPH_OF_SHADOWFIEND))
-                            owner->CastSpell(owner, GLYPH_OF_SHADOWFIEND_MANA, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_shadowfiendAI(creature);
-        }
-};
-
-enum CustomCasterGuardian
-{
-    NPC_DOOM_GUARD      = 11859,
-    NPC_BURNING_TREANT  = 53432,
-    NPC_FIERY_IMP       = 53491,
-
-    SPELL_DOOM_BOLT     = 85692,
-    SPELL_FIRESEED      = 99026,
-    SPELL_FLAME_BLAST   = 99226,
-
-    SPELL_DOOM          = 603,
-    SPELL_AGONY         = 980,
-
-    EVENT_CAST_SPELL    = 1,
-};
-
-class npc_custom_caster_guard : public CreatureScript
-{
-    public:
-        npc_custom_caster_guard() : CreatureScript("npc_custom_caster_guard") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_custom_caster_guardAI(creature);
-        }
-
-        struct npc_custom_caster_guardAI : CasterAI
-        {
-            npc_custom_caster_guardAI(Creature* creature) : CasterAI(creature) 
-            {
-                curTarget = NULL;
-                switch (me->GetEntry())
-                {
-                    case NPC_DOOM_GUARD: // Doom Guard
-                        spellId = SPELL_DOOM_BOLT;
-                        maxRange = 30.0f;
-                        castTime = 3000;
-                        break;
-                    case NPC_BURNING_TREANT: // Burning Treant
-                        spellId = SPELL_DOOM_BOLT;
-                        maxRange = 40.0f;
-                        castTime = 2000;
-                        break;
-                    case NPC_FIERY_IMP:
-                        spellId = SPELL_FLAME_BLAST;
-                        maxRange = 40.0f;
-                        castTime = 1500;
-                        break;
-                    default:
-                        spellId = 0;
-                        maxRange = 0.0f;
-                        castTime = 0;
-                        break;
-                }
-            }
-
-            void EnterCombat(Unit* who)
-            {
-                if (spellId)
-                    events.ScheduleEvent(EVENT_CAST_SPELL, 1);
-            }
-
-            void OwnerSpellHit(Unit* target, SpellInfo const* spell)
-            {
-                if (me->GetEntry() == NPC_DOOM_GUARD)
-                    if (spell->Id == SPELL_DOOM || spell->Id == SPELL_AGONY)
-                        if (target && me->getVictim() != target)
-                            AttackStart(target);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (Unit * victim = me->getVictim())
-                {
-                    if (victim->HasCrowdControlAura(me))
-                    {
-                        me->InterruptNonMeleeSpells(false);
-                        return;
-                    }
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (curTarget && curTarget->IsInWorld() && (me->getVictim() != curTarget))
-                    AttackStart(curTarget);
-
-                if (uint32 event_id = events.ExecuteEvent())
-                {
-                    if (me->GetEntry() == NPC_DOOM_GUARD)
-                    {
-                        UnitList targets;
-                        DebuffCheck u_check(me, me->GetOwnerGUID());
-                        
-                        JadeCore::UnitListSearcher<DebuffCheck> searcher(me, targets, u_check);
-                        me->VisitNearbyObject(100.0f, searcher);
-                        if (!targets.empty())
-                        {
-                            if (targets.size() > 1)
-                            {
-                                targets.sort(JadeCore::DistanceOrderPred(me));
-                                JadeCore::Containers::RandomResizeList(targets, 1);
-                            }
-                            Unit* newTarget = *(targets.begin());
-                            if (me->getVictim() != newTarget)
-                                AttackStart(newTarget);
-                        }
-                        else
-                        {
-                            if (Unit* owner = me->GetOwner())
-                                if (Unit* newTarget = owner->getVictim())
-                                    if (newTarget != owner->getVictim())
-                                        AttackStart(newTarget);
-                        }
-                    }
-                    else
-                    {
-                        if (Unit* owner = me->GetOwner())
-                            if (Unit* newTarget = owner->getVictim())
-                                if (newTarget != owner->getVictim())
-                                    AttackStart(newTarget);
-                    }
-
-                    float normalRange = maxRange / 1.2f;
-
-                    if (Unit* victim = me->getVictim())
-                    {
-                        if (maxRange && !me->IsWithinDistInMap(victim, maxRange))
-                            me->GetMotionMaster()->MoveChase(victim, normalRange);
-
-                        if (maxRange && !me->IsWithinLOSInMap(victim))
-                            me->GetMotionMaster()->MoveChase(victim, MELEE_RANGE);
-                    }
-
-                    DoCastVictim(spellId);
-                    events.ScheduleEvent(EVENT_CAST_SPELL, castTime);
-                }
-            }
-        private:
-            Unit* curTarget;
-            uint32 spellId;
-            float maxRange;
-            uint32 castTime;
-
-            class DebuffCheck
-            {
-                public:
-                    DebuffCheck(WorldObject const* obj, uint64 casterGuid) : i_obj(obj), i_casterGuid(casterGuid) {}
-                   
-                    bool operator()(Unit* u)
-                    {
-                        if (!u->isAlive())
-                            return false;
-
-                        if (!i_obj->IsWithinDistInMap(u, 100.0f))
-                            return false;
-
-                        if (!u->HasAura(SPELL_DOOM, i_casterGuid) && !u->HasAura(SPELL_AGONY, i_casterGuid))
-                            return false;
-
-                        return true;
-                    }
-                private:
-                    WorldObject const* i_obj;
-                    uint64 i_casterGuid;
-            };
-        };
-};
-
-/*######
-## npc_force_of_nature
-######*/
-
-class npc_force_of_nature : public CreatureScript
-{
-    public:
-        npc_force_of_nature() : CreatureScript("npc_force_of_nature") { }
-
-        struct npc_force_of_natureAI : public ScriptedAI
-        {
-            uint64 own;
-            uint64 tar;
-            bool init;
-            bool rakeCast;
-
-        npc_force_of_natureAI(Creature* pCreature) : ScriptedAI(pCreature)
-        {
-            init = false;
-            own = 0;
-            tar = 0;
-            rakeCast = false;
-        }
-
-        void InitializeAI()
-        {
-            init = true;
-            Unit* owner;
-
-            if (TempSummon* temp = me->ToTempSummon())
-                owner = temp->GetSummoner();
-
-            if (owner == NULL)
-                return;
-
-            Player* player = owner->ToPlayer();
-
-            if (player == NULL)
-                return;
-
-            own = player->GetGUID();
-
-            if (Unit* target = player->GetSelectedUnit())
-            {
-                tar = target->GetGUID();
-                CastStartSpell(owner, target);
-            }
-        }
-
-        void CastStartSpell(Unit* o, Unit* t)
-        {
-            if (me->GetEntry() == ENTRY_TREANT_RESTO)
-            {
-                me->CastSpell(t->IsFriendlyTo(o) ? t : o, 142423, true);
-                return;
-            }
-            else if (t->IsFriendlyTo(o))
-                return;
-
-            switch (me->GetEntry())
-            {
-                case ENTRY_TREANT_GUARDIAN:
-                    me->CastSpell(t, 113830, true); // Taunt
-                    break;
-                case ENTRY_TREANT_FERAL:
-                case ENTRY_TREANT_BALANCE:
-                    me->CastSpell(t, 113770, true); // Root
-                    // on creatures 30seconds
-                    if (t->GetTypeId() !=TYPEID_PLAYER)
-                        if (AuraPtr root = t->GetAura(113770, me->GetGUID()))
-                            root->SetDuration(30000);
-                    break;
-                default:
-                    break;
-            }
-
-            AttackStart(t);
-        }
-
-        void Reset() {}
-
-        bool UpdateTarget()
-        {
-            if (!(me->getVictim()) && me->GetEntry() != ENTRY_TREANT_RESTO)
-            {
-                Player* owner = Unit::GetPlayer((*me), own);
-                if (owner)
-                {
-                    if (Unit* target = owner->getAttackerForHelper())
-                    {
-                        tar = target->GetGUID();
-                        me->SetTarget(tar);
-                        me->SetInCombatWith(target);
-                        AttackStart(target);
-                    }
-                    else
-                        return false;
-                }
-                else
-                {
-                    own = 0;
-                    return false;
-                }
-            }
-
+            player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
             return true;
         }
 
-        void UpdateAI(const uint32 diff)
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
         {
-            if (!init)
-                InitializeAI();
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+				player->SendPandarenChooseFactionPacket();
+            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
+                player->TeleportTo(870, 3878.543213f, 2589.685547f, 757.201599f, 2.045576f);
+            else if (action == GOSSIP_ACTION_INFO_DEF + 3)
+                player->TeleportTo(870, 3878.543213f, 2589.685547f, 757.201599f, 2.045576f);
 
-            if (!own)
-                return;
-
-            if (me->IsNonMeleeSpellCasted(false))
-                return;
-
-            if (!UpdateTarget())
-                return;
-
-            switch (me->GetEntry())
-            {         
-                case ENTRY_TREANT_RESTO:
-                    me->CastSpell(me, 113828);
-                    return;
-                case ENTRY_TREANT_BALANCE:
-                    if (Unit* target = Unit::GetUnit((*me), tar))
-                        me->CastSpell(target, 113769, false);
-                    break;
-                case ENTRY_TREANT_FERAL:
-                    // Special case
-                    if (!rakeCast)
-                    {
-                        if (Unit* target = Unit::GetUnit((*me), tar))
-                        {
-                            if (me->IsWithinDistInMap(target, 5.0f, false))
-                            {
-                                rakeCast = true;
-                                me->CastSpell(target, 150017, true);
-                            }
-                        }
-                    }
-                default:
-                    break;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* pCreature) const
-        {
-            return new npc_force_of_natureAI(pCreature);
+            player->PlayerTalkClass->SendCloseGossip();
+            return true;
         }
-};
-
-/*######
-## npc_luo_meng
-######*/
-
-#define MAGIC_BAMBOO_SHOOT 93314
-
-class npc_luo_meng : public CreatureScript
-{
-    public:
-        npc_luo_meng() : CreatureScript("npc_luo_meng") { }
-
-        struct npc_luo_mengAI : public ScriptedAI
-        {
-            npc_luo_mengAI(Creature* pCreature) : ScriptedAI(pCreature) { }
-
-            void ReceiveEmote(Player* player, uint32 emote)
-            {
-                if (emote != TEXT_EMOTE_HUG)
-                    return;
-
-                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(MAGIC_BAMBOO_SHOOT);
-                if (!itemTemplate)
-                    return;
-
-                // Adding items
-                uint32 noSpaceForCount = 0;
-                uint32 count = 1;
-
-                // check space and find places
-                ItemPosCountVec dest;
-                InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, MAGIC_BAMBOO_SHOOT, count, &noSpaceForCount);
-                if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
-                    count -= noSpaceForCount;
-
-                if (count == 0 || dest.empty())                         // can't add any
-                    return;
-
-                Item* item = player->StoreNewItem(dest, MAGIC_BAMBOO_SHOOT, true, Item::GenerateItemRandomPropertyId(MAGIC_BAMBOO_SHOOT));
-                if (count > 0 && item)
-                    player->SendNewItem(item, count, true, false);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* pCreature) const
-        {
-            return new npc_luo_mengAI(pCreature);
-        }
-};
-
-/*######
-## npc_monk_spirit - 69791
-######*/
-
-enum eSpiritEntries
-{
-    NPC_STORM_SPIRIT    = 69680,
-    NPC_EARTH_SPIRIT    = 69792,
-    NPC_FIRE_SPIRIT     = 69791
-};
-
-enum eSpiritEquips
-{
-    EQUIP_STORM_TWO_HANDS   = 25197,
-    EQUIP_EARTH_STAFF       = 86218,
-    EQUIP_FIRE_TWO_HANDS    = 82224
-};
-
-enum eSpiritActions
-{
-    ACTION_DESPAWN_SPIRIT
-};
-
-enum eSpiritMoves
-{
-    MOVE_DESPAWN    = 1
-};
-
-const uint32 visualMorph[3] = { 138080, 138083, 138081 }; // Storm, Earth and Fire
-
-class npc_monk_spirit : public CreatureScript
-{
-    public:
-        npc_monk_spirit() : CreatureScript("npc_monk_spirit") { }
-
-        struct npc_monk_spiritAI : public ScriptedAI
-        {
-            npc_monk_spiritAI(Creature* creature) : ScriptedAI(creature)
-            {
-                targetGuid = 0;
-            }
-
-            uint64 targetGuid;
-
-            void Reset()
-            {
-                me->SetDisplayId(38551);
-
-                Unit* owner = me->GetOwner();
-                if (!owner)
-                    return;
-
-                me->SetShapeshiftForm(owner->GetShapeshiftForm());
-
-                switch (me->GetEntry())
-                {
-                    case NPC_STORM_SPIRIT:
-                        me->CastSpell(me, visualMorph[0], true);
-                        SetEquipmentSlots(false, EQUIP_STORM_TWO_HANDS, EQUIP_STORM_TWO_HANDS, EQUIP_NO_CHANGE);
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MINDAMAGE) / 2);
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MAXDAMAGE) / 2);
-                        break;
-                    case NPC_EARTH_SPIRIT:
-                        me->CastSpell(me, visualMorph[1], true);
-                        SetEquipmentSlots(false, EQUIP_EARTH_STAFF, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
-                        break;
-                    case NPC_FIRE_SPIRIT:
-                        me->CastSpell(me, visualMorph[2], true);
-                        SetEquipmentSlots(false, EQUIP_FIRE_TWO_HANDS, EQUIP_FIRE_TWO_HANDS, EQUIP_NO_CHANGE);
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MINDAMAGE) / 2);
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MAXDAMAGE) / 2);
-                        break;
-                }
-            }
-
-            void SetGUID(uint64 guid, int32 data /*= 0*/)
-            {
-                targetGuid = guid;
-
-                if (Unit* victim = Unit::GetUnit(*me, targetGuid))
-                {
-                    me->CastSpell(victim, 138104, true);    // Jump
-                    me->CastSpell(me, 138130, true);
-                    AttackStart(victim);
-                }
-            }
-
-            uint64 GetGUID(int32 data /*= 0*/)
-            {
-                return targetGuid;
-            }
-
-            void IsSummonedBy(Unit* summoner)
-            {
-                if (!summoner || summoner->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                summoner->CastSpell(me, 119051, true);
-                me->SetLevel(summoner->getLevel());
-                me->SetHealth(summoner->CountPctFromMaxHealth(10));
-                me->SetMaxHealth(summoner->CountPctFromMaxHealth(10));
-                me->SetFullHealth();
-            }
-
-            void DoAction(const int32 action)
-            {
-                switch (action)
-                {
-                    case ACTION_DESPAWN_SPIRIT:
-                    {
-                        if (Unit* owner = me->GetOwner())
-                        {
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveJump(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), 15.0f, 10.0f, me->GetOrientation(), MOVE_DESPAWN);
-                        }
-
-                        break;
-                    }
-                    default:
-                        break;
-                }
-            }
-
-            void KilledUnit(Unit* victim)
-            {
-                if (victim->GetGUID() == targetGuid)
-                    DoAction(ACTION_DESPAWN_SPIRIT);
-            }
-
-            void MovementInform(uint32 type, uint32 id)
-            {
-                if (id == MOVE_DESPAWN)
-                    me->DespawnOrUnsummon(500);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (targetGuid)
-                {
-                    if (me->getVictim() && me->getVictim()->GetGUID() != targetGuid)
-                        DoAction(0);
-                    else if (!me->getVictim())
-                        DoAction(0);
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_monk_spiritAI(creature);
-        }
-};
-
-/*######
-## npc_army_of_the_dead - 24207
-######*/
-
-const uint32 displayIds[6] = { 26079, 25286, 10971, 201, 28292, 27870 };
-
-class npc_army_of_the_dead : public CreatureScript
-{
-    public:
-        npc_army_of_the_dead() : CreatureScript("npc_army_of_the_dead") { }
-
-        struct npc_army_of_the_deadAI : public ScriptedAI
-        {
-            npc_army_of_the_deadAI(Creature* c) : ScriptedAI(c) { }
-
-            void IsSummonedBy(Unit* owner)
-            {
-                if (!owner)
-                    return;
-
-                if (owner->HasAura(58642))
-                    me->SetDisplayId(displayIds[urand(0, 5)]);
-            }
-        };
-
-        CreatureAI* GetAI(Creature *creature) const
-        {
-            return new npc_army_of_the_deadAI(creature);
-        }
-};
-
-class npc_doom_guard_warlock : public CreatureScript
-{
-public:
-    npc_doom_guard_warlock() : CreatureScript("npc_doom_guard_warlock") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_doom_guard_warlockAI(creature);
-    }
-
-    struct npc_doom_guard_warlockAI : CasterAI
-    {
-        npc_doom_guard_warlockAI(Creature* creature) : CasterAI(creature)
-        {
-            curTarget = NULL;
-        }
-
-        enum DoomGuardEnums
-        {
-            SPELL_DOOMGUARD_BOLT = 85692,
-
-            SPELL_DOOM1 = 603,
-            SPELL_AGONY1 = 980,
-
-            EVENT_CAST_SPELL1 = 1
-        };
-
-
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_CAST_SPELL, 1);
-        }
-
-        void OwnerSpellHit(Unit* target, SpellInfo const* spell)
-        {
-            if (spell->Id == SPELL_DOOM1 || spell->Id == SPELL_AGONY1)
-                if (target && me->getVictim() != target)
-                    AttackStart(target);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (Unit * victim = me->getVictim())
-            {
-                if (victim->HasCrowdControlAura(me))
-                {
-                    me->InterruptNonMeleeSpells(false);
-                    return;
-                }
-            }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (curTarget && curTarget->IsInWorld() && (me->getVictim() != curTarget))
-                AttackStart(curTarget);
-
-            switch (events.ExecuteEvent())
-            {
-            case EVENT_CAST_SPELL1:
-            {
-                if (Unit* owner = me->GetOwner())
-                    if (Unit* newTarget = owner->getVictim())
-                        if (newTarget != me->getVictim())
-                            AttackStart(newTarget);
-
-                float normalRange = 30 / 1.2f;
-
-                if (Unit* victim = me->getVictim())
-                {
-                    if (!me->IsWithinDistInMap(victim, 30))
-                        me->GetMotionMaster()->MoveChase(victim, normalRange);
-
-                    if (!me->IsWithinLOSInMap(victim))
-                        me->GetMotionMaster()->MoveChase(victim, MELEE_RANGE);
-                }
-
-                DoCastVictim(SPELL_DOOMGUARD_BOLT);
-                events.ScheduleEvent(EVENT_CAST_SPELL1, 3100);
-            }
-            break;
-
-            default:
-                break;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        Unit* curTarget;
-
-    };
 };
 
 void AddSC_npcs_special()
 {
-    new npc_doom_guard_warlock();
+	new npc_pandaren_choose_faction();
     new npc_air_force_bots();
     new npc_lunaclaw_spirit();
     new npc_chicken_cluck();
@@ -6019,13 +4408,11 @@ void AddSC_npcs_special()
     new npc_sayge();
     new npc_steam_tonk();
     new npc_tonk_mine();
-    new npc_winter_reveler();
     new npc_brewfest_reveler();
     new npc_snake_trap();
     new npc_mirror_image();
-    new npc_ebon_gargoyle();
-    new npc_new_lightwell();
-    new npc_lightwell();
+    //new npc_ebon_gargoyle();
+    //new npc_lightwell();
     new mob_mojo();
     new npc_training_dummy();
     new npc_wormhole();
@@ -6037,41 +4424,24 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
-    new npc_choose_faction();
-    new npc_rate_xp_modifier();
     new npc_capacitor_totem();
     new npc_feral_spirit();
     new npc_spirit_link_totem();
     new npc_demoralizing_banner();
     new npc_frozen_orb();
-    new spell_frozen_orb_target();
     new npc_guardian_of_ancient_kings();
     new npc_power_word_barrier();
-    new npc_demonic_gateway_purple();
-    new npc_demonic_gateway_green();
-    new npc_xuen_the_white_tiger();
-    new npc_murder_of_crows();
-    new npc_dire_beast();
-    new npc_wild_imp();
+    new npc_demonic_gateway();
     new npc_stone_bulwark_totem();
     new npc_earthgrab_totem();
     new npc_windwalk_totem();
     new npc_healing_tide_totem();
-    new npc_ring_of_frost();
     new npc_wild_mushroom();
     new npc_fungal_growth();
     new npc_bloodworm();
     new npc_past_self();
-    new npc_transcendence_spirit();
+	new npc_transcendence_spirit();
     new npc_void_tendrils();
     new npc_psyfiend();
     new npc_spectral_guise();
-    new npc_metzen();
-    new npc_moonwell_chalice();
-    new npc_shadowfiend();
-    new npc_custom_caster_guard();
-    new npc_force_of_nature();
-    new npc_luo_meng();
-    new npc_monk_spirit();
-    new npc_army_of_the_dead();
 }

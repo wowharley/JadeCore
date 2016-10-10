@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -62,7 +65,7 @@ const Position WaypointPositions[12] =
     {2517.8f, -2896.6f, 241.28f, 2.315f},
 };
 
-const uint32 MOB_HORSEMEN[]     =   {16064, 16065, 30549, 16063};
+const uint32 NPC_HORSEMEN[]     =   {16064, 16065, 30549, 16063};
 const uint32 SPELL_MARK[]       =   {28832, 28833, 28834, 28835};
 #define SPELL_PRIMARY(i)            RAID_MODE(SPELL_PRIMARY_N[i], SPELL_PRIMARY_H[i])
 const uint32 SPELL_PRIMARY_N[]  =   {28884, 28863, 28882, 28883};
@@ -73,28 +76,23 @@ const uint32 SPELL_SECONDARY_H[]=   {0, 57464, 0, 57465};
 const uint32 SPELL_PUNISH[]     =   {0, 57381, 0, 57377};
 #define SPELL_BERSERK               26662
 
-// used by 16063, 16064, 16065, 30549, but signed for 16063
-const int32 SAY_AGGRO[]     =   {-1533051, -1533044, -1533065, -1533058};
-const int32 SAY_TAUNT[3][4] ={  {-1533052, -1533045, -1533071, -1533059},
-                                {-1533053, -1533046, -1533072, -1533060},
-                                {-1533054, -1533047, -1533073, -1533061}, };
-const int32 SAY_SPECIAL[]   =   {-1533055, -1533048, -1533070, -1533062};
-const int32 SAY_SLAY[]      =   {-1533056, -1533049, -1533068, -1533063};
-const int32 SAY_DEATH[]     =   {-1533057, -1533050, -1533074, -1533064};
-
-#define SAY_BARON_AGGRO     RAND(-1533065, -1533066, -1533067)
-#define SAY_BARON_SLAY      RAND(-1533068, -1533069)
-#define ACTION_SET_ATTACK 1
-#define ACTION_SET_RESET 2
+enum FourHorsemen
+{
+    SAY_AGGRO       = 0,
+    SAY_TAUNT       = 1,
+    SAY_SPECIAL     = 2,
+    SAY_SLAY        = 3,
+    SAY_DEATH       = 4
+};
 
 class boss_four_horsemen : public CreatureScript
 {
 public:
     boss_four_horsemen() : CreatureScript("boss_four_horsemen") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_four_horsemenAI (creature);
+        return new boss_four_horsemenAI(creature);
     }
 
     struct boss_four_horsemenAI : public BossAI
@@ -103,7 +101,7 @@ public:
         {
             id = Horsemen(0);
             for (uint8 i = 0; i < 4; ++i)
-                if (me->GetEntry() == MOB_HORSEMEN[i])
+                if (me->GetEntry() == NPC_HORSEMEN[i])
                     id = Horsemen(i);
             caster = (id == HORSEMEN_LADY || id == HORSEMEN_SIR);
             encounterActionReset = false;
@@ -121,7 +119,7 @@ public:
         bool encounterActionReset;
         bool doDelayPunish;
 
-        void Reset()
+        void Reset() override
         {
             if (!encounterActionReset)
                 DoEncounteraction(NULL, false, true, false);
@@ -142,18 +140,6 @@ public:
             _Reset();
         }
 
-        void DoAction(const int32 action)
-        {
-            if (action == ACTION_SET_ATTACK)
-            {
-                encounterActionAttack = true;
-            }
-            else if (action == ACTION_SET_RESET)
-            {
-                encounterActionReset = true;
-            }
-        }
-
         bool DoEncounteraction(Unit* who, bool attack, bool reset, bool checkAllDead)
         {
             if (!instance)
@@ -168,47 +154,47 @@ public:
             {
                 if (attack && who)
                 {
-                    Thane->AI()->DoAction(ACTION_SET_ATTACK);
-                    Lady->AI()->DoAction(ACTION_SET_ATTACK);
-                    Baron->AI()->DoAction(ACTION_SET_ATTACK);
-                    Sir->AI()->DoAction(ACTION_SET_ATTACK);
+                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionAttack = true;
+                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionAttack = true;
+                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionAttack = true;
+                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionAttack = true;
 
-                    Thane->AI()->AttackStart(who);
-                    Lady->AI()->AttackStart(who);
-                    Baron->AI()->AttackStart(who);
-                    Sir->AI()->AttackStart(who);
+                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->AttackStart(who);
+                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->AttackStart(who);
+                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->AttackStart(who);
+                    CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->AttackStart(who);
                 }
 
                 if (reset)
                 {
                     if (instance->GetBossState(BOSS_HORSEMEN) != NOT_STARTED)
                     {
-                        if (!Thane->isAlive())
+                        if (!Thane->IsAlive())
                             Thane->Respawn();
 
-                        if (!Lady->isAlive())
+                        if (!Lady->IsAlive())
                             Lady->Respawn();
 
-                        if (!Baron->isAlive())
+                        if (!Baron->IsAlive())
                             Baron->Respawn();
 
-                        if (!Sir->isAlive())
+                        if (!Sir->IsAlive())
                             Sir->Respawn();
 
-                        Thane->AI()->DoAction(ACTION_SET_RESET);
-                        Lady->AI()->DoAction(ACTION_SET_RESET);
-                        Baron->AI()->DoAction(ACTION_SET_RESET);
-                        Sir->AI()->DoAction(ACTION_SET_RESET);
+                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->encounterActionReset = true;
+                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->encounterActionReset = true;
+                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->encounterActionReset = true;
+                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->encounterActionReset = true;
 
-                        Thane->AI()->EnterEvadeMode();
-                        Lady->AI()->EnterEvadeMode();
-                        Baron->AI()->EnterEvadeMode();
-                        Sir->AI()->EnterEvadeMode();
+                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Thane->AI())->EnterEvadeMode();
+                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Lady->AI())->EnterEvadeMode();
+                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Baron->AI())->EnterEvadeMode();
+                        CAST_AI(boss_four_horsemen::boss_four_horsemenAI, Sir->AI())->EnterEvadeMode();
                     }
                 }
 
                 if (checkAllDead)
-                    return !Thane->isAlive() && !Lady->isAlive() && !Baron->isAlive() && !Sir->isAlive();
+                    return !Thane->IsAlive() && !Lady->IsAlive() && !Baron->IsAlive() && !Sir->IsAlive();
             }
             return false;
         }
@@ -237,7 +223,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -273,21 +259,22 @@ public:
         // switch to "who" if nearer than current target.
         void SelectNearestTarget(Unit* who)
         {
-            if (me->getVictim() && me->GetDistanceOrder(who, me->getVictim()) && me->IsValidAttackTarget(who))
+            if (me->GetVictim() && me->GetDistanceOrder(who, me->GetVictim()) && me->IsValidAttackTarget(who))
             {
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
+                me->getThreatManager().modifyThreatPercent(me->GetVictim(), -100);
                 me->AddThreat(who, 1000000.0f);
             }
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
+
         {
             BossAI::MoveInLineOfSight(who);
             if (caster)
                 SelectNearestTarget(who);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
             if (!movementCompleted && !movementStarted)
             {
@@ -306,18 +293,13 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             if (!(rand()%5))
-            {
-                if (id == HORSEMEN_BARON)
-                    DoScriptText(SAY_BARON_SLAY, me);
-                else
-                    DoScriptText(SAY_SLAY[id], me);
-            }
+                Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             events.Reset();
             summons.DespawnAll();
@@ -335,24 +317,20 @@ public:
                 instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 59450);
             }
 
-            DoScriptText(SAY_DEATH[id], me);
+            Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
-
-            if (id == HORSEMEN_BARON)
-                DoScriptText(SAY_BARON_AGGRO, me);
-            else
-                DoScriptText(SAY_AGGRO[id], me);
+            Talk(SAY_AGGRO);
 
             events.ScheduleEvent(EVENT_MARK, 15000);
             events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
             events.ScheduleEvent(EVENT_BERSERK, 15*100*1000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (nextWP && movementStarted && !movementCompleted && !nextMovementStarted)
             {
@@ -374,13 +352,13 @@ public:
                 {
                     case EVENT_MARK:
                         if (!(rand()%5))
-                            DoScriptText(SAY_SPECIAL[id], me);
+                            Talk(SAY_SPECIAL);
                         DoCastAOE(SPELL_MARK[id]);
                         events.ScheduleEvent(EVENT_MARK, 15000);
                         break;
                     case EVENT_CAST:
                         if (!(rand()%5))
-                            DoScriptText(SAY_TAUNT[rand()%3][id], me);
+                            Talk(SAY_TAUNT);
 
                         if (caster)
                         {
@@ -388,12 +366,12 @@ public:
                                 DoCast(target, SPELL_PRIMARY(id));
                         }
                         else
-                            DoCast(me->getVictim(), SPELL_PRIMARY(id));
+                            DoCastVictim(SPELL_PRIMARY(id));
 
                         events.ScheduleEvent(EVENT_CAST, 15000);
                         break;
                     case EVENT_BERSERK:
-                        DoScriptText(SAY_SPECIAL[id], me);
+                        Talk(SAY_SPECIAL);
                         DoCast(me, EVENT_BERSERK);
                         break;
                 }
@@ -411,7 +389,7 @@ public:
 
             if (!caster)
                 DoMeleeAttackIfReady();
-            else if ((!DoSpellAttackIfReady(SPELL_SECONDARY(id)) || !me->IsWithinLOSInMap(me->getVictim())) && movementCompleted && !doDelayPunish)
+            else if ((!DoSpellAttackIfReady(SPELL_SECONDARY(id)) || !me->IsWithinLOSInMap(me->GetVictim())) && movementCompleted && !doDelayPunish)
                 doDelayPunish = true;
         }
     };
@@ -427,7 +405,7 @@ class spell_four_horsemen_mark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_four_horsemen_mark_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -461,14 +439,13 @@ class spell_four_horsemen_mark : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
-
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_four_horsemen_mark_AuraScript();
         }

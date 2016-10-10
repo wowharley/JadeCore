@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -15,7 +18,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -30,33 +34,34 @@ enum Spells
     H_SPELL_ZURAMAT_ADD_2                       = 59747
 };
 
-enum ZuramatCreatures
+enum Creatures
 {
-    CREATURE_VOID_SENTRY                        = 29364
+    NPC_VOID_SENTRY                        = 29364
 };
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1608037,
-    SAY_SLAY_1                                  = -1608038,
-    SAY_SLAY_2                                  = -1608039,
-    SAY_SLAY_3                                  = -1608040,
-    SAY_DEATH                                   = -1608041,
-    SAY_SPAWN                                   = -1608042,
-    SAY_SHIELD                                  = -1608043,
-    SAY_WHISPER                                 = -1608044
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_SHIELD                                  = 4,
+    SAY_WHISPER                                 = 5
 };
 
-#define DATA_VOID_DANCE                         2153
+enum Misc
+{
+    DATA_VOID_DANCE                             = 2153
+};
 
 class boss_zuramat : public CreatureScript
 {
 public:
     boss_zuramat() : CreatureScript("boss_zuramat") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_zuramatAI (creature);
+        return new boss_zuramatAI(creature);
     }
 
     struct boss_zuramatAI : public ScriptedAI
@@ -73,7 +78,7 @@ public:
         uint32 SpellShroudOfDarknessTimer;
         bool voidDance;
 
-        void Reset()
+        void Reset() override
         {
             if (instance)
             {
@@ -89,7 +94,7 @@ public:
             voidDance = true;
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
@@ -103,9 +108,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             if (instance)
             {
                 if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_ZURAMAT_CELL)))
@@ -121,9 +126,10 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void UpdateAI(const uint32 diff)
+
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -131,7 +137,7 @@ public:
 
             if (SpellSummonVoidTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SUMMON_VOID_SENTRY, false);
+                DoCastVictim(SPELL_SUMMON_VOID_SENTRY, false);
                 SpellSummonVoidTimer = 20000;
             } else SpellSummonVoidTimer -=diff;
 
@@ -144,20 +150,20 @@ public:
 
             if (SpellShroudOfDarknessTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHROUD_OF_DARKNESS);
+                DoCastVictim(SPELL_SHROUD_OF_DARKNESS);
                 SpellShroudOfDarknessTimer = 20000;
             } else SpellShroudOfDarknessTimer -=diff;
 
             DoMeleeAttackIfReady();
         }
 
-        void SummonedCreatureDies(Creature* summoned, Unit* /*who*/)
+        void SummonedCreatureDies(Creature* summoned, Unit* /*who*/) override
         {
-            if (summoned->GetEntry() == CREATURE_VOID_SENTRY)
+            if (summoned->GetEntry() == NPC_VOID_SENTRY)
                 voidDance = false;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_VOID_DANCE)
                 return voidDance ? 1 : 0;
@@ -165,9 +171,9 @@ public:
             return 0;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
             {
@@ -184,17 +190,17 @@ public:
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) override
         {
-            summon->AI()->AttackStart(me->getVictim());
+            summon->AI()->AttackStart(me->GetVictim());
             summon->AI()->DoCastAOE(SPELL_ZURAMAT_ADD_2);
             summon->SetPhaseMask(17, true);
         }
@@ -209,7 +215,7 @@ class achievement_void_dance : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;

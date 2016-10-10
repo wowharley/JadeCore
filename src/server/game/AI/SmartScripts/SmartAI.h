@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -22,7 +23,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Unit.h"
-#include "ConditionMgr.h"
 #include "Spell.h"
 
 #include "SmartScript.h"
@@ -40,13 +40,13 @@ enum SmartEscortState
 enum SmartEscortVars
 {
     SMART_ESCORT_MAX_PLAYER_DIST        = 50,
-    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2,
+    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2
 };
 
 class SmartAI : public CreatureAI
 {
     public:
-        ~SmartAI(){};
+        ~SmartAI(){ }
         explicit SmartAI(Creature* c);
 
         // Start moving to the desired MovePoint
@@ -56,6 +56,7 @@ class SmartAI : public CreatureAI
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
+        void UpdatePath(const uint32 diff);
         WayPoint* GetNextWayPoint();
         bool HasEscortState(uint32 uiEscortState) { return (mEscortState & uiEscortState); }
         void AddEscortState(uint32 uiEscortState) { mEscortState |= uiEscortState; }
@@ -112,7 +113,7 @@ class SmartAI : public CreatureAI
         void HealReceived(Unit* doneBy, uint32& addhealth);
 
         // Called at World update tick
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
 
         // Called at text emote receive from player
         void ReceiveEmote(Player* player, uint32 textEmote);
@@ -148,10 +149,10 @@ class SmartAI : public CreatureAI
         bool CanAIAttack(const Unit* who) const;
 
         // Used in scripts to share variables
-        void DoAction(const int32 param = 0);
+        void DoAction(int32 param = 0);
 
         // Used in scripts to share variables
-        uint32 GetData(uint32 id = 0);
+        uint32 GetData(uint32 id = 0) const;
 
         // Used in scripts to share variables
         void SetData(uint32 id, uint32 value);
@@ -160,7 +161,7 @@ class SmartAI : public CreatureAI
         void SetGUID(uint64 guid, int32 id = 0);
 
         // Used in scripts to share variables
-        uint64 GetGUID(int32 id = 0);
+        uint64 GetGUID(int32 id = 0) const;
 
         //core related
         static int Permissible(const Creature*);
@@ -198,7 +199,7 @@ class SmartAI : public CreatureAI
 
         void RemoveAuras();
 
-        void OnSpellClick(Unit* clicker);
+        void OnSpellClick(Unit* clicker, bool& result);
 
     private:
         uint32 mFollowCreditType;
@@ -210,7 +211,6 @@ class SmartAI : public CreatureAI
         float mFollowAngle;
 
         void ReturnToLastOOCPos();
-        void UpdatePath(const uint32 diff);
         SmartScript mScript;
         WPPath* mWayPoints;
         uint32 mEscortState;
@@ -238,8 +238,8 @@ class SmartAI : public CreatureAI
 class SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) {}
-        ~SmartGameObjectAI() {}
+        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) { }
+        ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff);
         void InitializeAI();

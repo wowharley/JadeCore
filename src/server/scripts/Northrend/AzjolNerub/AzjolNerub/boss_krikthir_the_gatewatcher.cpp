@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -19,7 +22,8 @@
  * Comment: Find in the future best timers and the event is not implemented.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "azjol_nerub.h"
 
 enum Spells
@@ -53,26 +57,19 @@ enum Spells
 
 enum Mobs
 {
-    MOB_SKITTERING_SWARMER                        = 28735,
-    MOB_SKITTERING_SWARMER_CONTROLLER             = 32593,
-    MOB_SKITTERING_INFECTIOR                      = 28736
+    NPC_SKITTERING_SWARMER                        = 28735,
+    NPC_SKITTERING_SWARMER_CONTROLLER             = 32593,
+    NPC_SKITTERING_INFECTIOR                      = 28736
 };
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1601011,
-    SAY_SLAY_1                                    = -1601012,
-    SAY_SLAY_2                                    = -1601013,
-    SAY_DEATH                                     = -1601014,
-    //Not in db
-    SAY_SEND_GROUP_1                              = -1601020,
-    SAY_SEND_GROUP_2                              = -1601021,
-    SAY_SEND_GROUP_3                              = -1601022,
-    SAY_SWARM_1                                   = -1601015,
-    SAY_SWARM_2                                   = -1601016,
-    SAY_PREFIGHT_1                                = -1601017,
-    SAY_PREFIGHT_2                                = -1601018,
-    SAY_PREFIGHT_3                                = -1601019
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_DEATH                                     = 2,
+    SAY_SWARM                                     = 3,
+    SAY_PREFIGHT                                  = 4,
+    SAY_SEND_GROUP                                = 5
 };
 
 const Position SpawnPoint[] =
@@ -94,9 +91,9 @@ public:
 
     struct boss_krik_thirAI : public ScriptedAI
     {
-        boss_krik_thirAI(Creature* c) : ScriptedAI(c)
+        boss_krik_thirAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -105,46 +102,46 @@ public:
         uint32 uiCurseFatigueTimer;
         uint32 uiSummonTimer;
 
-        void Reset()
+        void Reset() override
         {
             uiMindFlayTimer = 15*IN_MILLISECONDS;
             uiCurseFatigueTimer = 12*IN_MILLISECONDS;
 
             if (instance)
-                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             Summon();
             uiSummonTimer = 15*IN_MILLISECONDS;
 
             if (instance)
-                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, IN_PROGRESS);
         }
 
         void Summon()
         {
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_INFECTIOR, SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_INFECTIOR, SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_INFECTIOR, SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
-                me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[0], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[1], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[2], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[3], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[4], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[5], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_INFECTIOR, SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[6], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
+                me->SummonCreature(NPC_SKITTERING_SWARMER, SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -157,7 +154,7 @@ public:
 
             if (uiMindFlayTimer <= diff)
             {
-                    DoCast(me->getVictim(), SPELL_MIND_FLAY);
+                    DoCastVictim(SPELL_MIND_FLAY);
                     uiMindFlayTimer = 15*IN_MILLISECONDS;
                 } else uiMindFlayTimer -= diff;
 
@@ -177,29 +174,29 @@ public:
 
             DoMeleeAttackIfReady();
         }
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
+                instance->SetBossState(DATA_KRIKTHIR_THE_GATEWATCHER, DONE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_krik_thirAI(creature);
     }
@@ -212,16 +209,16 @@ public:
 
     struct npc_skittering_infectorAI : public ScriptedAI
     {
-        npc_skittering_infectorAI(Creature* c) : ScriptedAI(c) {}
+        npc_skittering_infectorAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             //The spell is not working propperly
-            DoCast(me->getVictim(), SPELL_ACID_SPLASH, true);
+            DoCastVictim(SPELL_ACID_SPLASH, true);
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_skittering_infectorAI(creature);
     }
@@ -234,18 +231,18 @@ public:
 
     struct npc_anub_ar_skirmisherAI : public ScriptedAI
     {
-        npc_anub_ar_skirmisherAI(Creature* c) : ScriptedAI(c) {}
+        npc_anub_ar_skirmisherAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiChargeTimer;
         uint32 uiBackstabTimer;
 
-        void Reset()
+        void Reset() override
         {
             uiChargeTimer   = 11*IN_MILLISECONDS;
             uiBackstabTimer = 7*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -263,7 +260,7 @@ public:
 
             if (uiBackstabTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_BACKSTAB);
+                DoCastVictim(SPELL_BACKSTAB);
                 uiBackstabTimer = 12*IN_MILLISECONDS;
             } else uiBackstabTimer -= diff;
 
@@ -272,7 +269,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_anub_ar_skirmisherAI(creature);
     }
@@ -285,18 +282,18 @@ public:
 
     struct npc_anub_ar_shadowcasterAI : public ScriptedAI
     {
-        npc_anub_ar_shadowcasterAI(Creature* c) : ScriptedAI(c) {}
+        npc_anub_ar_shadowcasterAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiShadowBoltTimer;
         uint32 uiShadowNovaTimer;
 
-        void Reset()
+        void Reset() override
         {
             uiShadowBoltTimer = 6*IN_MILLISECONDS;
             uiShadowNovaTimer = 15*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -310,7 +307,7 @@ public:
 
             if (uiShadowNovaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOW_NOVA, true);
+                DoCastVictim(SPELL_SHADOW_NOVA, true);
                 uiShadowNovaTimer = 17*IN_MILLISECONDS;
             } else uiShadowNovaTimer -= diff;
 
@@ -318,7 +315,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_anub_ar_shadowcasterAI(creature);
     }
@@ -331,31 +328,31 @@ public:
 
     struct npc_anub_ar_warriorAI : public ScriptedAI
     {
-        npc_anub_ar_warriorAI(Creature* c) : ScriptedAI(c){}
+        npc_anub_ar_warriorAI(Creature* creature) : ScriptedAI(creature){ }
 
         uint32 uiCleaveTimer;
         uint32 uiStrikeTimer;
 
-        void Reset()
+        void Reset() override
         {
             uiCleaveTimer = 11*IN_MILLISECONDS;
             uiStrikeTimer = 6*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
             if (uiStrikeTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STRIKE, true);
+                DoCastVictim(SPELL_STRIKE, true);
                 uiStrikeTimer = 15*IN_MILLISECONDS;
             } else uiStrikeTimer -= diff;
 
             if (uiCleaveTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE, true);
+                DoCastVictim(SPELL_CLEAVE, true);
                 uiCleaveTimer = 17*IN_MILLISECONDS;
             } else uiCleaveTimer -= diff;
 
@@ -363,7 +360,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_anub_ar_warriorAI(creature);
     }
@@ -376,23 +373,23 @@ public:
 
     struct npc_watcher_gashraAI : public ScriptedAI
     {
-        npc_watcher_gashraAI(Creature* c) : ScriptedAI(c) {}
+        npc_watcher_gashraAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
 
-        void Reset()
+        void Reset() override
         {
             uiWebWrapTimer      = 11*IN_MILLISECONDS;
             uiInfectedBiteTimer = 4*IN_MILLISECONDS;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCast(me, SPELL_ENRAGE, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -406,7 +403,7 @@ public:
 
             if (uiInfectedBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_INFECTED_BITE, true);
+                DoCastVictim(SPELL_INFECTED_BITE, true);
                 uiInfectedBiteTimer = 15*IN_MILLISECONDS;
             } else uiInfectedBiteTimer -= diff;
 
@@ -414,7 +411,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_watcher_gashraAI(creature);
     }
@@ -427,20 +424,20 @@ public:
 
     struct npc_watcher_narjilAI : public ScriptedAI
     {
-        npc_watcher_narjilAI(Creature* c) : ScriptedAI(c) {}
+        npc_watcher_narjilAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
         uint32 uiBindingWebsTimer;
 
-        void Reset()
+        void Reset() override
         {
             uiWebWrapTimer      = 11*IN_MILLISECONDS;
             uiInfectedBiteTimer = 4*IN_MILLISECONDS;
             uiBindingWebsTimer = 17*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -454,13 +451,13 @@ public:
 
             if (uiInfectedBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_INFECTED_BITE, true);
+                DoCastVictim(SPELL_INFECTED_BITE, true);
                 uiInfectedBiteTimer = 11*IN_MILLISECONDS;
             } else uiInfectedBiteTimer -= diff;
 
             if (uiBindingWebsTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_BLINDING_WEBS, true);
+                DoCastVictim(SPELL_BLINDING_WEBS, true);
                 uiBindingWebsTimer = 17*IN_MILLISECONDS;
             } else uiBindingWebsTimer -= diff;
 
@@ -468,7 +465,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_watcher_narjilAI(creature);
     }
@@ -481,20 +478,20 @@ public:
 
     struct npc_watcher_silthikAI : public ScriptedAI
     {
-        npc_watcher_silthikAI(Creature* c) : ScriptedAI(c) {}
+        npc_watcher_silthikAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
         uint32 uiPoisonSprayTimer;
 
-        void Reset()
+        void Reset() override
         {
             uiWebWrapTimer      = 11*IN_MILLISECONDS;
             uiInfectedBiteTimer = 4*IN_MILLISECONDS;
             uiPoisonSprayTimer  = 15*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -509,13 +506,13 @@ public:
 
             if (uiInfectedBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_INFECTED_BITE, true);
+                DoCastVictim(SPELL_INFECTED_BITE, true);
                 uiInfectedBiteTimer = 15*IN_MILLISECONDS;
             } else uiInfectedBiteTimer -= diff;
 
             if (uiPoisonSprayTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_POSION_SPRAY, true);
+                DoCastVictim(SPELL_POSION_SPRAY, true);
                 uiPoisonSprayTimer = 17*IN_MILLISECONDS;
             } else uiPoisonSprayTimer -= diff;
 
@@ -524,7 +521,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_watcher_silthikAI(creature);
     }
@@ -537,21 +534,20 @@ class achievement_watch_him_die : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;
 
             InstanceScript* instance = target->GetInstanceScript();
-            Creature* Watcher[3];
             if (!instance)
                 return false;
 
             for (uint8 n = 0; n < 3; ++n)
             {
-                Watcher[n] = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_WATCHER_GASHRA + n));
-                if (Watcher[n] && !Watcher[n]->isAlive())
-                    return false;
+                if (Creature* watcher = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_WATCHER_GASHRA + n)))
+                    if (!watcher->IsAlive())
+                        return false;
             }
 
             return true;

@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -23,10 +24,27 @@
 
 void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GRANT_LEVEL");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_GRANT_LEVEL");
 
-    uint64 guid;
-    recvData.readPackGUID(guid);
+    ObjectGuid guid;
+
+    guid[2] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[0]);
 
     Player* target = ObjectAccessor::GetObjectInWorld(guid, _player);
 
@@ -48,7 +66,8 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
     else if (target->GetGroup() != _player->GetGroup())
         error = ERR_REFER_A_FRIEND_NOT_IN_GROUP;
 
-    if (error) {
+    if (error)
+    {
         WorldPacket data(SMSG_REFER_A_FRIEND_FAILURE, 24);
         data << uint32(error);
         if (error == ERR_REFER_A_FRIEND_NOT_IN_GROUP)
@@ -59,16 +78,39 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
     }
 
     WorldPacket data2(SMSG_PROPOSE_LEVEL_GRANT, 8);
-    data2.append(_player->GetPackGUID());
+
+    data2.WriteBit(guid[6]);
+    data2.WriteBit(guid[7]);
+    data2.WriteBit(guid[2]);
+    data2.WriteBit(guid[5]);
+    data2.WriteBit(guid[3]);
+    data2.WriteBit(guid[0]);
+    data2.WriteBit(guid[1]);
+    data2.WriteBit(guid[4]);
+
+    data2.WriteByteSeq(guid[2]);
+    data2.WriteByteSeq(guid[5]);
+    data2.WriteByteSeq(guid[6]);
+    data2.WriteByteSeq(guid[7]);
+    data2.WriteByteSeq(guid[1]);
+    data2.WriteByteSeq(guid[4]);
+    data2.WriteByteSeq(guid[3]);
+    data2.WriteByteSeq(guid[0]);
+
     target->GetSession()->SendPacket(&data2);
 }
 
 void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
 
-    uint64 guid;
-    recvData.readPackGUID(guid);
+    ObjectGuid guid;
+
+    uint8 bitOrder[8] = { 2, 7, 5, 4, 3, 0, 1, 6 };
+    recvData.ReadBitInOrder(guid, bitOrder);
+
+    uint8 byteOrder[8] = { 5, 3, 2, 7, 4, 1, 0, 6 };
+    recvData.ReadBytesSeq(guid, byteOrder);
 
     Player* other = ObjectAccessor::GetObjectInWorld(guid, _player);
     if (!(other && other->GetSession()))

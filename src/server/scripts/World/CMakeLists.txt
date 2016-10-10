@@ -1,6 +1,5 @@
-# Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-# Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2011-2014 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -22,9 +21,9 @@ set(scripts_STAT_SRCS
   World/npc_innkeeper.cpp
   World/npc_professions.cpp
   World/npc_taxi.cpp
-  World/npc_companions.cpp
   World/npcs_special.cpp
-  World/npc_mine_cart.cpp
+  World/player_scripts.cpp
+  World/boss_emerald_dragons.cpp
 )
 
 message("  -> Prepared: World")

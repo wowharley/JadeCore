@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -28,7 +27,10 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Chat.h"
 #include "AccountMgr.h"
+#include "Language.h"
 #include "World.h"
+#include "Player.h"
+#include "Opcodes.h"
 
 class gm_commandscript : public CommandScript
 {
@@ -39,103 +41,51 @@ public:
     {
         static ChatCommand gmCommandTable[] =
         {
-            { "chat",           SEC_MODERATOR,      false, &HandleGMChatCommand,              "", NULL },
-            { "fly",            SEC_ADMINISTRATOR,  false, &HandleGMFlyCommand,               "", NULL },
-            { "ingame",         SEC_PLAYER,         true,  &HandleGMListIngameCommand,        "", NULL },
-            { "list",           SEC_ADMINISTRATOR,  true,  &HandleGMListFullCommand,          "", NULL },
-            { "visible",        SEC_MODERATOR,      false, &HandleGMVisibleCommand,           "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleGMCommand,                  "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
-        };
-        static ChatCommand arenaCommandTable[] =
-        {
-            { "2v2", SEC_PLAYER, false, &Handle2v2Command, "Queue's for 2v2", NULL },
-            { "3v3", SEC_PLAYER, false, &Handle3v3Command, "Queue's for 3v3", NULL },
-            { "randbg", SEC_PLAYER, false, &HandleRandomBg, "Queue's for 5v5", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "chat",    rbac::RBAC_PERM_COMMAND_GM_CHAT,    false, &HandleGMChatCommand,       "", NULL },
+            { "fly",     rbac::RBAC_PERM_COMMAND_GM_FLY,     false, &HandleGMFlyCommand,        "", NULL },
+            { "ingame",  rbac::RBAC_PERM_COMMAND_GM_INGAME,   true, &HandleGMListIngameCommand, "", NULL },
+            { "list",    rbac::RBAC_PERM_COMMAND_GM_LIST,     true, &HandleGMListFullCommand,   "", NULL },
+            { "visible", rbac::RBAC_PERM_COMMAND_GM_VISIBLE, false, &HandleGMVisibleCommand,    "", NULL },
+            { "",        rbac::RBAC_PERM_COMMAND_GM,         false, &HandleGMCommand,           "", NULL },
+            { NULL,      0,                            false, NULL,                       "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "gm",             SEC_MODERATOR,      false, NULL,                     "", gmCommandTable },
-            { "arena", SEC_PLAYER, true, NULL, "", arenaCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "gm", rbac::RBAC_PERM_COMMAND_GM, false, NULL, "", gmCommandTable },
+            { NULL, 0,                    false, NULL, "", NULL }
         };
-
         return commandTable;
     }
-
-
-static bool Handle2v2Command(ChatHandler* handler, const char* args)
-{
-    Player* me = handler->GetSession()->GetPlayer();
-    if (!me)
-        return false;
-        me->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_2v2);
- 
-    return true;
-}
-
-static bool Handle3v3Command(ChatHandler* handler, const char* args)
-{
-    Player* me = handler->GetSession()->GetPlayer();
-    if (!me)
-        return false;
-
-     me->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_3v3);
-
-    return true;
-}
-static bool HandleRandomBg(ChatHandler* handler, const char* args)
-{
-    Player* me = handler->GetSession()->GetPlayer();
-
-    if (!me)
-        return false;
-    int32 entry = 0;
-
-    switch (urand(0, 2))
-    {
-    case 0:
-        me->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_WS);
-        break;
-    case 1:
-        me->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AB);
-        break;
-    case 2:
-        me->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_EY);
-        break;
-    }
-
-    return true;
-}
 
     // Enables or disables hiding of the staff badge
     static bool HandleGMChatCommand(ChatHandler* handler, char const* args)
     {
-        if (!*args)
+        if (WorldSession* session = handler->GetSession())
         {
-            WorldSession* session = handler->GetSession();
-            if (!AccountMgr::IsPlayerAccount(session->GetSecurity()) && session->GetPlayer()->isGMChat())
+            if (!*args)
+            {
+                if (session->HasPermission(rbac::RBAC_PERM_CHAT_USE_STAFF_BADGE) && session->GetPlayer()->isGMChat())
+                    session->SendNotification(LANG_GM_CHAT_ON);
+                else
+                    session->SendNotification(LANG_GM_CHAT_OFF);
+                return true;
+            }
+
+            std::string param = (char*)args;
+
+            if (param == "on")
+            {
+                session->GetPlayer()->SetGMChat(true);
                 session->SendNotification(LANG_GM_CHAT_ON);
-            else
+                return true;
+            }
+
+            if (param == "off")
+            {
+                session->GetPlayer()->SetGMChat(false);
                 session->SendNotification(LANG_GM_CHAT_OFF);
-            return true;
-        }
-
-        std::string param = (char*)args;
-
-        if (param == "on")
-        {
-            handler->GetSession()->GetPlayer()->SetGMChat(true);
-            handler->GetSession()->SendNotification(LANG_GM_CHAT_ON);
-            return true;
-        }
-
-        if (param == "off")
-        {
-            handler->GetSession()->GetPlayer()->SetGMChat(false);
-            handler->GetSession()->SendNotification(LANG_GM_CHAT_OFF);
-            return true;
+                return true;
+            }
         }
 
         handler->SendSysMessage(LANG_USE_BOL);
@@ -154,9 +104,9 @@ static bool HandleRandomBg(ChatHandler* handler, const char* args)
 
         WorldPacket data;
         if (strncmp(args, "on", 3) == 0)
-            target->SendMovementSetCanFly(true);
+            target->SetCanFly(true);
         else if (strncmp(args, "off", 4) == 0)
-            target->SendMovementSetCanFly(false);
+            target->SetCanFly(false);
         else
         {
             handler->SendSysMessage(LANG_USE_BOL);
@@ -176,7 +126,9 @@ static bool HandleRandomBg(ChatHandler* handler, const char* args)
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
             AccountTypes itrSec = itr->second->GetSession()->GetSecurity();
-            if ((itr->second->isGameMaster() || (!AccountMgr::IsPlayerAccount(itrSec) && itrSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
+            if ((itr->second->IsGameMaster() ||
+                (itr->second->GetSession()->HasPermission(rbac::RBAC_PERM_COMMANDS_APPEAR_IN_GM_LIST) &&
+                 itrSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
                 (!handler->GetSession() || itr->second->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
             {
                 if (first)
@@ -186,16 +138,17 @@ static bool HandleRandomBg(ChatHandler* handler, const char* args)
                     handler->SendSysMessage(LANG_GMS_ON_SRV);
                     handler->SendSysMessage("========================");
                 }
-                char const* name = itr->second->GetName();
+                std::string const& name = itr->second->GetName();
+                uint8 size = name.size();
                 uint8 security = itrSec;
-                uint8 max = ((16 - strlen(name)) / 2);
+                uint8 max = ((16 - size) / 2);
                 uint8 max2 = max;
-                if ((max + max2 + strlen(name)) == 16)
+                if ((max + max2 + size) == 16)
                     max2 = max - 1;
                 if (handler->GetSession())
-                    handler->PSendSysMessage("|    %s GMLevel %u", name, security);
+                    handler->PSendSysMessage("|    %s GMLevel %u", name.c_str(), security);
                 else
-                    handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max2, " ", security);
+                    handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name.c_str(), max2, " ", security);
             }
         }
         if (footer)
@@ -232,8 +185,7 @@ static bool HandleRandomBg(ChatHandler* handler, const char* args)
                     handler->PSendSysMessage("|    %s GMLevel %u", name, security);
                 else
                     handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max2, " ", security);
-            }
-            while (result->NextRow());
+            } while (result->NextRow());
             handler->SendSysMessage("========================");
         }
         else
@@ -284,7 +236,7 @@ static bool HandleRandomBg(ChatHandler* handler, const char* args)
     {
         if (!*args)
         {
-            if (handler->GetSession()->GetPlayer()->isGameMaster())
+            if (handler->GetSession()->GetPlayer()->IsGameMaster())
                 handler->GetSession()->SendNotification(LANG_GM_ON);
             else
                 handler->GetSession()->SendNotification(LANG_GM_OFF);
@@ -327,4 +279,3 @@ void AddSC_gm_commandscript()
 {
     new gm_commandscript();
 }
- 

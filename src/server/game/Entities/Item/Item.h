@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ITEM_H
-#define ITEM_H
+#ifndef TRINITYCORE_ITEM_H
+#define TRINITYCORE_ITEM_H
 
 #include "Common.h"
 #include "Object.h"
@@ -166,7 +166,7 @@ enum EnchantmentSlot
     SOCK_ENCHANTMENT_SLOT_3         = 4,
     BONUS_ENCHANTMENT_SLOT          = 5,
     PRISMATIC_ENCHANTMENT_SLOT      = 6,                    // added at apply special permanent enchantment
-    ENGINEERING_ENCHANTMENT_SLOT    = 7,                    // TODO
+    //TODO: 7,
     MAX_INSPECTED_ENCHANTMENT_SLOT  = 8,
 
     PROP_ENCHANTMENT_SLOT_0         = 8,                   // used with RandomSuffix
@@ -174,7 +174,7 @@ enum EnchantmentSlot
     PROP_ENCHANTMENT_SLOT_2         = 10,                   // used with RandomSuffix and RandomProperty
     PROP_ENCHANTMENT_SLOT_3         = 11,                   // used with RandomProperty
     PROP_ENCHANTMENT_SLOT_4         = 12,                   // used with RandomProperty
-    MAX_ENCHANTMENT_SLOT            = 13
+    MAX_ENCHANTMENT_SLOT            = 13,
 };
 
 #define MAX_VISIBLE_ITEM_OFFSET       2                     // 2 fields per visible item (entry+enchantment)
@@ -200,10 +200,10 @@ enum EnchantmentSlotMask
 
 enum ItemUpdateState
 {
-    ITEM_UNCHANGED             = 0,
-    ITEM_CHANGED               = 1,
-    ITEM_NEW                   = 2,
-    ITEM_REMOVED               = 3
+    ITEM_UNCHANGED                               = 0,
+    ITEM_CHANGED                                 = 1,
+    ITEM_NEW                                     = 2,
+    ITEM_REMOVED                                 = 3
 };
 
 #define MAX_ITEM_SPELLS 5
@@ -213,13 +213,16 @@ bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 class Item : public Object
 {
     public:
-        static Item* CreateItem(uint32 item, uint32 count, Player const* player = NULL);
+        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
+        static Item* CreateItem(uint32 itemEntry, uint32 count, uint64 playerGuid);
         Item* CloneItem(uint32 count, Player const* player = NULL) const;
 
         Item();
-        ~Item();
 
         virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(uint32 guidlow, uint32 itemid, uint64 playerGuid);
+
+		virtual void InitializeDynamicUpdateFields();
 
         ItemTemplate const* GetTemplate() const;
 
@@ -227,8 +230,8 @@ class Item : public Object
         void SetOwnerGUID(uint64 guid) { SetUInt64Value(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
 
-        void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND, val); }
-        bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND); }
+        void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_SOULBOUND, val); }
+        bool IsSoulBound() const { return HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_SOULBOUND); }
         bool IsBoundAccountWide() const { return (GetTemplate()->Flags & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT) != 0; }
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
@@ -237,19 +240,27 @@ class Item : public Object
         static void DeleteFromDB(SQLTransaction& trans, uint32 itemGuid);
         virtual void DeleteFromDB(SQLTransaction& trans);
         static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid);
+
+        // Lootable items and their contents
+        void ItemContainerSaveLootToDB();
+        bool ItemContainerLoadLootFromDB();
+        void ItemContainerDeleteLootItemsFromDB();
+        void ItemContainerDeleteLootItemFromDB(uint32 itemID);
+        void ItemContainerDeleteLootMoneyFromDB();
+        void ItemContainerDeleteLootMoneyAndLootItemsFromDB();
+
         void DeleteFromInventoryDB(SQLTransaction& trans);
         void SaveRefundDataToDB();
         void DeleteRefundDataFromDB(SQLTransaction* trans);
 
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return NULL; }
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
-        bool IsEquipable() const { return GetTemplate()->InventoryType != INVTYPE_NON_EQUIP; }
 
-        bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED); }
+        bool IsLocked() const { return !HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_UNLOCKED); }
         bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
-        bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
+        bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAX_DURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
         bool CanBeTraded(bool mail = false, bool trade = false) const;
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
@@ -278,7 +289,7 @@ class Item : public Object
         bool IsInBag() const { return m_container != NULL; }
         bool IsEquipped() const;
 
-        uint32 GetSkill() const;
+        uint32 GetSkill();
 
         // RandomPropertyId (signed but stored as unsigned)
         int32 GetItemRandomPropertyId() const { return GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID); }
@@ -286,33 +297,18 @@ class Item : public Object
         void SetItemRandomProperties(int32 randomPropId);
         void UpdateItemSuffixFactor();
         static int32 GenerateItemRandomPropertyId(uint32 item_id);
-        void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges);
+        void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, uint64 caster = 0);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
         void ClearEnchantment(EnchantmentSlot slot);
-        uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
-        uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
-        uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
+        uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
+        uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
+        uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
 
         std::string const& GetText() const { return m_text; }
-        inline void SetText(std::string const& text)
-        {
-            m_text = text;
+        void SetText(std::string const& text) { m_text = text; }
 
-            // Fix somes MySQL shits ...
-            if (m_text.size() < 2)
-                m_text = "";
-
-            for (uint64 i = 0; i < m_text.size(); i++)
-            {
-                if (uint32(m_text.c_str()[i]) == 0xA0)
-                {
-                    sLog->OutJadeCore("Item::SetText: Incorrect characters %s, m_text set to NULL", m_text.c_str());
-                    m_text = "";
-                    return;
-                }
-            }
-        }
+        void SendUpdateSockets();
 
         void SendTimeUpdate(Player* owner);
         void UpdateDuration(Player* owner, uint32 diff);
@@ -339,8 +335,7 @@ class Item : public Object
         bool hasQuest(uint32 quest_id) const { return GetTemplate()->StartQuest == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const { return false; }
         bool HasStats() const;
-        bool HasSpells() const;
-        bool IsPotion() const;
+        bool IsPotion() const { return GetTemplate()->IsPotion(); }
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
@@ -350,16 +345,17 @@ class Item : public Object
         void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
-        uint32 GetRefundRecipient() { return m_refundRecipient; }
-        uint32 GetPaidMoney() { return m_paidMoney; }
-        uint32 GetPaidExtendedCost() { return m_paidExtendedCost; }
+
+        uint32 GetRefundRecipient() const { return m_refundRecipient; }
+        uint32 GetPaidMoney() const { return m_paidMoney; }
+        uint32 GetPaidExtendedCost() const { return m_paidExtendedCost; }
 
         void UpdatePlayedTime(Player* owner);
         uint32 GetPlayedTime();
         bool IsRefundExpired();
 
         // Soulbound trade system
-        void SetSoulboundTradeable(AllowedLooterSet& allowedLooters);
+        void SetSoulboundTradeable(AllowedLooterSet const& allowedLooters);
         void ClearSoulboundTradeable(Player* currentOwner);
         bool CheckSoulboundTradeExpire();
 
@@ -369,13 +365,13 @@ class Item : public Object
 
         bool CanBeTransmogrified() const;
         bool CanTransmogrify() const;
-        static bool CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier);
+        static bool CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier);
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
         uint32 GetVisibleEntry() const
         {
-            if (uint32 transmogrification = GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1))
+            if (uint32 transmogrification = GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1))
                 return transmogrification;
             return GetEntry();
         }
@@ -383,11 +379,6 @@ class Item : public Object
         static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 
         int32 GetReforgableStat(ItemModType statType) const;
-
-        bool IsPvPItem() const;
-        bool IsStuffItem() const;
-        bool CanUpgrade() const;
-        bool IsLegendaryCloak() const;
 
     private:
         std::string m_text;

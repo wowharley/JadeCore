@@ -1,6 +1,5 @@
-# Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-# Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -11,24 +10,43 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 # Enable precompiled headers when using the GCC compiler.
-if( USE_SCRIPTPCH )
-  include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}
-  )
-endif()
 
+if (USE_SCRIPTPCH)
+  set(scripts_STAT_PCH_HDR PrecompiledHeaders/ScriptPCH.h)
+  set(scripts_STAT_PCH_SRC PrecompiledHeaders/ScriptPCH.cpp)
+endif ()
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-  add_definitions(-std=gnu++0x)
-endif(CMAKE_COMPILER_IS_GNUCXX)
+file(GLOB_RECURSE sources_PrecompiledHeaders PrecompiledHeaders/*.cpp PrecompiledHeaders/*.h)
+file(GLOB_RECURSE sources_EasternKingdoms EasternKingdoms/*.cpp EasternKingdoms/*.h)
+file(GLOB_RECURSE sources_Kalimdor Kalimdor/*.cpp Kalimdor/*.h)
+file(GLOB_RECURSE sources_Outland Outland/*.cpp Outland/*.h)
+file(GLOB_RECURSE sources_Northrend Northrend/*.cpp Northrend/*.h)
+file(GLOB_RECURSE sources_Maelstrom Maelstrom/*.cpp Maelstrom/*.h)
+file(GLOB_RECURSE sources_Custom Custom/*.cpp Custom/*.h)
+file(GLOB_RECURSE sources_Commands Commands/*.cpp Commands/*.h)
+file(GLOB_RECURSE sources_Examples Examples/*.cpp Examples/*.h)
+file(GLOB_RECURSE sources_Events Events/*.cpp Events/*.h)
+file(GLOB_RECURSE sources_Pandaria Pandaria/*.cpp Pandaria/*.h)
+file(GLOB_RECURSE sources_Pet Pet/*.cpp Pet/*.h)
+file(GLOB_RECURSE sources_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
+file(GLOB_RECURSE sources_Spells Spells/*.cpp Spells/*.h)
+file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 
-
-if( USE_SCRIPTPCH AND MSVC )
-  set(scripts_STAT_SRCS
-    PrecompiledHeaders/ScriptPCH.cpp
-    PrecompiledHeaders/ScriptPCH.h
-  )
-endif()
+source_group(CMake FILES CMakeLists.txt)
+source_group(PrecompiledHeaders FILES ${sources_PrecompiledHeaders})
+source_group(EasternKingdoms FILES ${sources_EasternKingdoms})
+source_group(Kalimdor FILES ${sources_Kalimdor})
+source_group(Outland FILES ${sources_Outland})
+source_group(Northrend FILES ${sources_Northrend})
+source_group(Maelstrom FILES ${sources_Maelstrom})
+source_group(OutdoorPvP FILES ${sources_OutdoorPvP})
+source_group(Commands FILES ${sources_Commands})
+source_group(Examples FILES ${sources_Examples})
+source_group(Events FILES ${sources_Events})
+source_group(Pandaria FILES ${sources_Pandaria})
+source_group(Pet FILES ${sources_Pet})
+source_group(Spells FILES ${sources_Spells})
+source_group(World FILES ${sources_World})
 
 message(STATUS "SCRIPT PREPARATIONS")
 include(Spells/CMakeLists.txt)
@@ -50,9 +68,10 @@ if(SCRIPTS)
   include(OutdoorPvP/CMakeLists.txt)
   include(EasternKingdoms/CMakeLists.txt)
   include(Kalimdor/CMakeLists.txt)
-  include(Maelstrom/CMakeLists.txt)
   include(Outland/CMakeLists.txt)
   include(Northrend/CMakeLists.txt)
+  include(Maelstrom/CMakeLists.txt)
+  include(Events/CMakeLists.txt)
   include(Pandaria/CMakeLists.txt)
   include(Pet/CMakeLists.txt)
 endif()
@@ -62,8 +81,9 @@ message("")
 
 include_directories(
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast
+  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/zlib
   ${CMAKE_SOURCE_DIR}/src/server/shared
@@ -84,7 +104,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
   ${CMAKE_SOURCE_DIR}/src/server/game/Accounts
-  ${CMAKE_SOURCE_DIR}/src/server/game/Anticheat
   ${CMAKE_SOURCE_DIR}/src/server/game/Achievements
   ${CMAKE_SOURCE_DIR}/src/server/game/Addons
   ${CMAKE_SOURCE_DIR}/src/server/game/AI
@@ -96,7 +115,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlefield/Zones
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds/Zones
-  ${CMAKE_SOURCE_DIR}/src/server/game/BattlePet
   ${CMAKE_SOURCE_DIR}/src/server/game/Calendar
   ${CMAKE_SOURCE_DIR}/src/server/game/Chat
   ${CMAKE_SOURCE_DIR}/src/server/game/Chat/Channels
@@ -161,15 +179,14 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
 )
 
-GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
+add_library(scripts STATIC
+  ${scripts_STAT_SRCS}
+  ${scripts_STAT_PCH_SRC}
+)
 
-add_library(scripts STATIC ${scripts_STAT_SRCS})
+add_dependencies(scripts revision.h)
 
 # Generate precompiled header
-if( USE_SCRIPTPCH )
-  if(CMAKE_COMPILER_IS_GNUCXX)
-    add_precompiled_header(scripts ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/ScriptPCH.h)
-  elseif(MSVC)
-    add_native_precompiled_header(scripts ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/ScriptPCH)
-  endif()
+if (USE_SCRIPTPCH)
+  add_cxx_pch(scripts ${scripts_STAT_PCH_HDR} ${scripts_STAT_PCH_SRC})
 endif()

@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -35,11 +35,6 @@ enum DisableType
     DISABLE_TYPE_MMAP                   = 7
 };
 
-enum MMapDisableTypes
-{
-    MMAP_DISABLE_PATHFINDING = 0x0
-};
-
 enum SpellDisableTypes
 {
     SPELL_DISABLE_PLAYER            = 0x1,
@@ -48,8 +43,10 @@ enum SpellDisableTypes
     SPELL_DISABLE_DEPRECATED_SPELL  = 0x8,
     SPELL_DISABLE_MAP               = 0x10,
     SPELL_DISABLE_AREA              = 0x20,
+    SPELL_DISABLE_LOS               = 0x40,
     MAX_SPELL_DISABLE_TYPE = (  SPELL_DISABLE_PLAYER | SPELL_DISABLE_CREATURE | SPELL_DISABLE_PET |
-                                SPELL_DISABLE_DEPRECATED_SPELL | SPELL_DISABLE_MAP | SPELL_DISABLE_AREA)
+                                SPELL_DISABLE_DEPRECATED_SPELL | SPELL_DISABLE_MAP | SPELL_DISABLE_AREA |
+                                SPELL_DISABLE_LOS)
 };
 
 enum VmapDisableTypes
@@ -58,6 +55,11 @@ enum VmapDisableTypes
     VMAP_DISABLE_HEIGHT         = 0x2,
     VMAP_DISABLE_LOS            = 0x4,
     VMAP_DISABLE_LIQUIDSTATUS   = 0x8
+};
+
+enum MMapDisableTypes
+{
+    MMAP_DISABLE_PATHFINDING    = 0x0
 };
 
 namespace DisableMgr

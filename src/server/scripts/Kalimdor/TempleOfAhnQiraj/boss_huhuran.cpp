@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -26,29 +28,32 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define EMOTE_GENERIC_FRENZY_KILL   -1000001
-#define EMOTE_GENERIC_BERSERK       -1000004
+enum Huhuran
+{
+    EMOTE_FRENZY_KILL           = 0,
+    EMOTE_BERSERK               = 1,
 
-#define SPELL_FRENZY 26051
-#define SPELL_BERSERK 26068
-#define SPELL_POISONBOLT 26052
-#define SPELL_NOXIOUSPOISON 26053
-#define SPELL_WYVERNSTING 26180
-#define SPELL_ACIDSPIT 26050
+    SPELL_FRENZY                = 26051,
+    SPELL_BERSERK               = 26068,
+    SPELL_POISONBOLT            = 26052,
+    SPELL_NOXIOUSPOISON         = 26053,
+    SPELL_WYVERNSTING           = 26180,
+    SPELL_ACIDSPIT              = 26050
+};
 
 class boss_huhuran : public CreatureScript
 {
 public:
     boss_huhuran() : CreatureScript("boss_huhuran") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_huhuranAI (creature);
+        return new boss_huhuranAI(creature);
     }
 
     struct boss_huhuranAI : public ScriptedAI
     {
-        boss_huhuranAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_huhuranAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Frenzy_Timer;
         uint32 Wyvern_Timer;
@@ -60,7 +65,7 @@ public:
         bool Frenzy;
         bool Berserk;
 
-        void Reset()
+        void Reset() override
         {
             Frenzy_Timer = urand(25000, 35000);
             Wyvern_Timer = urand(18000, 28000);
@@ -73,11 +78,11 @@ public:
             Berserk = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -87,7 +92,7 @@ public:
             if (!Frenzy && Frenzy_Timer <= diff)
             {
                 DoCast(me, SPELL_FRENZY);
-                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
+                Talk(EMOTE_FRENZY_KILL);
                 Frenzy = true;
                 PoisonBolt_Timer = 3000;
                 Frenzy_Timer = urand(25000, 35000);
@@ -104,14 +109,14 @@ public:
             //Spit Timer
             if (Spit_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ACIDSPIT);
+                DoCastVictim(SPELL_ACIDSPIT);
                 Spit_Timer = urand(5000, 10000);
             } else Spit_Timer -= diff;
 
             //NoxiousPoison_Timer
             if (NoxiousPoison_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_NOXIOUSPOISON);
+                DoCastVictim(SPELL_NOXIOUSPOISON);
                 NoxiousPoison_Timer = urand(12000, 24000);
             } else NoxiousPoison_Timer -= diff;
 
@@ -120,7 +125,7 @@ public:
             {
                 if (PoisonBolt_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_POISONBOLT);
+                    DoCastVictim(SPELL_POISONBOLT);
                     PoisonBolt_Timer = 3000;
                 } else PoisonBolt_Timer -= diff;
             }
@@ -136,7 +141,7 @@ public:
             if (!Berserk && HealthBelowPct(31))
             {
                 me->InterruptNonMeleeSpells(false);
-                DoScriptText(EMOTE_GENERIC_BERSERK, me);
+                Talk(EMOTE_BERSERK);
                 DoCast(me, SPELL_BERSERK);
                 Berserk = true;
             }

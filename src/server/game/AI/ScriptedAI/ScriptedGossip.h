@@ -1,14 +1,24 @@
-/* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+/*
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
- * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef SC_GOSSIP_H
 #define SC_GOSSIP_H
 
-#include "Player.h"
 #include "GossipDef.h"
 #include "QuestDef.h"
 
@@ -34,6 +44,7 @@ enum eTradeskill
     TRADESKILL_SKINNING                 = 13,
     TRADESKILL_JEWLCRAFTING             = 14,
     TRADESKILL_INSCRIPTION              = 15,
+    TRADESKILL_ARCHAEOLOGY              = 16,
 
     TRADESKILL_LEVEL_NONE               = 0,
     TRADESKILL_LEVEL_APPRENTICE         = 1,
@@ -42,6 +53,7 @@ enum eTradeskill
     TRADESKILL_LEVEL_ARTISAN            = 4,
     TRADESKILL_LEVEL_MASTER             = 5,
     TRADESKILL_LEVEL_GRAND_MASTER       = 6,
+    TRADESKILL_LEVEL_ILLUSTRIOUS        = 7,
 
     // Gossip defines
     GOSSIP_ACTION_TRADE                 = 1,

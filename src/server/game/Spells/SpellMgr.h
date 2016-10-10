@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -22,9 +22,15 @@
 // For static or at-server-startup loaded spell data
 
 #include <ace/Singleton.h>
-#include "Common.h"
+
+#include "DBCStructure.h"
 #include "SharedDefines.h"
-#include "Unit.h"
+#include "UnorderedMap.h"
+#include "Util.h"
+
+#include <map>
+#include <set>
+#include <vector>
 
 class SpellInfo;
 class Player;
@@ -38,8 +44,8 @@ enum SpellCategories
     SPELLCATEGORY_HEALTH_MANA_POTIONS = 4,
     SPELLCATEGORY_DEVOUR_MAGIC        = 12,
     SPELLCATEGORY_JUDGEMENT           = 1210,               // Judgement (seal trigger)
-    SPELLCATEGORY_FOOD             = 11,
-    SPELLCATEGORY_DRINK            = 59,
+    SPELLCATEGORY_FOOD                = 11,
+    SPELLCATEGORY_DRINK               = 59
 };
 
 //SpellFamilyFlags
@@ -50,42 +56,44 @@ enum SpellFamilyFlag
     // SPELLFAMILYFLAG2 = SpellFamilyFlags[2]
 
     // Rogue
-    SPELLFAMILYFLAG_ROGUE_VANISH            = 0x00000800,
-    SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT   = 0x00000860,    // Vanish, Evasion, Sprint
-    SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP = 0x00000240,    // Cold Blood, Shadowstep
-    SPELLFAMILYFLAG_ROGUE_KICK              = 0x00000010,   // Kick
-    SPELLFAMILYFLAG1_ROGUE_DISMANTLE        = 0x00100000,   // Dismantle
-    SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY      = 0x40000000,   // Blade Flurry
-    SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY     = 0x00000800,   // Blade Flurry
+    SPELLFAMILYFLAG0_ROGUE_VANISH               = 0x00000800,
+    SPELLFAMILYFLAG0_ROGUE_VAN_SPRINT           = 0x00000840, // Vanish, Sprint
+	SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT       = 0x00000860, // Vanish, Evasion, Sprint
+    SPELLFAMILYFLAG1_ROGUE_SHADOWSTEP           = 0x00000200, // Shadowstep
+    SPELLFAMILYFLAG0_ROGUE_KICK                 = 0x00000010, // Kick
+    SPELLFAMILYFLAG1_ROGUE_DISMANTLE            = 0x00100000, // Dismantle
+	SPELLFAMILYFLAG1_ROGUE_DISMANTLE_SMOKE_BOMB = 0x80100000, // Dismantle, Smoke Bomb
+	SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY          = 0x40000000, // Blade Flurry
+    SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY         = 0x00000800, // Blade Flurry
 
     // Warrior
-    SPELLFAMILYFLAG_WARRIOR_CHARGE          = 0x00000001,
-    SPELLFAMILYFLAG_WARRIOR_SLAM            = 0x00200000,
-    SPELLFAMILYFLAG_WARRIOR_EXECUTE         = 0x20000000,
-    SPELLFAMILYFLAG_WARRIOR_CONCUSSION_BLOW = 0x04000000,
+    SPELLFAMILYFLAG_WARRIOR_CHARGE              = 0x00000001,
+    SPELLFAMILYFLAG_WARRIOR_SLAM                = 0x00200000,
+    SPELLFAMILYFLAG_WARRIOR_EXECUTE             = 0x20000000,
+    SPELLFAMILYFLAG_WARRIOR_CONCUSSION_BLOW     = 0x04000000,
 
     // Warlock
-    SPELLFAMILYFLAG_WARLOCK_LIFETAP         = 0x00040000,
+    SPELLFAMILYFLAG_WARLOCK_LIFETAP             = 0x00040000,
 
     // Druid
-    SPELLFAMILYFLAG2_DRUID_STARFALL         = 0x00000100,
+    SPELLFAMILYFLAG2_DRUID_STARFALL             = 0x00000100,
 
     // Paladin
-    SPELLFAMILYFLAG1_PALADIN_DIVINESTORM    = 0x00020000,
+    SPELLFAMILYFLAG1_PALADIN_DIVINESTORM        = 0x00020000,
 
     // Shaman
-    SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK      = 0x80000000,
-    SPELLFAMILYFLAG_SHAMAN_HEALING_STREAM   = 0x00002000,
-    SPELLFAMILYFLAG_SHAMAN_MANA_SPRING      = 0x00004000,
-    SPELLFAMILYFLAG2_SHAMAN_LAVA_LASH       = 0x00000004,
-    SPELLFAMILYFLAG_SHAMAN_FIRE_NOVA        = 0x28000000,
+    SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK          = 0x80000000,
+    SPELLFAMILYFLAG_SHAMAN_HEALING_STREAM       = 0x00002000,
+    SPELLFAMILYFLAG_SHAMAN_MANA_SPRING          = 0x00004000,
+    SPELLFAMILYFLAG2_SHAMAN_LAVA_LASH           = 0x00000004,
+    SPELLFAMILYFLAG_SHAMAN_FIRE_NOVA            = 0x28000000,
 
     // Deathknight
-    SPELLFAMILYFLAG_DK_DEATH_STRIKE         = 0x00000010,
-    SPELLFAMILYFLAG_DK_DEATH_COIL           = 0x00002000,
+    SPELLFAMILYFLAG_DK_DEATH_STRIKE             = 0x00000010,
+    SPELLFAMILYFLAG_DK_DEATH_COIL               = 0x00002000,
 
-    // TODO: Figure out a more accurate name for the following familyflag(s)
-    SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS    = 0x04000000,  // Seems to be linked to most totems and some totem effects
+    /// @todo Figure out a more accurate name for the following familyflag(s)
+    SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS        = 0x04000000  // Seems to be linked to most totems and some totem effects
 };
 
 
@@ -96,7 +104,7 @@ enum SpellLinkedType
     SPELL_LINK_CAST     = 0,            // +: cast; -: remove
     SPELL_LINK_HIT      = 1 * 200000,
     SPELL_LINK_AURA     = 2 * 200000,   // +: aura; -: immune
-    SPELL_LINK_REMOVE   = 0,
+    SPELL_LINK_REMOVE   = 0
 };
 
 
@@ -177,7 +185,7 @@ enum ProcFlags
                                                  | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG
                                                  | PROC_FLAG_TAKEN_PERIODIC | PROC_FLAG_TAKEN_DAMAGE,
 
-    REQ_SPELL_PHASE_PROC_FLAG_MASK             = SPELL_PROC_FLAG_MASK & DONE_HIT_PROC_FLAG_MASK,
+    REQ_SPELL_PHASE_PROC_FLAG_MASK             = SPELL_PROC_FLAG_MASK & DONE_HIT_PROC_FLAG_MASK
 };
 
 #define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_DONE_MELEE_AUTO_ATTACK      | \
@@ -261,12 +269,12 @@ enum ProcFlagsHit
     PROC_HIT_REFLECT             = 0x0000800,
     PROC_HIT_INTERRUPT           = 0x0001000, // (not used atm)
     PROC_HIT_FULL_BLOCK          = 0x0002000,
-    PROC_HIT_MASK_ALL = 0x2FFF,
+    PROC_HIT_MASK_ALL            = 0x2FFF
 };
 
 enum ProcAttributes
 {
-    PROC_ATTR_REQ_EXP_OR_HONOR   = 0x0000010,
+    PROC_ATTR_REQ_EXP_OR_HONOR   = 0x0000010
 };
 
 struct SpellProcEventEntry
@@ -322,12 +330,12 @@ typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
 
 enum SpellGroup
 {
-    SPELL_GROUP_NONE = 0,
-    SPELL_GROUP_ELIXIR_BATTLE = 1,
-    SPELL_GROUP_ELIXIR_GUARDIAN = 2,
-    SPELL_GROUP_ELIXIR_UNSTABLE = 3,
+    SPELL_GROUP_NONE             = 0,
+    SPELL_GROUP_ELIXIR_BATTLE    = 1,
+    SPELL_GROUP_ELIXIR_GUARDIAN  = 2,
+    SPELL_GROUP_ELIXIR_UNSTABLE  = 3,
     SPELL_GROUP_ELIXIR_SHATTRATH = 4,
-    SPELL_GROUP_CORE_RANGE_MAX = 5,
+    SPELL_GROUP_CORE_RANGE_MAX   = 5
 };
 
 #define SPELL_GROUP_DB_RANGE_MIN 1000
@@ -342,11 +350,12 @@ typedef std::pair<SpellGroupSpellMap::const_iterator, SpellGroupSpellMap::const_
 
 enum SpellGroupStackRule
 {
-    SPELL_GROUP_STACK_RULE_DEFAULT = 0,
-    SPELL_GROUP_STACK_RULE_EXCLUSIVE = 1,
+    SPELL_GROUP_STACK_RULE_DEFAULT                    = 0,
+    SPELL_GROUP_STACK_RULE_EXCLUSIVE                  = 1,
     SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER = 2,
-    SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT = 3,
+    SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT      = 3
 };
+
 #define SPELL_GROUP_STACK_RULE_MAX 4
 
 typedef std::map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
@@ -441,10 +450,7 @@ class PetAura
         typedef UNORDERED_MAP<uint32, uint32> PetAuraMap;
 
     public:
-        PetAura() : removeOnChangePet(false), damage(0)
-        {
-            auras.clear();
-        }
+        PetAura() : removeOnChangePet(false), damage(0) { }
 
         PetAura(uint32 petEntry, uint32 aura, bool _removeOnChangePet, int _damage) :
         removeOnChangePet(_removeOnChangePet), damage(_damage)
@@ -560,8 +566,6 @@ typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
 typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
-typedef std::map<uint16, uint16> ItemUpgradeDatas;
-
 struct PetDefaultSpellsEntry
 {
     uint32 spellid[MAX_CREATURE_SPELL_DATA_SLOT];
@@ -578,6 +582,8 @@ typedef std::vector<SpellInfo*> SpellInfoMap;
 typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
+
+bool IsWeaponSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
 {
@@ -599,9 +605,8 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 
 typedef std::vector<std::set<uint32> > SpellClassList;
-typedef std::map<uint32, std::list<uint32> > SpellOverrideInfo;
 typedef std::set<uint32> TalentSpellSet;
-typedef std::vector<std::list<uint32> > SpellPowerVector;
+typedef std::map<uint32, std::list<uint32> > SpellOverrideInfo;
 
 class SpellMgr
 {
@@ -615,7 +620,6 @@ class SpellMgr
     public:
         // Spell correctness for client using
         static bool IsSpellValid(SpellInfo const* spellInfo, Player* player = NULL, bool msg = true);
-        bool IsSpellForbidden(uint32 spellid);
 
         // Spell difficulty
         uint32 GetSpellDifficultyId(uint32 spellId) const;
@@ -637,8 +641,6 @@ class SpellMgr
         SpellRequiredMapBounds GetSpellsRequiredForSpellBounds(uint32 spell_id) const;
         SpellsRequiringSpellMapBounds GetSpellsRequiringSpellBounds(uint32 spell_id) const;
         bool IsSpellRequiringSpell(uint32 spellid, uint32 req_spellid) const;
-        const SpellsRequiringSpellMap GetSpellsRequiringSpell();
-        uint32 GetSpellRequired(uint32 spell_id) const;
 
         // Spell learning
         SpellLearnSkillNode const* GetSpellLearnSkill(uint32 spell_id) const;
@@ -651,7 +653,7 @@ class SpellMgr
 
         // Spell Groups table
         SpellSpellGroupMapBounds GetSpellSpellGroupMapBounds(uint32 spell_id) const;
-        uint32 IsSpellMemberOfSpellGroup(uint32 spellid, SpellGroup groupid) const;
+        bool IsSpellMemberOfSpellGroup(uint32 spellid, SpellGroup groupid) const;
 
         SpellGroupSpellMapBounds GetSpellGroupSpellMapBounds(SpellGroup group_id) const;
         void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells) const;
@@ -663,11 +665,11 @@ class SpellMgr
 
         // Spell proc event table
         SpellProcEventEntry const* GetSpellProcEvent(uint32 spellId) const;
-        bool IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active);
+        bool IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const;
 
         // Spell proc table
         SpellProcEntry const* GetSpellProcEntry(uint32 spellId) const;
-        bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo);
+        bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
 
         // Spell bonus data table
         SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const;
@@ -677,7 +679,7 @@ class SpellMgr
 
         SkillLineAbilityMapBounds GetSkillLineAbilityMapBounds(uint32 spell_id) const;
 
-        PetAura const* GetPetAura(uint32 spell_id, uint8 eff);
+        PetAura const* GetPetAura(uint32 spell_id, uint8 eff) const;
 
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const;
         bool IsArenaAllowedEnchancment(uint32 ench_id) const;
@@ -686,7 +688,6 @@ class SpellMgr
 
         PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const;
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const;
-        SpellPowerEntry const* GetSpellPowerEntryByIdAndPower(uint32 id, Powers power) const;
 
         // Spell area
         SpellAreaMapBounds GetSpellAreaMapBounds(uint32 spell_id) const;
@@ -696,21 +697,21 @@ class SpellMgr
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const;
 
         // SpellInfo object management
-        SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = NONE_DIFFICULTY) const;
-        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[NONE_DIFFICULTY].size(); }
+        SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
+        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
         std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
-        std::list<uint32> GetSpellPowerList(uint32 spellId) const { return mSpellPowerInfo[spellId]; }
         std::list<uint32> const* GetSpellOverrideInfo(uint32 spellId) { return mSpellOverrideInfo.find(spellId) == mSpellOverrideInfo.end() ? NULL : &mSpellOverrideInfo[spellId]; }
-
         bool IsTalent(uint32 spellId) { return mTalentSpellInfo.find(spellId) != mTalentSpellInfo.end() ?  true :  false; }
 
-        // Item Upgrade datas
-        uint16 GetDatasForILevel(uint16 iLevel) { return mItemUpgradeDatas.find(iLevel) != mItemUpgradeDatas.end() ? mItemUpgradeDatas[iLevel] : 0; };
+    private:
+        SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
 
     // Modifiers
     public:
 
         // Loading data at server startup
+        void UnloadSpellInfoChains();
+        void LoadSpellTalentRanks();
         void LoadSpellRanks();
         void LoadSpellRequired();
         void LoadSpellLearnSkills();
@@ -731,16 +732,12 @@ class SpellMgr
         void LoadPetDefaultSpells();
         void LoadSpellAreas();
         void LoadSpellInfoStore();
-        void LoadSpellClassInfo();
         void UnloadSpellInfoStore();
         void UnloadSpellInfoImplicitTargetConditionLists();
-        void LoadSpellCustomAttr();
+        void LoadSpellInfoCustomAttributes();
+        void LoadSpellInfoCorrections();
         void LoadTalentSpellInfo();
-        void LoadSpellPowerInfo();
-        void LoadForbiddenSpells();
-        void InitializeItemUpgradeDatas();
-
-        std::vector<uint32>        mSpellCreateItemList;
+        void LoadSpellClassInfo();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
@@ -763,20 +760,16 @@ class SpellMgr
         EnchantCustomAttribute     mEnchantCustomAttr;
         SpellAreaMap               mSpellAreaMap;
         SpellAreaForQuestMap       mSpellAreaForQuestMap;
-        SpellAreaForQuestMap       mSpellAreaForActiveQuestMap;
         SpellAreaForQuestMap       mSpellAreaForQuestEndMap;
         SpellAreaForAuraMap        mSpellAreaForAuraMap;
         SpellAreaForAreaMap        mSpellAreaForAreaMap;
         SkillLineAbilityMap        mSkillLineAbilityMap;
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
-        SpellInfoMap               mSpellInfoMap[MAX_DIFFICULTY];
+        SpellInfoMap               mSpellInfoMap;
         SpellClassList             mSpellClassInfo;
-        SpellOverrideInfo          mSpellOverrideInfo;
         TalentSpellSet             mTalentSpellInfo;
-        SpellPowerVector           mSpellPowerInfo;
-        std::list<uint32>          mForbiddenSpells;
-        ItemUpgradeDatas           mItemUpgradeDatas;
+        SpellOverrideInfo          mSpellOverrideInfo;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

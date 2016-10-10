@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -24,9 +23,11 @@ Comment: All quest related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ObjectMgr.h"
 #include "Chat.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
 
 class quest_commandscript : public CommandScript
 {
@@ -37,16 +38,16 @@ public:
     {
         static ChatCommand questCommandTable[] =
         {
-            { "add",            SEC_ADMINISTRATOR,  false, &HandleQuestAdd,                    "", NULL },
-            { "complete",       SEC_ADMINISTRATOR,  false, &HandleQuestComplete,               "", NULL },
-            { "remove",         SEC_ADMINISTRATOR,  false, &HandleQuestRemove,                 "", NULL },
-            { "reward",         SEC_ADMINISTRATOR,  false, &HandleQuestReward,                 "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "add",      rbac::RBAC_PERM_COMMAND_QUEST_ADD,      false, &HandleQuestAdd,      "", NULL },
+            { "complete", rbac::RBAC_PERM_COMMAND_QUEST_COMPLETE, false, &HandleQuestComplete, "", NULL },
+            { "remove",   rbac::RBAC_PERM_COMMAND_QUEST_REMOVE,   false, &HandleQuestRemove,   "", NULL },
+            { "reward",   rbac::RBAC_PERM_COMMAND_QUEST_REWARD,   false, &HandleQuestReward,   "", NULL },
+            { NULL,       0,                                false, NULL,                 "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "quest",          SEC_ADMINISTRATOR,  false, NULL,                  "", questCommandTable },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "quest", rbac::RBAC_PERM_COMMAND_QUEST,  false, NULL, "", questCommandTable },
+            { NULL,    0,                        false, NULL,              "", NULL }
         };
         return commandTable;
     }
@@ -80,7 +81,7 @@ public:
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
         ItemTemplateContainer const* itc = sObjectMgr->GetItemTemplateStore();
-        ItemTemplateContainer::const_iterator result = find_if(itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
+        ItemTemplateContainer::const_iterator result = find_if (itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
 
         if (result != itc->end())
         {
@@ -138,6 +139,12 @@ public:
 
                 // we ignore unequippable quest items in this case, its' still be equipped
                 player->TakeQuestSourceItem(logQuest, false);
+
+                if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+                {
+                    player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+                    player->UpdatePvPState();
+                }
             }
         }
 
@@ -175,88 +182,69 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+		{
+			int32 creature = quest->RequiredNpcOrGo[i];
+			uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
+		}
 
-        // Add quest items for quests that require items
-        for (uint8 x = 0; x < QUEST_ITEM_OBJECTIVES_COUNT; ++x)
+        for (QuestObjectiveSet::const_iterator citr = quest->m_questObjectives.begin(); citr != quest->m_questObjectives.end(); citr++)
         {
-            uint32 id = quest->RequiredItemId[x];
-            uint32 count = quest->RequiredItemCount[x];
-            if (!id || !count)
-                continue;
-
-            uint32 curItemCount = player->GetItemCount(id, true);
-
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count-curItemCount);
-            if (msg == EQUIP_ERR_OK)
+            QuestObjective const* questObjective = *citr;
+            switch (questObjective->Type)
             {
-                Item* item = player->StoreNewItem(dest, id, true);
-                player->SendNewItem(item, count-curItemCount, true, false);
+                case QUEST_OBJECTIVE_TYPE_NPC:
+                {
+                    if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(questObjective->ObjectId))
+                        for (uint32 i = 0; i < uint32(questObjective->Amount); i++)
+                            player->KilledMonster(creatureInfo, 0);
+
+                    break;
+                }
+                case QUEST_OBJECTIVE_TYPE_GO:
+                {
+                    if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(questObjective->ObjectId))
+                        for (uint32 i = 0; i < uint32(questObjective->Amount); i++)
+                            player->KillCreditGO(questObjective->ObjectId, 0);
+
+                    break;
+                }
+                case QUEST_OBJECTIVE_TYPE_ITEM:
+                {
+                    ItemPosCountVec dest;
+                    uint32 currentCounter = player->GetItemCount(questObjective->ObjectId, true);
+
+                    uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questObjective->ObjectId, uint32(questObjective->Amount) - currentCounter);
+                    if (msg == EQUIP_ERR_OK)
+                    {
+                        Item* item = player->StoreNewItem(dest, questObjective->ObjectId, true);
+                        player->SendNewItem(item, uint32(questObjective->Amount) - currentCounter, true, false);
+                    }
+
+                    player->SendQuestUpdateAddCredit(quest, questObjective, ObjectGuid(0), currentCounter, uint32(questObjective->Amount) - currentCounter);
+
+                    break;
+                }
+                case QUEST_OBJECTIVE_TYPE_FACTION_REP:
+                case QUEST_OBJECTIVE_TYPE_FACTION_REP2:
+                {
+                    if (player->GetReputationMgr().GetReputation(questObjective->ObjectId) < questObjective->Amount)
+                        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(questObjective->ObjectId))
+                            player->GetReputationMgr().SetReputation(factionEntry, questObjective->Amount);
+
+                    break;
+                }
+                case QUEST_OBJECTIVE_TYPE_MONEY:
+                {
+                    player->ModifyMoney(uint64(questObjective->Amount));
+                    break;
+                }
+                default:
+                    break;
             }
+
+            //player->SendQuestUpdateAddCredit();
         }
-
-        for (uint8 y = 0; y < QUEST_REQUIRED_CURRENCY_COUNT; y++)
-        {
-            uint32 currency = quest->RequiredCurrencyId[y];
-            uint32 currencyCount = quest->RequiredCurrencyCount[y];
-
-            if (!currency || !currencyCount)
-                continue;
-
-            player->ModifyCurrency(currency, currencyCount);
-        }
-
-        // All creature/GO slain/casted (not required, but otherwise it will display "Creature slain 0/10")
-        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        {
-            int32 creature = quest->RequiredNpcOrGo[i];
-            uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
-
-            if (uint32 spell_id = quest->RequiredSpellCast[i])
-            {
-                for (uint16 z = 0; z < creaturecount; ++z)
-                    if (creature > 0)
-                        player->CastedCreatureOrGOForQuest(creature, true, spell_id);
-                    else
-                        player->CastedCreatureOrGOForQuest(creature, false, spell_id);
-            }
-            else if (creature > 0)
-            {
-                if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
-                    for (uint16 z = 0; z < creaturecount; ++z)
-                        player->KilledMonster(cInfo, 0);
-            }
-            else if (creature < 0)
-            {
-                for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, 0);
-            }
-        }
-
-        // If the quest requires reputation to complete
-        if (uint32 repFaction = quest->GetRepObjectiveFaction())
-        {
-            uint32 repValue = quest->GetRepObjectiveValue();
-            uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
-            if (curRep < repValue)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                    player->GetReputationMgr().SetReputation(factionEntry, repValue);
-        }
-
-        // If the quest requires a SECOND reputation to complete
-        if (uint32 repFaction = quest->GetRepObjectiveFaction2())
-        {
-            uint32 repValue2 = quest->GetRepObjectiveValue2();
-            uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
-            if (curRep < repValue2)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                    player->GetReputationMgr().SetReputation(factionEntry, repValue2);
-        }
-
-        // If the quest requires money
-        int32 ReqOrRewMoney = quest->GetRewOrReqMoney();
-        if (ReqOrRewMoney < 0)
-            player->ModifyMoney(-ReqOrRewMoney);
 
         player->CompleteQuest(entry);
         return true;
@@ -299,4 +287,3 @@ void AddSC_quest_commandscript()
 {
     new quest_commandscript();
 }
- 

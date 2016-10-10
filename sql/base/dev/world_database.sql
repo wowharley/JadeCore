@@ -1,16 +1,16 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : JadeCore_5.x.x
+Source Server         : DeathCore
 Source Server Version : 50624
 Source Host           : 127.0.0.1:3306
-Source Database       : world547
+Source Database       : world5481
 
 Target Server Type    : MYSQL
 Target Server Version : 50624
 File Encoding         : 65001
 
-Date: 2016-10-09 20:10:09
+Date: 2016-10-10 00:04:11
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -29,8 +29,6 @@ CREATE TABLE `access_requirement` (
 `quest_done_A`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `quest_done_H`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `completed_achievement`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`itemlevel_min`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`itemlevel_max`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `quest_failed_text`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 PRIMARY KEY (`mapId`, `difficulty`)
@@ -71,7 +69,6 @@ CREATE TABLE `achievement_dbc` (
 `flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `count`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `refAchievement`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 PRIMARY KEY (`ID`)
 )
 ENGINE=MyISAM
@@ -164,6 +161,34 @@ COMMENT='Trigger System'
 ;
 
 -- ----------------------------
+-- Table structure for `battle_pet_breed`
+-- ----------------------------
+DROP TABLE IF EXISTS `battle_pet_breed`;
+CREATE TABLE `battle_pet_breed` (
+`species`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
+`breed`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`species`, `breed`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_bin
+
+;
+
+-- ----------------------------
+-- Table structure for `battle_pet_quality`
+-- ----------------------------
+DROP TABLE IF EXISTS `battle_pet_quality`;
+CREATE TABLE `battle_pet_quality` (
+`species`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
+`quality`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`species`, `quality`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_bin
+
+;
+
+-- ----------------------------
 -- Table structure for `battleground_template`
 -- ----------------------------
 DROP TABLE IF EXISTS `battleground_template`;
@@ -179,19 +204,7 @@ CREATE TABLE `battleground_template` (
 `HordeStartO`  float NOT NULL ,
 `StartMaxDist`  float NOT NULL DEFAULT 0 ,
 `Weight`  tinyint(3) UNSIGNED NOT NULL DEFAULT 1 ,
-`holiday`  int(3) NOT NULL DEFAULT 0 ,
 `ScriptName`  char(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc1`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc2`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc3`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc4`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc5`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc6`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc7`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc8`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc9`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc10`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`Name_loc11`  char(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `Comment`  char(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
 PRIMARY KEY (`id`)
 )
@@ -230,48 +243,7 @@ PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-AUTO_INCREMENT=269
-
-;
-
--- ----------------------------
--- Table structure for `character_aura`
--- ----------------------------
-DROP TABLE IF EXISTS `character_aura`;
-CREATE TABLE `character_aura` (
-`guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Global Unique Identifier' ,
-`slot`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`caster_guid`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Full Global Unique Identifier' ,
-`item_guid`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`spell`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`effect_mask`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`recalculate_mask`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`stackcount`  tinyint(3) UNSIGNED NOT NULL DEFAULT 1 ,
-`maxduration`  int(11) NOT NULL DEFAULT 0 ,
-`remaintime`  int(11) NOT NULL DEFAULT 0 ,
-`remaincharges`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-PRIMARY KEY (`guid`, `caster_guid`, `item_guid`, `spell`, `effect_mask`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Player System'
-
-;
-
--- ----------------------------
--- Table structure for `character_aura_effect`
--- ----------------------------
-DROP TABLE IF EXISTS `character_aura_effect`;
-CREATE TABLE `character_aura_effect` (
-`guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`slot`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`effect`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`baseamount`  int(11) NOT NULL DEFAULT 0 ,
-`amount`  int(11) NOT NULL ,
-PRIMARY KEY (`guid`, `slot`, `effect`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+AUTO_INCREMENT=264
 
 ;
 
@@ -281,7 +253,7 @@ DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 DROP TABLE IF EXISTS `command`;
 CREATE TABLE `command` (
 `name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`security`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`permission`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `help`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 PRIMARY KEY (`name`)
 )
@@ -298,7 +270,7 @@ DROP TABLE IF EXISTS `conditions`;
 CREATE TABLE `conditions` (
 `SourceTypeOrReferenceId`  mediumint(8) NOT NULL DEFAULT 0 ,
 `SourceGroup`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`SourceEntry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`SourceEntry`  mediumint(8) NOT NULL DEFAULT 0 ,
 `SourceId`  int(11) NOT NULL DEFAULT 0 ,
 `ElseGroup`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ConditionTypeOrReference`  mediumint(8) NOT NULL DEFAULT 0 ,
@@ -307,6 +279,7 @@ CREATE TABLE `conditions` (
 `ConditionValue2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ConditionValue3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `NegativeCondition`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`ErrorType`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ErrorTextId`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ScriptName`  char(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `Comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
@@ -326,35 +299,32 @@ CREATE TABLE `creature` (
 `guid`  int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier' ,
 `id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Creature Identifier' ,
 `map`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Map Identifier' ,
-`zoneId`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`areaId`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`spawnMask`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`zoneId`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`areaId`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`spawnMask`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
 `phaseMask`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
 `modelid`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`equipment_id`  mediumint(8) NOT NULL DEFAULT 0 ,
+`equipment_id`  tinyint(3) NOT NULL DEFAULT 0 ,
 `position_x`  float NOT NULL DEFAULT 0 ,
 `position_y`  float NOT NULL DEFAULT 0 ,
 `position_z`  float NOT NULL DEFAULT 0 ,
 `orientation`  float NOT NULL DEFAULT 0 ,
 `spawntimesecs`  int(10) UNSIGNED NOT NULL DEFAULT 120 ,
 `spawndist`  float NOT NULL DEFAULT 0 ,
-`currentwaypoint`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`currentwaypoint`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `curhealth`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
 `curmana`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `MovementType`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`npcflag`  bigint(15) UNSIGNED NOT NULL DEFAULT 0 ,
 `unit_flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`unit_flags2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `dynamicflags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `isActive`  tinyint(1) UNSIGNED NOT NULL DEFAULT 0 ,
-`protec_anti_doublet`  int(255) NULL DEFAULT NULL ,
 PRIMARY KEY (`guid`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Creature System'
-AUTO_INCREMENT=999484
+AUTO_INCREMENT=409866
 
 ;
 
@@ -378,59 +348,6 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 -- ----------------------------
--- Table structure for `creature_addon_copy`
--- ----------------------------
-DROP TABLE IF EXISTS `creature_addon_copy`;
-CREATE TABLE `creature_addon_copy` (
-`guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`path_id`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`mount`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`bytes1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`bytes2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`emote`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`auras`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-PRIMARY KEY (`guid`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-
-;
-
--- ----------------------------
--- Table structure for `creature_addon_qsdsqd`
--- ----------------------------
-DROP TABLE IF EXISTS `creature_addon_qsdsqd`;
-CREATE TABLE `creature_addon_qsdsqd` (
-`guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`path_id`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`mount`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`bytes1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`bytes2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`emote`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`auras`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-PRIMARY KEY (`guid`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-
-;
-
--- ----------------------------
--- Table structure for `creature_area`
--- ----------------------------
-DROP TABLE IF EXISTS `creature_area`;
-CREATE TABLE `creature_area` (
-`guid`  int(11) UNSIGNED NOT NULL ,
-`zone`  int(11) NOT NULL ,
-`area`  int(11) NULL DEFAULT NULL ,
-PRIMARY KEY (`guid`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-
-;
-
--- ----------------------------
 -- Table structure for `creature_classlevelstats`
 -- ----------------------------
 DROP TABLE IF EXISTS `creature_classlevelstats`;
@@ -443,44 +360,11 @@ CREATE TABLE `creature_classlevelstats` (
 `basehp3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 1 ,
 `basehp4`  mediumint(8) UNSIGNED NOT NULL DEFAULT 1 ,
 `basemana`  mediumint(8) UNSIGNED NOT NULL DEFAULT 1 ,
-`basearmor`  mediumint(8) UNSIGNED NOT NULL DEFAULT 1 
+`basearmor`  mediumint(8) UNSIGNED NOT NULL DEFAULT 1 ,
+PRIMARY KEY (`level`, `class`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-
-;
-
--- ----------------------------
--- Table structure for `creature_copy`
--- ----------------------------
-DROP TABLE IF EXISTS `creature_copy`;
-CREATE TABLE `creature_copy` (
-`guid`  int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier' ,
-`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Creature Identifier' ,
-`map`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Map Identifier' ,
-`spawnMask`  tinyint(3) UNSIGNED NOT NULL DEFAULT 1 ,
-`phaseMask`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
-`modelid`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`equipment_id`  mediumint(8) NOT NULL DEFAULT 0 ,
-`position_x`  float NOT NULL DEFAULT 0 ,
-`position_y`  float NOT NULL DEFAULT 0 ,
-`position_z`  float NOT NULL DEFAULT 0 ,
-`orientation`  float NOT NULL DEFAULT 0 ,
-`spawntimesecs`  int(10) UNSIGNED NOT NULL DEFAULT 120 ,
-`spawndist`  float NOT NULL DEFAULT 0 ,
-`currentwaypoint`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`curhealth`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
-`curmana`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`MovementType`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`unit_flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`dynamicflags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-PRIMARY KEY (`guid`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Creature System'
-AUTO_INCREMENT=303341
 
 ;
 
@@ -490,14 +374,14 @@ AUTO_INCREMENT=303341
 DROP TABLE IF EXISTS `creature_equip_template`;
 CREATE TABLE `creature_equip_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`itemEntry1`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`itemEntry2`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`itemEntry3`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
-PRIMARY KEY (`entry`)
+`id`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`itemEntry1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`itemEntry2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`itemEntry3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`entry`, `id`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Creature System (Equipment)'
 
 ;
 
@@ -511,60 +395,9 @@ CREATE TABLE `creature_formations` (
 `dist`  float UNSIGNED NOT NULL ,
 `angle`  float UNSIGNED NOT NULL ,
 `groupAI`  int(10) UNSIGNED NOT NULL ,
-`point_1`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`point_2`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`point_1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`point_2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 PRIMARY KEY (`memberGUID`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-
-;
-
--- ----------------------------
--- Table structure for `creature_formations_copy`
--- ----------------------------
-DROP TABLE IF EXISTS `creature_formations_copy`;
-CREATE TABLE `creature_formations_copy` (
-`leaderGUID`  int(10) UNSIGNED NOT NULL ,
-`memberGUID`  int(10) UNSIGNED NOT NULL ,
-`dist`  float UNSIGNED NOT NULL ,
-`angle`  float UNSIGNED NOT NULL ,
-`groupAI`  int(10) UNSIGNED NOT NULL ,
-PRIMARY KEY (`memberGUID`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-
-;
-
--- ----------------------------
--- Table structure for `creature_involvedrelation`
--- ----------------------------
-DROP TABLE IF EXISTS `creature_involvedrelation`;
-CREATE TABLE `creature_involvedrelation` (
-`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Identifier' ,
-`quest`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest Identifier' ,
-PRIMARY KEY (`id`, `quest`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Creature System'
-
-;
-
--- ----------------------------
--- Table structure for `creature_loot_currency`
--- ----------------------------
-DROP TABLE IF EXISTS `creature_loot_currency`;
-CREATE TABLE `creature_loot_currency` (
-`creature_id`  mediumint(8) UNSIGNED NOT NULL ,
-`CurrencyId1`  smallint(5) UNSIGNED NULL DEFAULT 0 ,
-`CurrencyId2`  smallint(5) UNSIGNED NULL DEFAULT 0 ,
-`CurrencyId3`  smallint(5) UNSIGNED NULL DEFAULT 0 ,
-`CurrencyCount1`  int(10) NULL DEFAULT 0 ,
-`CurrencyCount2`  int(10) NULL DEFAULT 0 ,
-`CurrencyCount3`  int(10) NULL DEFAULT 0 ,
-PRIMARY KEY (`creature_id`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -577,7 +410,7 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 DROP TABLE IF EXISTS `creature_loot_template`;
 CREATE TABLE `creature_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -610,46 +443,6 @@ COMMENT='Creature System (Model related info)'
 ;
 
 -- ----------------------------
--- Table structure for `creature_new`
--- ----------------------------
-DROP TABLE IF EXISTS `creature_new`;
-CREATE TABLE `creature_new` (
-`guid`  int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier' ,
-`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Creature Identifier' ,
-`map`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Map Identifier' ,
-`zoneId`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`areaId`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`spawnMask`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`phaseMask`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
-`modelid`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`equipment_id`  mediumint(8) NOT NULL DEFAULT 0 ,
-`position_x`  float NOT NULL DEFAULT 0 ,
-`position_y`  float NOT NULL DEFAULT 0 ,
-`position_z`  float NOT NULL DEFAULT 0 ,
-`orientation`  float NOT NULL DEFAULT 0 ,
-`spawntimesecs`  int(10) UNSIGNED NOT NULL DEFAULT 120 ,
-`spawndist`  float NOT NULL DEFAULT 0 ,
-`currentwaypoint`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`curhealth`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
-`curmana`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`MovementType`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`unit_flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`unit_flags2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`dynamicflags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`isActive`  tinyint(1) UNSIGNED NOT NULL DEFAULT 0 ,
-`protec_anti_doublet`  int(255) NULL DEFAULT NULL ,
-PRIMARY KEY (`guid`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Creature System'
-AUTO_INCREMENT=998118
-
-;
-
--- ----------------------------
 -- Table structure for `creature_onkill_reputation`
 -- ----------------------------
 DROP TABLE IF EXISTS `creature_onkill_reputation`;
@@ -673,10 +466,10 @@ COMMENT='Creature OnKill Reputation gain'
 ;
 
 -- ----------------------------
--- Table structure for `creature_questrelation`
+-- Table structure for `creature_questender`
 -- ----------------------------
-DROP TABLE IF EXISTS `creature_questrelation`;
-CREATE TABLE `creature_questrelation` (
+DROP TABLE IF EXISTS `creature_questender`;
+CREATE TABLE `creature_questender` (
 `id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Identifier' ,
 `quest`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest Identifier' ,
 PRIMARY KEY (`id`, `quest`)
@@ -688,15 +481,17 @@ COMMENT='Creature System'
 ;
 
 -- ----------------------------
--- Table structure for `creature_rp`
+-- Table structure for `creature_queststarter`
 -- ----------------------------
-DROP TABLE IF EXISTS `creature_rp`;
-CREATE TABLE `creature_rp` (
-`guid`  int(11) NULL DEFAULT NULL ,
-`duration`  int(11) NULL DEFAULT NULL 
+DROP TABLE IF EXISTS `creature_queststarter`;
+CREATE TABLE `creature_queststarter` (
+`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Identifier' ,
+`quest`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest Identifier' ,
+PRIMARY KEY (`id`, `quest`)
 )
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+COMMENT='Creature System'
 
 ;
 
@@ -741,7 +536,6 @@ CREATE TABLE `creature_template` (
 `difficulty_entry_12`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `difficulty_entry_13`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `difficulty_entry_14`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`difficulty_entry_15`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `KillCredit1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `KillCredit2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `modelid1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -758,11 +552,9 @@ CREATE TABLE `creature_template` (
 `exp_unk`  smallint(2) NOT NULL DEFAULT 0 ,
 `faction_A`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `faction_H`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`npcflag`  bigint(15) UNSIGNED NOT NULL DEFAULT 0 ,
 `speed_walk`  float NOT NULL DEFAULT 1 COMMENT 'Result of 2.5/2.5, most common value' ,
 `speed_run`  float NOT NULL DEFAULT 1.14286 COMMENT 'Result of 8.0/7.0, most common value' ,
-`speed_fly`  float NOT NULL DEFAULT 1.14286 COMMENT 'Result of 8.0/7.0, most common value' ,
 `scale`  float NOT NULL DEFAULT 1 ,
 `rank`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `mindmg`  float NOT NULL DEFAULT 0 ,
@@ -776,9 +568,8 @@ CREATE TABLE `creature_template` (
 `unit_flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `unit_flags2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `dynamicflags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`family`  mediumint(8) NOT NULL DEFAULT 0 ,
+`family`  tinyint(4) NOT NULL DEFAULT 0 ,
 `trainer_type`  tinyint(4) NOT NULL DEFAULT 0 ,
-`trainer_spell`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `trainer_class`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `trainer_race`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `minrangedmg`  float NOT NULL DEFAULT 0 ,
@@ -825,13 +616,10 @@ CREATE TABLE `creature_template` (
 `questItem6`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `movementId`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
 `RegenHealth`  tinyint(3) UNSIGNED NOT NULL DEFAULT 1 ,
-`equipment_id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `mechanic_immune_mask`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `flags_extra`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `ScriptName`  char(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`WDBVerified`  smallint(6) NULL DEFAULT 1 ,
-`faction`  int(11) NULL DEFAULT NULL ,
-`unitflags2`  int(11) NULL DEFAULT NULL ,
+`WDBVerified`  smallint(6) NULL DEFAULT 18414 ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
@@ -856,6 +644,21 @@ PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `creature_template_difficulty`
+-- ----------------------------
+DROP TABLE IF EXISTS `creature_template_difficulty`;
+CREATE TABLE `creature_template_difficulty` (
+`entry`  int(11) NOT NULL DEFAULT 0 ,
+`difficulty`  mediumint(8) NOT NULL DEFAULT 0 ,
+`difficultyEntry`  int(11) NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`entry`, `difficulty`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 
 ;
 
@@ -904,119 +707,6 @@ AUTO_INCREMENT=1
 ;
 
 -- ----------------------------
--- Table structure for `creature_transport_copy`
--- ----------------------------
-DROP TABLE IF EXISTS `creature_transport_copy`;
-CREATE TABLE `creature_transport_copy` (
-`guid`  int(11) NOT NULL AUTO_INCREMENT COMMENT 'GUID of NPC on transport - not the same as creature.guid' ,
-`transport_entry`  int(11) NOT NULL COMMENT 'Transport entry' ,
-`npc_entry`  int(11) NOT NULL COMMENT 'NPC entry' ,
-`TransOffsetX`  float NOT NULL DEFAULT 0 ,
-`TransOffsetY`  float NOT NULL DEFAULT 0 ,
-`TransOffsetZ`  float NOT NULL DEFAULT 0 ,
-`TransOffsetO`  float NOT NULL DEFAULT 0 ,
-`emote`  int(11) NOT NULL ,
-PRIMARY KEY (`transport_entry`, `guid`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-AUTO_INCREMENT=1
-
-;
-
--- ----------------------------
--- Table structure for `creatureold`
--- ----------------------------
-DROP TABLE IF EXISTS `creatureold`;
-CREATE TABLE `creatureold` (
-`guid`  int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier' ,
-`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Creature Identifier' ,
-`map`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Map Identifier' ,
-`zoneId`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`areaId`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`spawnMask`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`phaseMask`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
-`modelid`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`equipment_id`  mediumint(8) NOT NULL DEFAULT 0 ,
-`position_x`  float NOT NULL DEFAULT 0 ,
-`position_y`  float NOT NULL DEFAULT 0 ,
-`position_z`  float NOT NULL DEFAULT 0 ,
-`orientation`  float NOT NULL DEFAULT 0 ,
-`spawntimesecs`  int(10) UNSIGNED NOT NULL DEFAULT 120 ,
-`spawndist`  float NOT NULL DEFAULT 0 ,
-`currentwaypoint`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`curhealth`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
-`curmana`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`MovementType`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`unit_flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`unit_flags2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`dynamicflags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`isActive`  tinyint(1) UNSIGNED NOT NULL DEFAULT 0 ,
-`protec_anti_doublet`  int(255) NULL DEFAULT NULL ,
-PRIMARY KEY (`guid`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Creature System'
-AUTO_INCREMENT=997600
-
-;
-
--- ----------------------------
--- Table structure for `custom_texts`
--- ----------------------------
-DROP TABLE IF EXISTS `custom_texts`;
-CREATE TABLE `custom_texts` (
-`entry`  mediumint(8) NOT NULL ,
-`content_default`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-`content_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc4`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc5`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc6`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc7`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`sound`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`type`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`language`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`emote`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-PRIMARY KEY (`entry`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Custom Texts'
-
-;
-
--- ----------------------------
--- Table structure for `daily_players_reports`
--- ----------------------------
-DROP TABLE IF EXISTS `daily_players_reports`;
-CREATE TABLE `daily_players_reports` (
-`guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`creation_time`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`average`  float NOT NULL DEFAULT 0 ,
-`total_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`speed_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`fly_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`jump_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`waterwalk_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`teleportplane_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`climb_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-PRIMARY KEY (`guid`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-
-;
-
--- ----------------------------
 -- Table structure for `db_script_string`
 -- ----------------------------
 DROP TABLE IF EXISTS `db_script_string`;
@@ -1033,6 +723,7 @@ CREATE TABLE `db_script_string` (
 `content_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `content_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `content_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`content_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
@@ -1064,7 +755,7 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 DROP TABLE IF EXISTS `disenchant_loot_template`;
 CREATE TABLE `disenchant_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Recommended id selection: item_level*100 + item_quality' ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -1075,19 +766,6 @@ PRIMARY KEY (`entry`, `item`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Loot System'
-
-;
-
--- ----------------------------
--- Table structure for `event_northhold_watch`
--- ----------------------------
-DROP TABLE IF EXISTS `event_northhold_watch`;
-CREATE TABLE `event_northhold_watch` (
-`points`  int(11) NULL DEFAULT NULL ,
-`team`  int(11) NULL DEFAULT NULL 
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 
 ;
 
@@ -1133,7 +811,7 @@ COMMENT='Exploration System'
 DROP TABLE IF EXISTS `fishing_loot_template`;
 CREATE TABLE `fishing_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -1160,6 +838,7 @@ CREATE TABLE `game_event` (
 `holiday`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Client side holiday id' ,
 `description`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Description of the event displayed in console' ,
 `world_event`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT '0 if normal event, 1 if world event' ,
+`announce`  tinyint(3) UNSIGNED NULL DEFAULT 2 COMMENT '0 dont announce, 1 announce, 2 value from config' ,
 PRIMARY KEY (`eventEntry`)
 )
 ENGINE=MyISAM
@@ -1278,7 +957,7 @@ CREATE TABLE `game_event_model_equip` (
 `eventEntry`  tinyint(4) NOT NULL COMMENT 'Entry of the game event.' ,
 `guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `modelid`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`equipment_id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`equipment_id`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 PRIMARY KEY (`guid`)
 )
 ENGINE=MyISAM
@@ -1313,7 +992,7 @@ DROP TABLE IF EXISTS `game_event_npcflag`;
 CREATE TABLE `game_event_npcflag` (
 `eventEntry`  tinyint(3) UNSIGNED NOT NULL COMMENT 'Entry of the game event' ,
 `guid`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`npcflag`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`npcflag`  bigint(15) UNSIGNED NOT NULL DEFAULT 0 ,
 PRIMARY KEY (`guid`, `eventEntry`)
 )
 ENGINE=MyISAM
@@ -1413,7 +1092,7 @@ PRIMARY KEY (`id`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Tele Command'
-AUTO_INCREMENT=54367
+AUTO_INCREMENT=2022
 
 ;
 
@@ -1452,10 +1131,11 @@ CREATE TABLE `gameobject` (
 `guid`  int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier' ,
 `id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Gameobject Identifier' ,
 `map`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Map Identifier' ,
-`zoneId`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`areaId`  smallint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`spawnMask`  int(8) NULL DEFAULT 0 ,
+`zoneId`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`areaId`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`spawnMask`  int(8) NULL DEFAULT NULL ,
 `phaseMask`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
+`phaseId`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `position_x`  float NOT NULL DEFAULT 0 ,
 `position_y`  float NOT NULL DEFAULT 0 ,
 `position_z`  float NOT NULL DEFAULT 0 ,
@@ -1468,28 +1148,12 @@ CREATE TABLE `gameobject` (
 `animprogress`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `state`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `isActive`  tinyint(1) UNSIGNED NOT NULL DEFAULT 0 ,
-`protect_anti_doublet`  int(255) NULL DEFAULT NULL ,
-`scale`  float NOT NULL DEFAULT 0 ,
 PRIMARY KEY (`guid`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Gameobject System'
-AUTO_INCREMENT=6017496
-
-;
-
--- ----------------------------
--- Table structure for `gameobject_involvedrelation`
--- ----------------------------
-DROP TABLE IF EXISTS `gameobject_involvedrelation`;
-CREATE TABLE `gameobject_involvedrelation` (
-`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`quest`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest Identifier' ,
-PRIMARY KEY (`id`, `quest`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+AUTO_INCREMENT=211617
 
 ;
 
@@ -1499,7 +1163,7 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 DROP TABLE IF EXISTS `gameobject_loot_template`;
 CREATE TABLE `gameobject_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -1514,10 +1178,10 @@ COMMENT='Loot System'
 ;
 
 -- ----------------------------
--- Table structure for `gameobject_questrelation`
+-- Table structure for `gameobject_questender`
 -- ----------------------------
-DROP TABLE IF EXISTS `gameobject_questrelation`;
-CREATE TABLE `gameobject_questrelation` (
+DROP TABLE IF EXISTS `gameobject_questender`;
+CREATE TABLE `gameobject_questender` (
 `id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `quest`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest Identifier' ,
 PRIMARY KEY (`id`, `quest`)
@@ -1528,33 +1192,13 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 -- ----------------------------
--- Table structure for `gameobject_rp`
+-- Table structure for `gameobject_queststarter`
 -- ----------------------------
-DROP TABLE IF EXISTS `gameobject_rp`;
-CREATE TABLE `gameobject_rp` (
-`guid`  int(11) NULL DEFAULT NULL ,
-`duration`  int(11) NULL DEFAULT NULL 
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-
-;
-
--- ----------------------------
--- Table structure for `gameobject_scripts`
--- ----------------------------
-DROP TABLE IF EXISTS `gameobject_scripts`;
-CREATE TABLE `gameobject_scripts` (
+DROP TABLE IF EXISTS `gameobject_queststarter`;
+CREATE TABLE `gameobject_queststarter` (
 `id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`delay`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`command`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`datalong`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`datalong2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`dataint`  int(11) NOT NULL DEFAULT 0 ,
-`x`  float NOT NULL DEFAULT 0 ,
-`y`  float NOT NULL DEFAULT 0 ,
-`z`  float NOT NULL DEFAULT 0 ,
-`o`  float NOT NULL DEFAULT 0 
+`quest`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest Identifier' ,
+PRIMARY KEY (`id`, `quest`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -1582,13 +1226,13 @@ CREATE TABLE `gameobject_template` (
 `questItem4`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
 `questItem5`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
 `questItem6`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
-`data0`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`data1`  int(11) NOT NULL DEFAULT '-1' ,
+`data0`  int(10) UNSIGNED NULL DEFAULT 0 ,
+`data1`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
 `data2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `data3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `data4`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `data5`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`data6`  int(11) NOT NULL DEFAULT '-1' ,
+`data6`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
 `data7`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `data8`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `data9`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -1606,15 +1250,15 @@ CREATE TABLE `gameobject_template` (
 `data21`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `data22`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `data23`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`data24`  int(10) NOT NULL DEFAULT 0 ,
-`data25`  int(10) NOT NULL DEFAULT 0 ,
-`data26`  int(10) NOT NULL DEFAULT 0 ,
-`data27`  int(10) NOT NULL DEFAULT 0 ,
-`data28`  int(10) NOT NULL DEFAULT 0 ,
-`data29`  int(10) NOT NULL DEFAULT 0 ,
-`data30`  int(10) NOT NULL DEFAULT 0 ,
-`data31`  int(10) NOT NULL DEFAULT 0 ,
-`unkInt32`  int(10) NOT NULL DEFAULT 0 ,
+`data24`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`data25`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`data26`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`data27`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`data28`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`data29`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`data30`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`data31`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`unkInt32`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `AIName`  char(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `ScriptName`  varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `WDBVerified`  smallint(6) NULL DEFAULT 1 ,
@@ -1623,6 +1267,55 @@ PRIMARY KEY (`entry`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Gameobject System'
+
+;
+
+-- ----------------------------
+-- Table structure for `gmi_logs`
+-- ----------------------------
+DROP TABLE IF EXISTS `gmi_logs`;
+CREATE TABLE `gmi_logs` (
+`id`  int(11) NOT NULL AUTO_INCREMENT ,
+`theme_id`  int(11) NOT NULL DEFAULT 0 ,
+`date`  int(11) NOT NULL ,
+PRIMARY KEY (`id`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+AUTO_INCREMENT=57
+
+;
+
+-- ----------------------------
+-- Table structure for `gmi_templates`
+-- ----------------------------
+DROP TABLE IF EXISTS `gmi_templates`;
+CREATE TABLE `gmi_templates` (
+`id`  int(11) NOT NULL ,
+`entry`  int(11) NOT NULL ,
+`pos_x`  double NOT NULL ,
+`pos_y`  double NOT NULL ,
+`pos_z`  double NOT NULL ,
+`pos_o`  double NOT NULL 
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `gmi_themes`
+-- ----------------------------
+DROP TABLE IF EXISTS `gmi_themes`;
+CREATE TABLE `gmi_themes` (
+`id`  int(11) NOT NULL AUTO_INCREMENT ,
+`name`  varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
+`available`  tinyint(4) NOT NULL DEFAULT 1 ,
+PRIMARY KEY (`id`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+AUTO_INCREMENT=5
 
 ;
 
@@ -1664,55 +1357,17 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 -- ----------------------------
--- Table structure for `guild_challenge_reward`
+-- Table structure for `graveyard_orientation`
 -- ----------------------------
-DROP TABLE IF EXISTS `guild_challenge_reward`;
-CREATE TABLE `guild_challenge_reward` (
-`Type`  int(10) UNSIGNED NULL DEFAULT NULL ,
-`Experience`  int(10) UNSIGNED NULL DEFAULT NULL ,
-`Gold`  int(10) UNSIGNED NULL DEFAULT NULL ,
-`Gold2`  int(10) UNSIGNED NULL DEFAULT NULL ,
-`Count`  int(10) UNSIGNED NULL DEFAULT NULL 
+DROP TABLE IF EXISTS `graveyard_orientation`;
+CREATE TABLE `graveyard_orientation` (
+`Id`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`Orientation`  float NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`Id`)
 )
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-
-;
-
--- ----------------------------
--- Table structure for `guild_finder_applicant`
--- ----------------------------
-DROP TABLE IF EXISTS `guild_finder_applicant`;
-CREATE TABLE `guild_finder_applicant` (
-`guildId`  int(10) UNSIGNED NULL DEFAULT NULL ,
-`playerGuid`  int(10) UNSIGNED NULL DEFAULT NULL ,
-`availability`  tinyint(3) UNSIGNED NULL DEFAULT 0 ,
-`classRole`  tinyint(3) UNSIGNED NULL DEFAULT 0 ,
-`interests`  tinyint(3) UNSIGNED NULL DEFAULT 0 ,
-`comment`  varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
-`submitTime`  int(10) UNSIGNED NULL DEFAULT NULL 
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-
-;
-
--- ----------------------------
--- Table structure for `guild_finder_guild_settings`
--- ----------------------------
-DROP TABLE IF EXISTS `guild_finder_guild_settings`;
-CREATE TABLE `guild_finder_guild_settings` (
-`guildId`  int(10) UNSIGNED NOT NULL ,
-`availability`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`classRoles`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`interests`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`level`  tinyint(3) UNSIGNED NOT NULL DEFAULT 1 ,
-`listed`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`comment`  varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
-PRIMARY KEY (`guildId`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+COMMENT='Orientations used by graveyards'
 
 ;
 
@@ -1725,7 +1380,7 @@ CREATE TABLE `guild_rewards` (
 `standing`  tinyint(3) UNSIGNED NULL DEFAULT 0 ,
 `racemask`  int(11) NULL DEFAULT 0 ,
 `price`  bigint(20) UNSIGNED NULL DEFAULT 0 ,
-`achievement`  int(10) UNSIGNED NULL DEFAULT 0 ,
+`achievements`  varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
@@ -1772,7 +1427,7 @@ CREATE TABLE `instance_encounters` (
 `creditEntry`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `lastEncounterDungeon`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'If not 0, LfgDungeon.dbc entry for the instance it is last encounter in' ,
 `comment`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-PRIMARY KEY (`entry`, `lastEncounterDungeon`)
+PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -1796,84 +1451,18 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 -- ----------------------------
--- Table structure for `ip2nation`
--- ----------------------------
-DROP TABLE IF EXISTS `ip2nation`;
-CREATE TABLE `ip2nation` (
-`ip`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`country`  char(2) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' 
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-
-;
-
--- ----------------------------
--- Table structure for `ip2nationcountries`
--- ----------------------------
-DROP TABLE IF EXISTS `ip2nationcountries`;
-CREATE TABLE `ip2nationcountries` (
-`code`  varchar(4) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`iso_code_2`  varchar(2) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`iso_code_3`  varchar(3) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`iso_country`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`country`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`lat`  float NOT NULL DEFAULT 0 ,
-`lon`  float NOT NULL DEFAULT 0 ,
-PRIMARY KEY (`code`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='utf8_general_ci'
-
-;
-
--- ----------------------------
 -- Table structure for `item_enchantment_template`
 -- ----------------------------
 DROP TABLE IF EXISTS `item_enchantment_template`;
 CREATE TABLE `item_enchantment_template` (
-`entry`  mediumint(8) NULL DEFAULT NULL ,
-`ench`  mediumint(8) NULL DEFAULT NULL ,
-`chance`  float NULL DEFAULT NULL ,
-`type`  mediumint(8) NULL DEFAULT NULL 
+`entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`ench`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`chance`  float UNSIGNED NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`entry`, `ench`)
 )
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-
-;
-
--- ----------------------------
--- Table structure for `item_extended_cost`
--- ----------------------------
-DROP TABLE IF EXISTS `item_extended_cost`;
-CREATE TABLE `item_extended_cost` (
-`ID`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredArenaSlot`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItem1`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItem2`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItem3`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItem4`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItem5`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItemCount1`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItemCount2`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItemCount3`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItemCount4`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredItemCount5`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredPersonalArenaRating`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrency1`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrency2`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrency3`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrency4`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrency5`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrencyCount1`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrencyCount2`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrencyCount3`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrencyCount4`  mediumint(11) NULL DEFAULT NULL ,
-`RequiredCurrencyCount5`  mediumint(11) NULL DEFAULT NULL 
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+COMMENT='Item Random Enchantment System'
 
 ;
 
@@ -1883,7 +1472,7 @@ DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 DROP TABLE IF EXISTS `item_loot_template`;
 CREATE TABLE `item_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -1925,6 +1514,7 @@ CREATE TABLE `item_template` (
 `Quality`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `Flags`  bigint(20) NOT NULL DEFAULT 0 ,
 `FlagsExtra`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`Flags3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `Unk430_1`  float UNSIGNED NOT NULL DEFAULT 1 ,
 `Unk430_2`  float NOT NULL DEFAULT 1 ,
 `BuyCount`  tinyint(3) UNSIGNED NOT NULL DEFAULT 1 ,
@@ -1962,7 +1552,7 @@ CREATE TABLE `item_template` (
 `stat_unk1_4`  int(11) NOT NULL DEFAULT 0 ,
 `stat_unk2_4`  int(11) NOT NULL DEFAULT 0 ,
 `stat_type5`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`stat_value5`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
+`stat_value5`  smallint(6) NOT NULL DEFAULT 0 ,
 `stat_unk1_5`  int(11) NOT NULL DEFAULT 0 ,
 `stat_unk2_5`  int(11) NOT NULL DEFAULT 0 ,
 `stat_type6`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -1986,6 +1576,7 @@ CREATE TABLE `item_template` (
 `stat_unk1_10`  int(11) NOT NULL DEFAULT 0 ,
 `stat_unk2_10`  int(11) NOT NULL DEFAULT 0 ,
 `ScalingStatDistribution`  smallint(6) NOT NULL DEFAULT 0 ,
+`ScalingStatValue`  int(11) NOT NULL ,
 `DamageType`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `delay`  smallint(5) UNSIGNED NOT NULL DEFAULT 1000 ,
 `RangedModRange`  float NOT NULL DEFAULT 0 ,
@@ -2051,6 +1642,7 @@ CREATE TABLE `item_template` (
 `StatScalingFactor`  float NOT NULL DEFAULT 0 ,
 `CurrencySubstitutionId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `CurrencySubstitutionCount`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`RequiredDisenchantSkill`  int(11) NOT NULL ,
 `flagsCustom`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `WDBVerified`  smallint(6) NULL DEFAULT 1 ,
 PRIMARY KEY (`entry`)
@@ -2080,6 +1672,51 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 -- ----------------------------
+-- Table structure for `keychain_db2`
+-- ----------------------------
+DROP TABLE IF EXISTS `keychain_db2`;
+CREATE TABLE `keychain_db2` (
+`keyId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`k1`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k2`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k3`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k4`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k5`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k6`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k7`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k8`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k9`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k10`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k11`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k12`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k13`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k14`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k15`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k16`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k17`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k18`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k19`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k20`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k21`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k22`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k23`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k24`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k25`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k26`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k27`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k28`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k29`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k30`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k31`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`k32`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`keyId`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
 -- Table structure for `lfg_dungeon_rewards`
 -- ----------------------------
 DROP TABLE IF EXISTS `lfg_dungeon_rewards`;
@@ -2087,11 +1724,7 @@ CREATE TABLE `lfg_dungeon_rewards` (
 `dungeonId`  int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Dungeon entry from dbc' ,
 `maxLevel`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Max level at which this reward is rewarded' ,
 `firstQuestId`  int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest id with rewards for first dungeon this day' ,
-`firstMoneyVar`  int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Money multiplier for completing the dungeon first time in a day with less players than max' ,
-`firstXPVar`  int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Experience multiplier for completing the dungeon first time in a day with less players than max' ,
 `otherQuestId`  int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest id with rewards for Nth dungeon this day' ,
-`otherMoneyVar`  int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Money multiplier for completing the dungeon Nth time in a day with less players than max' ,
-`otherXPVar`  int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Experience multiplier for completing the dungeon Nth time in a day with less players than max' ,
 PRIMARY KEY (`dungeonId`, `maxLevel`)
 )
 ENGINE=MyISAM
@@ -2110,10 +1743,12 @@ CREATE TABLE `lfg_entrances` (
 `position_y`  float NOT NULL DEFAULT 0 ,
 `position_z`  float NOT NULL DEFAULT 0 ,
 `orientation`  float NOT NULL DEFAULT 0 ,
+`requiredItemLevel`  smallint(5) NULL DEFAULT 0 ,
+`VerifiedBuild`  smallint(5) NULL DEFAULT 0 ,
 PRIMARY KEY (`dungeonId`)
 )
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 
 ;
 
@@ -2149,6 +1784,7 @@ CREATE TABLE `locales_achievement_reward` (
 `subject_loc8`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `subject_loc9`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `subject_loc10`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
+`subject_loc11`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `text_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `text_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `text_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2159,6 +1795,7 @@ CREATE TABLE `locales_achievement_reward` (
 `text_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `text_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `text_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`text_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
@@ -2180,18 +1817,20 @@ CREATE TABLE `locales_creature` (
 `name_loc6`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `name_loc7`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `name_loc8`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`name_loc9`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`name_loc10`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc1`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc2`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc3`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc4`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc5`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc6`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc7`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc8`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc9`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`subname_loc10`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
+`name_loc9`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
+`name_loc10`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
+`name_loc11`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
+`subname_loc1`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc2`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc3`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc4`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc5`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc6`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc7`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc8`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc9`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc10`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`subname_loc11`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
@@ -2204,9 +1843,9 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 -- ----------------------------
 DROP TABLE IF EXISTS `locales_creature_text`;
 CREATE TABLE `locales_creature_text` (
-`entry`  int(10) UNSIGNED NOT NULL ,
-`textGroup`  tinyint(3) UNSIGNED NOT NULL ,
-`id`  int(10) UNSIGNED NOT NULL ,
+`entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`id`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `text_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `text_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `text_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2217,7 +1856,8 @@ CREATE TABLE `locales_creature_text` (
 `text_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `text_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `text_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-PRIMARY KEY (`entry`, `textGroup`, `id`)
+`text_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+PRIMARY KEY (`entry`, `groupid`, `id`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -2240,6 +1880,7 @@ CREATE TABLE `locales_gameobject` (
 `name_loc8`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `name_loc9`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `name_loc10`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
+`name_loc11`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `castbarcaption_loc1`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `castbarcaption_loc2`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `castbarcaption_loc3`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
@@ -2250,6 +1891,7 @@ CREATE TABLE `locales_gameobject` (
 `castbarcaption_loc8`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `castbarcaption_loc9`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `castbarcaption_loc10`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
+`castbarcaption_loc11`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
@@ -2274,6 +1916,7 @@ CREATE TABLE `locales_gossip_menu_option` (
 `option_text_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `option_text_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `option_text_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`option_text_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `box_text_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `box_text_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `box_text_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2284,6 +1927,7 @@ CREATE TABLE `locales_gossip_menu_option` (
 `box_text_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `box_text_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `box_text_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`box_text_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 PRIMARY KEY (`menu_id`, `id`)
 )
 ENGINE=MyISAM
@@ -2305,8 +1949,9 @@ CREATE TABLE `locales_item` (
 `name_loc6`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `name_loc7`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `name_loc8`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
-`name_loc9`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
-`name_loc10`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' ,
+`name_loc9`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
+`name_loc10`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
+`name_loc11`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' ,
 `description_loc1`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
 `description_loc2`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
 `description_loc3`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
@@ -2317,6 +1962,7 @@ CREATE TABLE `locales_item` (
 `description_loc8`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
 `description_loc9`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
 `description_loc10`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`description_loc11`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
@@ -2329,7 +1975,7 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 -- ----------------------------
 DROP TABLE IF EXISTS `locales_npc_text`;
 CREATE TABLE `locales_npc_text` (
-`entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`ID`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `Text0_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text0_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text0_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2340,6 +1986,7 @@ CREATE TABLE `locales_npc_text` (
 `Text0_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text0_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text0_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text0_0_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text0_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text0_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text0_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2350,6 +1997,7 @@ CREATE TABLE `locales_npc_text` (
 `Text0_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text0_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text0_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text0_1_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2360,6 +2008,7 @@ CREATE TABLE `locales_npc_text` (
 `Text1_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text1_0_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2370,6 +2019,7 @@ CREATE TABLE `locales_npc_text` (
 `Text1_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text1_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text1_1_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2380,6 +2030,7 @@ CREATE TABLE `locales_npc_text` (
 `Text2_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text2_0_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2390,6 +2041,7 @@ CREATE TABLE `locales_npc_text` (
 `Text2_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text2_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text2_1_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2400,6 +2052,7 @@ CREATE TABLE `locales_npc_text` (
 `Text3_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text3_0_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2410,6 +2063,7 @@ CREATE TABLE `locales_npc_text` (
 `Text3_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text3_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text3_1_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2420,6 +2074,7 @@ CREATE TABLE `locales_npc_text` (
 `Text4_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text4_0_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2430,6 +2085,7 @@ CREATE TABLE `locales_npc_text` (
 `Text4_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text4_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text4_1_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2440,6 +2096,7 @@ CREATE TABLE `locales_npc_text` (
 `Text5_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text5_0_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2450,6 +2107,7 @@ CREATE TABLE `locales_npc_text` (
 `Text5_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text5_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text5_1_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2460,6 +2118,7 @@ CREATE TABLE `locales_npc_text` (
 `Text6_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text6_0_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2470,6 +2129,7 @@ CREATE TABLE `locales_npc_text` (
 `Text6_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text6_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text6_1_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2480,6 +2140,7 @@ CREATE TABLE `locales_npc_text` (
 `Text7_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text7_0_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2490,47 +2151,8 @@ CREATE TABLE `locales_npc_text` (
 `Text7_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text7_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc4`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc5`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc6`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc7`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc4`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc5`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc6`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc7`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text8_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc4`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc5`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc6`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc7`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_0_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc1`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc2`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc3`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc4`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc5`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc6`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc7`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Text9_1_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-PRIMARY KEY (`entry`)
+`Text7_1_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+PRIMARY KEY (`ID`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -2553,6 +2175,7 @@ CREATE TABLE `locales_page_text` (
 `Text_loc8`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text_loc9`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Text_loc10`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Text_loc11`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
@@ -2576,6 +2199,7 @@ CREATE TABLE `locales_points_of_interest` (
 `icon_name_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `icon_name_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `icon_name_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`icon_name_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
@@ -2588,7 +2212,7 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 -- ----------------------------
 DROP TABLE IF EXISTS `locales_quest`;
 CREATE TABLE `locales_quest` (
-`entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`Id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `Title_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Title_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Title_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2599,6 +2223,7 @@ CREATE TABLE `locales_quest` (
 `Title_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Title_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Title_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Title_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Details_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Details_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Details_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2609,6 +2234,7 @@ CREATE TABLE `locales_quest` (
 `Details_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Details_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Details_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Details_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Objectives_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Objectives_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Objectives_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2619,6 +2245,7 @@ CREATE TABLE `locales_quest` (
 `Objectives_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Objectives_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `Objectives_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`Objectives_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `OfferRewardText_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `OfferRewardText_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `OfferRewardText_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2629,6 +2256,7 @@ CREATE TABLE `locales_quest` (
 `OfferRewardText_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `OfferRewardText_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `OfferRewardText_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`OfferRewardText_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `RequestItemsText_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `RequestItemsText_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `RequestItemsText_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2639,6 +2267,7 @@ CREATE TABLE `locales_quest` (
 `RequestItemsText_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `RequestItemsText_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `RequestItemsText_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`RequestItemsText_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `EndText_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `EndText_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `EndText_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2649,6 +2278,7 @@ CREATE TABLE `locales_quest` (
 `EndText_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `EndText_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `EndText_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`EndText_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `CompletedText_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `CompletedText_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `CompletedText_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2659,6 +2289,7 @@ CREATE TABLE `locales_quest` (
 `CompletedText_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `CompletedText_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `CompletedText_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`CompletedText_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText1_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText1_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText1_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2669,6 +2300,7 @@ CREATE TABLE `locales_quest` (
 `ObjectiveText1_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText1_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText1_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`ObjectiveText1_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText2_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText2_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText2_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2679,6 +2311,7 @@ CREATE TABLE `locales_quest` (
 `ObjectiveText2_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText2_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText2_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`ObjectiveText2_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText3_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText3_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText3_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2689,6 +2322,7 @@ CREATE TABLE `locales_quest` (
 `ObjectiveText3_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText3_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText3_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`ObjectiveText3_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText4_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText4_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText4_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2699,66 +2333,7 @@ CREATE TABLE `locales_quest` (
 `ObjectiveText4_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText4_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText4_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc4`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc5`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc6`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc7`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc4`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc5`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc6`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc7`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc4`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc5`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc6`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc7`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc4`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc5`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc6`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc7`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc4`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc5`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc6`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc7`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc4`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc5`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc6`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc7`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`ObjectiveText4_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTextWindow_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTextWindow_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTextWindow_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2769,6 +2344,7 @@ CREATE TABLE `locales_quest` (
 `QuestGiverTextWindow_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTextWindow_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTextWindow_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`QuestGiverTextWindow_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTargetName_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTargetName_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTargetName_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2779,6 +2355,7 @@ CREATE TABLE `locales_quest` (
 `QuestGiverTargetName_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTargetName_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestGiverTargetName_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`QuestGiverTargetName_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTextWindow_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTextWindow_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTextWindow_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2789,6 +2366,7 @@ CREATE TABLE `locales_quest` (
 `QuestTurnTextWindow_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTextWindow_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTextWindow_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`QuestTurnTextWindow_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTargetName_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTargetName_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTargetName_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -2799,9 +2377,25 @@ CREATE TABLE `locales_quest` (
 `QuestTurnTargetName_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTargetName_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `QuestTurnTargetName_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-PRIMARY KEY (`entry`)
+`QuestTurnTargetName_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+PRIMARY KEY (`Id`)
 )
 ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `locales_quest_objective`
+-- ----------------------------
+DROP TABLE IF EXISTS `locales_quest_objective`;
+CREATE TABLE `locales_quest_objective` (
+`id`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`locale`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`description`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+PRIMARY KEY (`id`, `locale`)
+)
+ENGINE=InnoDB
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 
 ;
@@ -2829,7 +2423,7 @@ COMMENT='Mail System'
 DROP TABLE IF EXISTS `mail_loot_template`;
 CREATE TABLE `mail_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -2844,14 +2438,17 @@ COMMENT='Loot System'
 ;
 
 -- ----------------------------
--- Table structure for `maxsettings_rp`
+-- Table structure for `masteries`
 -- ----------------------------
-DROP TABLE IF EXISTS `maxsettings_rp`;
-CREATE TABLE `maxsettings_rp` (
-`type`  int(11) NULL DEFAULT NULL ,
-`maxsetting`  int(11) NULL DEFAULT NULL 
+DROP TABLE IF EXISTS `masteries`;
+CREATE TABLE `masteries` (
+`ID`  int(11) NOT NULL ,
+`base`  float NOT NULL ,
+`ratio`  float NOT NULL ,
+`commentaire`  text CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ,
+PRIMARY KEY (`ID`)
 )
-ENGINE=InnoDB
+ENGINE=MyISAM
 DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 
 ;
@@ -2862,7 +2459,7 @@ DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 DROP TABLE IF EXISTS `milling_loot_template`;
 CREATE TABLE `milling_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -3058,69 +2655,14 @@ COMMENT='Item System'
 ;
 
 -- ----------------------------
--- Table structure for `personal_rates_table`
--- ----------------------------
-DROP TABLE IF EXISTS `personal_rates_table`;
-CREATE TABLE `personal_rates_table` (
-`guid`  int(11) NULL DEFAULT NULL ,
-`rate_xp`  int(11) NULL DEFAULT NULL ,
-`rate_honor`  int(11) NULL DEFAULT NULL ,
-`rate_gold`  int(11) NULL DEFAULT NULL 
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-
-;
-
--- ----------------------------
--- Table structure for `pet_aura`
--- ----------------------------
-DROP TABLE IF EXISTS `pet_aura`;
-CREATE TABLE `pet_aura` (
-`guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Global Unique Identifier' ,
-`slot`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`caster_guid`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Full Global Unique Identifier' ,
-`spell`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`effect_mask`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`recalculate_mask`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`stackcount`  tinyint(3) UNSIGNED NOT NULL DEFAULT 1 ,
-`maxduration`  int(11) NOT NULL DEFAULT 0 ,
-`remaintime`  int(11) NOT NULL DEFAULT 0 ,
-`remaincharges`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-PRIMARY KEY (`guid`, `spell`, `effect_mask`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Pet System'
-
-;
-
--- ----------------------------
--- Table structure for `pet_aura_effect`
--- ----------------------------
-DROP TABLE IF EXISTS `pet_aura_effect`;
-CREATE TABLE `pet_aura_effect` (
-`guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`slot`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`effect`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`amount`  int(11) NOT NULL DEFAULT 0 ,
-`baseamount`  int(11) NOT NULL DEFAULT 0 ,
-PRIMARY KEY (`guid`, `slot`, `effect`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-
-;
-
--- ----------------------------
 -- Table structure for `pet_levelstats`
 -- ----------------------------
 DROP TABLE IF EXISTS `pet_levelstats`;
 CREATE TABLE `pet_levelstats` (
 `creature_entry`  mediumint(8) UNSIGNED NOT NULL ,
 `level`  tinyint(3) UNSIGNED NOT NULL ,
-`hp`  mediumint(8) UNSIGNED NOT NULL ,
-`mana`  mediumint(8) UNSIGNED NOT NULL ,
+`hp`  smallint(5) UNSIGNED NOT NULL ,
+`mana`  smallint(5) UNSIGNED NOT NULL ,
 `armor`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `str`  smallint(5) UNSIGNED NOT NULL ,
 `agi`  smallint(5) UNSIGNED NOT NULL ,
@@ -3160,7 +2702,7 @@ CREATE TABLE `phase_definitions` (
 `zoneId`  mediumint(7) UNSIGNED NOT NULL DEFAULT 0 ,
 `entry`  smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT ,
 `phasemask`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`phaseId`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`phaseId`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `terrainswapmap`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `flags`  tinyint(3) UNSIGNED NULL DEFAULT 0 ,
 `comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -3178,7 +2720,7 @@ AUTO_INCREMENT=1
 DROP TABLE IF EXISTS `pickpocketing_loot_template`;
 CREATE TABLE `pickpocketing_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -3217,6 +2759,20 @@ CREATE TABLE `player_factionchange_items` (
 `race_H`  int(10) UNSIGNED NOT NULL ,
 `horde_id`  int(10) UNSIGNED NOT NULL ,
 `commentH`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+PRIMARY KEY (`alliance_id`, `horde_id`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `player_factionchange_quests`
+-- ----------------------------
+DROP TABLE IF EXISTS `player_factionchange_quests`;
+CREATE TABLE `player_factionchange_quests` (
+`alliance_id`  int(10) UNSIGNED NOT NULL ,
+`horde_id`  int(10) UNSIGNED NOT NULL ,
 PRIMARY KEY (`alliance_id`, `horde_id`)
 )
 ENGINE=MyISAM
@@ -3346,7 +2902,8 @@ CREATE TABLE `playercreateinfo_item` (
 `race`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `class`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `itemid`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`amount`  tinyint(4) NOT NULL DEFAULT 1 
+`amount`  tinyint(4) NOT NULL DEFAULT 1 ,
+PRIMARY KEY (`race`, `class`, `itemid`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -3358,11 +2915,11 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 -- ----------------------------
 DROP TABLE IF EXISTS `playercreateinfo_spell`;
 CREATE TABLE `playercreateinfo_spell` (
-`race`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`class`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`racemask`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`classmask`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `Spell`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `Note`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
-PRIMARY KEY (`race`, `class`, `Spell`)
+PRIMARY KEY (`racemask`, `classmask`, `Spell`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -3374,35 +2931,13 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 -- ----------------------------
 DROP TABLE IF EXISTS `playercreateinfo_spell_custom`;
 CREATE TABLE `playercreateinfo_spell_custom` (
-`race`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`class`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`racemask`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`classmask`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `Spell`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `Note`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
-PRIMARY KEY (`race`, `class`, `Spell`)
+PRIMARY KEY (`racemask`, `classmask`, `Spell`)
 )
 ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-
-;
-
--- ----------------------------
--- Table structure for `players_reports_status`
--- ----------------------------
-DROP TABLE IF EXISTS `players_reports_status`;
-CREATE TABLE `players_reports_status` (
-`guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`creation_time`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`average`  float NOT NULL DEFAULT 0 ,
-`total_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`speed_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`fly_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`jump_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`waterwalk_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`teleportplane_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-`climb_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
-PRIMARY KEY (`guid`)
-)
-ENGINE=InnoDB
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 
 ;
@@ -3510,7 +3045,7 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 DROP TABLE IF EXISTS `prospecting_loot_template`;
 CREATE TABLE `prospecting_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -3525,22 +3060,35 @@ COMMENT='Loot System'
 ;
 
 -- ----------------------------
--- Table structure for `quest_end_scripts`
+-- Table structure for `quest_objective`
 -- ----------------------------
-DROP TABLE IF EXISTS `quest_end_scripts`;
-CREATE TABLE `quest_end_scripts` (
-`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`delay`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`command`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`datalong`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`datalong2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`dataint`  int(11) NOT NULL DEFAULT 0 ,
-`x`  float NOT NULL DEFAULT 0 ,
-`y`  float NOT NULL DEFAULT 0 ,
-`z`  float NOT NULL DEFAULT 0 ,
-`o`  float NOT NULL DEFAULT 0 
+DROP TABLE IF EXISTS `quest_objective`;
+CREATE TABLE `quest_objective` (
+`questId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`id`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`index`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`type`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`objectId`  int(10) NOT NULL DEFAULT 0 ,
+`amount`  int(11) NOT NULL DEFAULT 0 ,
+`flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`description`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+PRIMARY KEY (`id`, `questId`, `index`)
 )
-ENGINE=MyISAM
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `quest_objective_effects`
+-- ----------------------------
+DROP TABLE IF EXISTS `quest_objective_effects`;
+CREATE TABLE `quest_objective_effects` (
+`objectiveId`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
+`visualEffect`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`objectiveId`, `visualEffect`)
+)
+ENGINE=InnoDB
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 
 ;
@@ -3555,10 +3103,9 @@ CREATE TABLE `quest_poi` (
 `objIndex`  int(11) NOT NULL DEFAULT 0 ,
 `mapid`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `WorldMapAreaId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`unk2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`FloorId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `unk3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `unk4`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`FloorId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 PRIMARY KEY (`questId`, `id`)
 )
 ENGINE=MyISAM
@@ -3584,255 +3131,10 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 -- ----------------------------
--- Table structure for `quest_start_scripts`
--- ----------------------------
-DROP TABLE IF EXISTS `quest_start_scripts`;
-CREATE TABLE `quest_start_scripts` (
-`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`delay`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`command`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`datalong`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`datalong2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`dataint`  int(11) NOT NULL DEFAULT 0 ,
-`x`  float NOT NULL DEFAULT 0 ,
-`y`  float NOT NULL DEFAULT 0 ,
-`z`  float NOT NULL DEFAULT 0 ,
-`o`  float NOT NULL DEFAULT 0 
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-
-;
-
--- ----------------------------
 -- Table structure for `quest_template`
 -- ----------------------------
 DROP TABLE IF EXISTS `quest_template`;
 CREATE TABLE `quest_template` (
-`Id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`Method`  tinyint(3) UNSIGNED NOT NULL DEFAULT 2 ,
-`Level`  smallint(3) NOT NULL DEFAULT 1 ,
-`MinLevel`  smallint(6) NOT NULL DEFAULT 0 ,
-`MaxLevel`  smallint(6) NOT NULL DEFAULT 0 ,
-`ZoneOrSort`  smallint(6) NOT NULL DEFAULT 0 ,
-`Type`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`SuggestedPlayers`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`LimitTime`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredTeam`  tinyint(1) NOT NULL DEFAULT '-1' ,
-`RequiredClasses`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredRaces`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`PackageID`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardMoney`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSkillId`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSkillPoints`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredFactionId1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredFactionId2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredFactionValue1`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredFactionValue2`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredFactionKills`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredFactionKillsCount`  smallint(5) NOT NULL DEFAULT 0 ,
-`RequiredPetBattleWith`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredMinRepFaction`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredMaxRepFaction`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredMinRepValue`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredMaxRepValue`  mediumint(8) NOT NULL DEFAULT 0 ,
-`PrevQuestId`  mediumint(8) NOT NULL DEFAULT 0 ,
-`NextQuestId`  mediumint(8) NOT NULL DEFAULT 0 ,
-`ExclusiveGroup`  mediumint(8) NOT NULL DEFAULT 0 ,
-`NextQuestIdChain`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardXPId`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardXPId2`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardOrRequiredMoney`  int(11) NOT NULL DEFAULT 0 ,
-`RewardMoneyMaxLevel`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardSpell`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardSpellCast`  int(11) NOT NULL DEFAULT 0 ,
-`RewardHonor`  int(11) NOT NULL DEFAULT 0 ,
-`RewardHonorMultiplier`  float NOT NULL DEFAULT 1 ,
-`RewardMailTemplateId`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardMailDelay`  int(11) UNSIGNED NOT NULL DEFAULT 0 ,
-`SourceItemId`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`SourceItemCount`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`SourceSpellId`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`Flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`Flags2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`SpecialFlags`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`MinimapTargetMark`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardTitleId`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredPlayerKills`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardTalents`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardArenaPoints`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardSkillId`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardSkillPoints`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardReputationMask`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`QuestGiverPortrait`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`QuestTurnInPortrait`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardItemId1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardItemId2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardItemId3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardItemId4`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardItemCount1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardItemCount2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardItemCount3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardItemCount4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemId1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemId2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemId3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemId4`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemId5`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemId6`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemCount1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemCount2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemCount3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemCount4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemCount5`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardChoiceItemCount6`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardFactionId1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'faction id from Faction.dbc in this case' ,
-`RewardFactionId2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'faction id from Faction.dbc in this case' ,
-`RewardFactionId3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'faction id from Faction.dbc in this case' ,
-`RewardFactionId4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'faction id from Faction.dbc in this case' ,
-`RewardFactionId5`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'faction id from Faction.dbc in this case' ,
-`RewardFactionValueId1`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RewardFactionValueId2`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RewardFactionValueId3`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RewardFactionValueId4`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RewardFactionValueId5`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RewardFactionValueIdOverride1`  int(11) NOT NULL DEFAULT 0 ,
-`RewardFactionValueIdOverride2`  int(11) NOT NULL DEFAULT 0 ,
-`RewardFactionValueIdOverride3`  int(11) NOT NULL DEFAULT 0 ,
-`RewardFactionValueIdOverride4`  int(11) NOT NULL DEFAULT 0 ,
-`RewardFactionValueIdOverride5`  int(11) NOT NULL DEFAULT 0 ,
-`PointMapId`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`PointX`  float NOT NULL DEFAULT 0 ,
-`PointY`  float NOT NULL DEFAULT 0 ,
-`PointOption`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`Title`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Objectives`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`Details`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`EndText`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`OfferRewardText`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`RequestItemsText`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`CompletedText`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`RequiredNpcOrGo1`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGo2`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGo3`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGo4`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGo5`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGo6`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGo7`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGo8`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGo9`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGo10`  mediumint(8) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount5`  smallint(5) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount6`  smallint(5) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount7`  smallint(5) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount8`  smallint(5) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount9`  smallint(5) NOT NULL DEFAULT 0 ,
-`RequiredNpcOrGoCount10`  smallint(5) NOT NULL DEFAULT 0 ,
-`RequiredSourceItemId1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSourceItemId2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSourceItemId3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSourceItemId4`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSourceItemCount1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSourceItemCount2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSourceItemCount3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSourceItemCount4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId4`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId5`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId6`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId7`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId8`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId9`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemId10`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount5`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount6`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount7`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount8`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount9`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredItemCount10`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpell`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast4`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast5`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast6`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`ObjectiveText1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText4`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText5`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText6`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText7`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`ObjectiveText10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`RewardCurrencyId1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyId2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyId3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyId4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyCount1`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyCount2`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyCount3`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyCount4`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredCurrencyId1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredCurrencyId2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredCurrencyId3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredCurrencyId4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredCurrencyCount1`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredCurrencyCount2`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredCurrencyCount3`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredCurrencyCount4`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`QuestGiverTextWindow`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`QuestGiverTargetName`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`QuestTurnTextWindow`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`QuestTurnTargetName`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`SoundAccept`  smallint(5) UNSIGNED NOT NULL DEFAULT 890 ,
-`SoundTurnIn`  smallint(5) UNSIGNED NOT NULL DEFAULT 878 ,
-`DetailsEmote1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`DetailsEmote2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`DetailsEmote3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`DetailsEmote4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`DetailsEmoteDelay1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`DetailsEmoteDelay2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`DetailsEmoteDelay3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`DetailsEmoteDelay4`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EmoteOnIncomplete`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`EmoteOnComplete`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`OfferRewardEmote1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`OfferRewardEmote2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`OfferRewardEmote3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`OfferRewardEmote4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`OfferRewardEmoteDelay1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`OfferRewardEmoteDelay2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`OfferRewardEmoteDelay3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`OfferRewardEmoteDelay4`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`StartScript`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`CompleteScript`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`WDBVerified`  smallint(6) NOT NULL DEFAULT 1 ,
-PRIMARY KEY (`Id`)
-)
-ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Quest System'
-
-;
-
--- ----------------------------
--- Table structure for `quest_template_copy`
--- ----------------------------
-DROP TABLE IF EXISTS `quest_template_copy`;
-CREATE TABLE `quest_template_copy` (
 `Id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `Method`  tinyint(3) UNSIGNED NOT NULL DEFAULT 2 ,
 `Level`  smallint(3) NOT NULL DEFAULT 1 ,
@@ -3859,7 +3161,7 @@ CREATE TABLE `quest_template_copy` (
 `ExclusiveGroup`  mediumint(8) NOT NULL DEFAULT 0 ,
 `NextQuestIdChain`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardXPId`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardOrRequiredMoney`  int(11) NOT NULL DEFAULT 0 ,
+`RewardMoney`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardMoneyMaxLevel`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardSpell`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardSpellCast`  int(11) NOT NULL DEFAULT 0 ,
@@ -3871,6 +3173,7 @@ CREATE TABLE `quest_template_copy` (
 `SourceItemCount`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `SourceSpellId`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `Flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`Flags2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `SpecialFlags`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `MinimapTargetMark`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardTitleId`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -3882,6 +3185,7 @@ CREATE TABLE `quest_template_copy` (
 `RewardReputationMask`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
 `QuestGiverPortrait`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `QuestTurnInPortrait`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`RewardPackageItemId`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardItemId1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardItemId2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardItemId3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -3957,10 +3261,6 @@ CREATE TABLE `quest_template_copy` (
 `RequiredItemCount5`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `RequiredItemCount6`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `RequiredSpell`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast3`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`RequiredSpellCast4`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ObjectiveText1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `ObjectiveText3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
@@ -3969,10 +3269,10 @@ CREATE TABLE `quest_template_copy` (
 `RewardCurrencyId2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardCurrencyId3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `RewardCurrencyId4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyCount1`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyCount2`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyCount3`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`RewardCurrencyCount4`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`RewardCurrencyCount1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
+`RewardCurrencyCount2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
+`RewardCurrencyCount3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
+`RewardCurrencyCount4`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `RequiredCurrencyId1`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `RequiredCurrencyId2`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
 `RequiredCurrencyId3`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -4005,13 +3305,12 @@ CREATE TABLE `quest_template_copy` (
 `OfferRewardEmoteDelay2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `OfferRewardEmoteDelay3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `OfferRewardEmoteDelay4`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`StartScript`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`CompleteScript`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `WDBVerified`  smallint(6) NOT NULL DEFAULT 1 ,
 PRIMARY KEY (`Id`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+COMMENT='Quest System'
 
 ;
 
@@ -4021,7 +3320,7 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 DROP TABLE IF EXISTS `reference_loot_template`;
 CREATE TABLE `reference_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -4042,6 +3341,11 @@ DROP TABLE IF EXISTS `reputation_reward_rate`;
 CREATE TABLE `reputation_reward_rate` (
 `faction`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `quest_rate`  float NOT NULL DEFAULT 1 ,
+`quest_daily_rate`  float NOT NULL DEFAULT 1 ,
+`quest_weekly_rate`  float NOT NULL DEFAULT 1 ,
+`quest_repeteable_rate`  float NOT NULL DEFAULT 1 ,
+`quest_monthly_rate`  float NOT NULL DEFAULT 1 ,
+`quest_repeatable_rate`  float NOT NULL DEFAULT 1 ,
 `creature_rate`  float NOT NULL DEFAULT 1 ,
 `spell_rate`  float NOT NULL DEFAULT 1 ,
 PRIMARY KEY (`faction`)
@@ -4081,65 +3385,52 @@ COMMENT='Reputation spillover reputation gain'
 ;
 
 -- ----------------------------
--- Table structure for `research_loot`
+-- Table structure for `research_digsite_data`
 -- ----------------------------
-DROP TABLE IF EXISTS `research_loot`;
-CREATE TABLE `research_loot` (
-`site_id`  mediumint(8) UNSIGNED NOT NULL ,
-`x`  float NOT NULL ,
-`y`  float NOT NULL ,
-`z`  float NOT NULL ,
-`race`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 
+DROP TABLE IF EXISTS `research_digsite_data`;
+CREATE TABLE `research_digsite_data` (
+`digsiteId`  int(11) NOT NULL ,
+`branchId`  tinyint(3) NOT NULL ,
+`requiredSkillValue`  int(11) NOT NULL DEFAULT 0 ,
+`requiredLevel`  int(11) NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`digsiteId`)
 )
 ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 
 ;
 
 -- ----------------------------
--- Table structure for `research_site`
+-- Table structure for `research_digsite_finds`
 -- ----------------------------
-DROP TABLE IF EXISTS `research_site`;
-CREATE TABLE `research_site` (
-`id`  int(7) NOT NULL DEFAULT 0 ,
-`position_x`  int(11) NOT NULL DEFAULT 0 ,
-`position_y`  int(11) NOT NULL DEFAULT 0 ,
-`zone`  smallint(5) NOT NULL 
+DROP TABLE IF EXISTS `research_digsite_finds`;
+CREATE TABLE `research_digsite_finds` (
+`guid`  int(11) NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier' ,
+`digsiteId`  int(11) NOT NULL ,
+`goEntry`  int(11) NOT NULL ,
+`position_x`  float NOT NULL DEFAULT 0 ,
+`position_y`  float NOT NULL DEFAULT 0 ,
+`position_z`  float NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`guid`)
 )
 ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Export of QuestPOIPoint.dbc'
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+AUTO_INCREMENT=3685
 
 ;
 
 -- ----------------------------
--- Table structure for `script_texts`
+-- Table structure for `research_project_requirements`
 -- ----------------------------
-DROP TABLE IF EXISTS `script_texts`;
-CREATE TABLE `script_texts` (
-`npc_entry`  mediumint(8) NOT NULL DEFAULT 0 COMMENT 'creature_template entry' ,
-`entry`  mediumint(8) NOT NULL ,
-`content_default`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-`content_loc1`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc2`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc3`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc4`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc5`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc6`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc7`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`content_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`sound`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`type`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`language`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`emote`  smallint(5) UNSIGNED NOT NULL DEFAULT 0 ,
-`comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-PRIMARY KEY (`npc_entry`, `entry`)
+DROP TABLE IF EXISTS `research_project_requirements`;
+CREATE TABLE `research_project_requirements` (
+`projectId`  int(11) NOT NULL ,
+`requiredSkillValue`  int(11) NOT NULL DEFAULT 0 ,
+`chance`  float NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`projectId`)
 )
 ENGINE=MyISAM
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-COMMENT='Script Texts'
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 
 ;
 
@@ -4160,22 +3451,6 @@ PRIMARY KEY (`entry`, `pointid`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Script Creature waypoints'
-
-;
-
--- ----------------------------
--- Table structure for `shop_item`
--- ----------------------------
-DROP TABLE IF EXISTS `shop_item`;
-CREATE TABLE `shop_item` (
-`id`  mediumint(8) NOT NULL AUTO_INCREMENT ,
-`category_id`  mediumint(8) NULL DEFAULT NULL ,
-`item_id`  mediumint(8) NULL DEFAULT NULL ,
-PRIMARY KEY (`id`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-AUTO_INCREMENT=3
 
 ;
 
@@ -4234,7 +3509,7 @@ COMMENT='Fishing system'
 DROP TABLE IF EXISTS `skinning_loot_template`;
 CREATE TABLE `skinning_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -4298,11 +3573,11 @@ CREATE TABLE `spell_area` (
 `quest_start`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `quest_end`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `aura_spell`  mediumint(8) NOT NULL DEFAULT 0 ,
-`racemask`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`racemask`  int(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `gender`  tinyint(3) UNSIGNED NOT NULL DEFAULT 2 ,
 `autocast`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
-`quest_start_status`  int(11) UNSIGNED NOT NULL DEFAULT 64 ,
-`quest_end_status`  int(11) UNSIGNED NOT NULL DEFAULT 11 ,
+`quest_start_status`  int(11) NOT NULL DEFAULT 64 ,
+`quest_end_status`  int(11) NOT NULL DEFAULT 11 ,
 PRIMARY KEY (`spell`, `area`, `quest_start`, `aura_spell`, `racemask`, `gender`)
 )
 ENGINE=MyISAM
@@ -4329,13 +3604,24 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 -- ----------------------------
+-- Table structure for `spell_custom_attr`
+-- ----------------------------
+DROP TABLE IF EXISTS `spell_custom_attr`;
+CREATE TABLE `spell_custom_attr` (
+`entry`  int(10) NULL DEFAULT NULL ,
+`attributes`  int(10) NULL DEFAULT NULL 
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+
+;
+
+-- ----------------------------
 -- Table structure for `spell_dbc`
 -- ----------------------------
 DROP TABLE IF EXISTS `spell_dbc`;
 CREATE TABLE `spell_dbc` (
 `Id`  int(10) UNSIGNED NOT NULL ,
-`Dispel`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`Mechanic`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `Attributes`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `AttributesEx`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `AttributesEx2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -4344,87 +3630,21 @@ CREATE TABLE `spell_dbc` (
 `AttributesEx5`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `AttributesEx6`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `AttributesEx7`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`Stances`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`StancesNot`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`Targets`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`AttributesEx8`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`AttributesEx9`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`AttributesEx10`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `CastingTimeIndex`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
-`AuraInterruptFlags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`ProcFlags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`ProcChance`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`ProcCharges`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`MaxLevel`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`BaseLevel`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`SpellLevel`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `DurationIndex`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `RangeIndex`  int(10) UNSIGNED NOT NULL DEFAULT 1 ,
-`StackAmount`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EquippedItemClass`  int(11) NOT NULL DEFAULT '-1' ,
-`EquippedItemSubClassMask`  int(11) NOT NULL DEFAULT 0 ,
-`EquippedItemInventoryTypeMask`  int(11) NOT NULL DEFAULT 0 ,
-`Effect1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`Effect2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`Effect3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectDieSides1`  int(11) NOT NULL DEFAULT 0 ,
-`EffectDieSides2`  int(11) NOT NULL DEFAULT 0 ,
-`EffectDieSides3`  int(11) NOT NULL DEFAULT 0 ,
-`EffectRealPointsPerLevel1`  float NOT NULL DEFAULT 0 ,
-`EffectRealPointsPerLevel2`  float NOT NULL DEFAULT 0 ,
-`EffectRealPointsPerLevel3`  float NOT NULL DEFAULT 0 ,
-`EffectBasePoints1`  int(11) NOT NULL DEFAULT 0 ,
-`EffectBasePoints2`  int(11) NOT NULL DEFAULT 0 ,
-`EffectBasePoints3`  int(11) NOT NULL DEFAULT 0 ,
-`EffectMechanic1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectMechanic2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectMechanic3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectImplicitTargetA1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectImplicitTargetA2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectImplicitTargetA3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectImplicitTargetB1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectImplicitTargetB2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectImplicitTargetB3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectRadiusIndex1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectRadiusIndex2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectRadiusIndex3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectApplyAuraName1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectApplyAuraName2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectApplyAuraName3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectAmplitude1`  int(11) NOT NULL DEFAULT 0 ,
-`EffectAmplitude2`  int(11) NOT NULL DEFAULT 0 ,
-`EffectAmplitude3`  int(11) NOT NULL DEFAULT 0 ,
-`EffectMultipleValue1`  float NOT NULL DEFAULT 0 ,
-`EffectMultipleValue2`  float NOT NULL DEFAULT 0 ,
-`EffectMultipleValue3`  float NOT NULL DEFAULT 0 ,
-`EffectMiscValue1`  int(11) NOT NULL DEFAULT 0 ,
-`EffectMiscValue2`  int(11) NOT NULL DEFAULT 0 ,
-`EffectMiscValue3`  int(11) NOT NULL DEFAULT 0 ,
-`EffectMiscValueB1`  int(11) NOT NULL DEFAULT 0 ,
-`EffectMiscValueB2`  int(11) NOT NULL DEFAULT 0 ,
-`EffectMiscValueB3`  int(11) NOT NULL DEFAULT 0 ,
-`EffectTriggerSpell1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectTriggerSpell2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectTriggerSpell3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectSpellClassMaskA1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectSpellClassMaskA2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectSpellClassMaskA3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectSpellClassMaskB1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectSpellClassMaskB2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectSpellClassMaskB3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectSpellClassMaskC1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectSpellClassMaskC2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`EffectSpellClassMaskC3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`MaxTargetLevel`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`SpellFamilyName`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`SpellFamilyFlags1`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`SpellFamilyFlags2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`SpellFamilyFlags3`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`MaxAffectedTargets`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`DmgClass`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`PreventionType`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`DmgMultiplier1`  float NOT NULL DEFAULT 0 ,
-`DmgMultiplier2`  float NOT NULL DEFAULT 0 ,
-`DmgMultiplier3`  float NOT NULL DEFAULT 0 ,
-`AreaGroupId`  int(11) NOT NULL DEFAULT 0 ,
 `SchoolMask`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`SpellAuraOptionsId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`SpellCastingRequirementsId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`SpellCategoriesId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`SpellClassOptionsId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`SpellEquippedItemsId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`SpellLevelsId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`SpellTargetRestrictionsId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`SpellInterruptsId`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `Comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
 PRIMARY KEY (`Id`)
 )
@@ -4442,25 +3662,12 @@ CREATE TABLE `spell_enchant_proc_data` (
 `entry`  int(10) UNSIGNED NOT NULL ,
 `customChance`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `PPMChance`  float UNSIGNED NOT NULL DEFAULT 0 ,
-`procEx`  int(10) UNSIGNED NOT NULL DEFAULT 0 
+`procEx`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Spell enchant proc data'
-
-;
-
--- ----------------------------
--- Table structure for `spell_forbidden`
--- ----------------------------
-DROP TABLE IF EXISTS `spell_forbidden`;
-CREATE TABLE `spell_forbidden` (
-`spell_id`  int(11) UNSIGNED NOT NULL ,
-`comment`  blob NULL ,
-PRIMARY KEY (`spell_id`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 
 ;
 
@@ -4471,6 +3678,7 @@ DROP TABLE IF EXISTS `spell_group`;
 CREATE TABLE `spell_group` (
 `id`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `spell_id`  int(11) NOT NULL DEFAULT 0 ,
+`comment`  varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
 PRIMARY KEY (`id`, `spell_id`)
 )
 ENGINE=MyISAM
@@ -4498,8 +3706,8 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 -- ----------------------------
 DROP TABLE IF EXISTS `spell_learn_spell`;
 CREATE TABLE `spell_learn_spell` (
-`entry`  mediumint(8) NOT NULL ,
-`SpellID`  mediumint(8) NOT NULL ,
+`entry`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`SpellID`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `Active`  tinyint(3) UNSIGNED NOT NULL DEFAULT 1 ,
 PRIMARY KEY (`entry`, `SpellID`)
 )
@@ -4531,7 +3739,7 @@ COMMENT='Spell System'
 DROP TABLE IF EXISTS `spell_loot_template`;
 CREATE TABLE `spell_loot_template` (
 `entry`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
-`item`  mediumint(8) NOT NULL DEFAULT 0 ,
+`item`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `ChanceOrQuestChance`  float NOT NULL DEFAULT 100 ,
 `lootmode`  smallint(5) UNSIGNED NOT NULL DEFAULT 1 ,
 `groupid`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
@@ -4747,20 +3955,38 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 -- ----------------------------
--- Table structure for `time_diff_log`
+-- Table structure for `spelleffect_dbc`
 -- ----------------------------
-DROP TABLE IF EXISTS `time_diff_log`;
-CREATE TABLE `time_diff_log` (
-`id`  int(10) NOT NULL AUTO_INCREMENT ,
-`time`  int(10) UNSIGNED NULL DEFAULT 0 ,
-`average`  int(10) UNSIGNED NULL DEFAULT 0 ,
-`max`  int(10) UNSIGNED NULL DEFAULT 0 ,
-`players`  int(10) UNSIGNED NULL DEFAULT 0 ,
-PRIMARY KEY (`id`)
+DROP TABLE IF EXISTS `spelleffect_dbc`;
+CREATE TABLE `spelleffect_dbc` (
+`Id`  int(10) UNSIGNED NOT NULL ,
+`Effect`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectValueMultiplier`  float UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectApplyAuraName`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectAplitude`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectBasePoints`  int(10) NOT NULL DEFAULT 0 ,
+`EffectBonusMultiplier`  float UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectDamageMultiplier`  float UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectChainTarget`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectDieSides`  int(10) NOT NULL DEFAULT 0 ,
+`EffectMechanic`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectMiscValue`  int(10) NOT NULL DEFAULT 0 ,
+`EffectMiscValueB`  int(10) NOT NULL DEFAULT 0 ,
+`EffectRadiusIndex`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectRadiusIndexMax`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectRealPointsPerLevel`  float UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectSpellClassMaskA`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectSpellClassMaskB`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectSpellClassMaskC`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectTriggerSpell`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectImplicitTargetA`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectImplicitTargetB`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`EffectSpellId`  int(10) UNSIGNED NOT NULL ,
+`EffectIndex`  int(10) UNSIGNED NOT NULL ,
+PRIMARY KEY (`Id`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-AUTO_INCREMENT=1
 
 ;
 
@@ -4800,10 +4026,26 @@ CREATE TABLE `trinity_string` (
 `content_loc8`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `content_loc9`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 `content_loc10`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`content_loc11`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
 PRIMARY KEY (`entry`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `unk_opcodes`
+-- ----------------------------
+DROP TABLE IF EXISTS `unk_opcodes`;
+CREATE TABLE `unk_opcodes` (
+`id`  varchar(16) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ,
+`type`  varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
+`name`  varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
+PRIMARY KEY (`id`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 
 ;
 
@@ -4850,10 +4092,11 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 -- ----------------------------
 DROP TABLE IF EXISTS `version`;
 CREATE TABLE `version` (
-`core_version`  varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Core revision dumped at startup.' ,
+`core_version`  varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'Core revision dumped at startup.' ,
 `core_revision`  varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
 `db_version`  varchar(120) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Version of world DB.' ,
-`cache_id`  int(11) NULL DEFAULT 0 
+`cache_id`  int(11) NULL DEFAULT 0 ,
+PRIMARY KEY (`core_version`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -4879,27 +4122,6 @@ PRIMARY KEY (`id`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 AUTO_INCREMENT=787
-
-;
-
--- ----------------------------
--- Table structure for `warden_data_result`
--- ----------------------------
-DROP TABLE IF EXISTS `warden_data_result`;
-CREATE TABLE `warden_data_result` (
-`id`  int(4) NOT NULL AUTO_INCREMENT ,
-`check`  int(3) NULL DEFAULT NULL ,
-`data`  tinytext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`str`  tinytext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`address`  int(8) NULL DEFAULT NULL ,
-`length`  int(2) NULL DEFAULT NULL ,
-`result`  tinytext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-`comment`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
-PRIMARY KEY (`id`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
-AUTO_INCREMENT=803
 
 ;
 
@@ -4968,19 +4190,1787 @@ COMMENT='Creature waypoints'
 ;
 
 -- ----------------------------
--- Table structure for `zone_skip_update`
+-- Procedure structure for `sp_CharExtraLevelHPMP`
 -- ----------------------------
-DROP TABLE IF EXISTS `zone_skip_update`;
-CREATE TABLE `zone_skip_update` (
-`zone`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
-PRIMARY KEY (`zone`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-COMMENT='latin1_swedish_ci'
-AUTO_INCREMENT=1
+DROP PROCEDURE IF EXISTS `sp_CharExtraLevelHPMP`;
+DELIMITER ;;
+CREATE DEFINER=`SkyFire`@`%` PROCEDURE `sp_CharExtraLevelHPMP`()
+BEGIN
+  
+  DECLARE intMaxHP           INT   DEFAULT 65535000; 
+  DECLARE intMaxMana         INT   DEFAULT 65535000;   
+  DECLARE sngHPInc           FLOAT DEFAULT 0.001;    
+  DECLARE sngManaInc         FLOAT DEFAULT 0.001;    
+  DECLARE intStartLvl        INT   DEFAULT 80;      
+  DECLARE intFinishLvl       INT   DEFAULT 85;     
+  
+  DECLARE intRecordDone      INT   DEFAULT 0;
+  DECLARE intClass           INT   DEFAULT 0;
+  DECLARE intLevel           INT   DEFAULT 0;
+  DECLARE intCurrHP          INT   DEFAULT 0;
+  DECLARE intCurrMana        INT   DEFAULT 0;
+  
+  DECLARE curPlayerStat  CURSOR FOR SELECT `class`, `level`, `basehp`, `basemana` FROM player_classlevelstats;
+  DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET intRecordDone = 1;
+  
+  OPEN curPlayerStat;
+  
+  REPEAT
+    
+    FETCH curPlayerStat INTO intClass, intLevel, intCurrHP, intCurrMana;
+    
+    IF intLevel = intStartLvl THEN
+       REPEAT
+         
+         SET intLevel = intLevel + 1;
+         
+         DELETE FROM player_classlevelstats WHERE `class` = intClass AND `level` = intLevel;
+         
+         IF (ROUND(intCurrHP * (1 + sngHPInc) + 200)) <= intMaxHP THEN
+           SET intCurrHP = ROUND(intCurrHP * (1 + sngHPInc) + 200);
+         ELSE
+           SET intCurrHP = intMaxHP;  
+         END IF;
+         
+         IF (ROUND(intCurrMana * (1 + sngManaInc) + 200)) <= intMaxMana THEN
+           SET intCurrMana = ROUND(intCurrMana * (1 + sngManaInc) + 200);
+         ELSE
+           SET intCurrMana = intMaxMana;
+         END IF;
+         
+         INSERT INTO player_classlevelstats
+         (`class`, `level`, `basehp`, `basemana`)
+         VALUES
+         (intClass, intLevel, intCurrHP, intCurrMana);
+       UNTIL intLevel = intFinishLvl END REPEAT;
+    END IF;
+  UNTIL intRecordDone END REPEAT;
+  
+  CLOSE curPlayerStat;
+END
+;;
+DELIMITER ;
 
-;
+-- ----------------------------
+-- Procedure structure for `sp_CharExtraLevelStats`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_CharExtraLevelStats`;
+DELIMITER ;;
+CREATE DEFINER=`SkyFire`@`%` PROCEDURE `sp_CharExtraLevelStats`()
+BEGIN
+  
+  DECLARE intMaxStats        INT   DEFAULT 2556541;    
+  DECLARE sngStatsInc        FLOAT DEFAULT 0.00000000001;    
+  DECLARE intStartLvl        INT   DEFAULT 80;      
+  DECLARE intFinishLvl       INT   DEFAULT 85;     
+  
+  DECLARE intRecordDone      INT   DEFAULT 0;
+  DECLARE intRace            INT   DEFAULT 0;
+  DECLARE intClass           INT   DEFAULT 0;
+  DECLARE intLevel           INT   DEFAULT 0;
+  DECLARE intCurrSTR         INT   DEFAULT 0;
+  DECLARE intCurrAGI         INT   DEFAULT 0;
+  DECLARE intCurrSTA         INT   DEFAULT 0;
+  DECLARE intCurrINT         INT   DEFAULT 0;
+  DECLARE intCurrSPI         INT   DEFAULT 0;
+  
+  DECLARE curPlayerStat  CURSOR FOR SELECT `race`, `class`, `level`, `str`, `agi`, `sta`, `inte`, `spi` FROM player_levelstats;
+  DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET intRecordDone = 1;
+  
+  OPEN curPlayerStat;
+  
+  REPEAT
+    
+    FETCH curPlayerStat INTO intRace, intClass, intLevel, intCurrSTR, intCurrAGI, intCurrSTA, intCurrINT, intCurrSPI;
+    
+    IF intLevel = intStartLvl THEN
+       REPEAT
+         
+         SET intLevel = intLevel + 1;
+         
+         DELETE FROM player_levelstats WHERE `race` = intRace AND `class` = intClass AND `level` = intLevel;
+         
+         IF (ROUND(intCurrSTR * (1 + sngStatsInc) + 10)) <= intMaxStats THEN
+           SET intCurrSTR = ROUND(intCurrSTR * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrSTR = intMaxStats;
+         END IF;
+         
+         IF (ROUND(intCurrAGI * (1 + sngStatsInc) + 10)) <= intMaxStats THEN
+           SET intCurrAGI = ROUND(intCurrAGI * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrAGI = intMaxStats;
+         END IF;
+         
+         IF (ROUND(intCurrSTA * (1 + sngStatsInc) + 10)) <= intMaxStats THEN
+           SET intCurrSTA = ROUND(intCurrSTA * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrSTA = intMaxStats;
+         END IF;
+         
+         IF (ROUND(intCurrINT * (1 + sngStatsInc) + 10)) <= intMaxStats THEN
+           SET intCurrINT = ROUND(intCurrINT * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrINT = intMaxStats;
+         END IF;
+         
+         IF (ROUND(intCurrSPI * (1 + sngStatsInc) + 10)) <= intMaxStats THEN
+           SET intCurrSPI = ROUND(intCurrSPI * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrSPI = intMaxStats;
+         END IF;
+         
+         INSERT INTO player_levelstats
+         (`race`, `class`, `level`, `str`, `agi`, `sta`, `inte`, `spi`)
+         VALUES
+         (intRace, intClass, intLevel, intCurrSTR, intCurrAGI, intCurrSTA, intCurrINT, intCurrSPI);
+       UNTIL intLevel = intFinishLvl END REPEAT;
+    END IF;
+  UNTIL intRecordDone END REPEAT;
+  
+  CLOSE curPlayerStat;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_loot`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_loot`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_loot`(IN loot_type VARCHAR(10),IN loot_entry INT(10),IN item_entry INT(10))
+BEGIN
+	IF loot_entry IS NOT NULL OR item_entry IS NOT NULL THEN
+		CASE UCASE(loot_type)
+			WHEN 'FISH' THEN BEGIN
+				DELETE FROM `fishing_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'NPC' THEN BEGIN
+				DELETE FROM `creature_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'GO' THEN BEGIN
+				DELETE FROM `gameobject_loot_template` WHERE `entry`=IFNUofcLL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'ITEM' THEN BEGIN
+				DELETE FROM `item_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'DISENCH' THEN BEGIN
+				DELETE FROM `disenchant_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'PROSPECT' THEN BEGIN
+				DELETE FROM `propspecting_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'MILL' THEN BEGIN
+				DELETE FROM `millling_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'PICKPOCKET' THEN BEGIN
+				DELETE FROM `pickpocketing_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'SKIN' THEN BEGIN
+				DELETE FROM `skinning_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'QUEST' THEN BEGIN
+				DELETE FROM `quest_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			WHEN 'REF' THEN BEGIN
+				IF loot_entry IS NOT NULL THEN
+					DELETE FROM `creature_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `disenchant_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `fishing_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `gameobject_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `item_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `mail_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `milling_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `pickpocketing_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `prospecting_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `skinning_loot_template` WHERE `mincountOrRef`=-loot_entry;
+					DELETE FROM `spell_loot_template` WHERE `mincountOrRef`=-loot_entry;
+				END IF;
+				
+				DELETE FROM `reference_loot_template` WHERE `entry`=IFNULL(loot_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+			END;
+			ELSE CALL INVALID_LOOT_TYPE;
+		END CASE;
+	ELSE 
+		CALL MUST_PROVIDE_ENTRY_OR_ITEM;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_npc_trainer`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_npc_trainer`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_npc_trainer`(IN npc_entry INT(10), IN spell_id INT(10))
+BEGIN
+	IF spell_id IS NOT NULL OR npc_entry IS NOT NULL THEN
+		DELETE FROM `npc_trainer` WHERE `entry`=IFNULL(npc_entry,`entry`) AND `spell`=IFNULL(spell_id,`spell`);
+	ELSE 
+		CALL MUST_PROVIDE_ENTRY_OR_SPELL;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_npc_vendor`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_npc_vendor`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_npc_vendor`(IN npc_entry INT(10), IN item_entry INT(10))
+BEGIN
+	IF item_entry IS NOT NULL OR npc_entry IS NOT NULL THEN
+		DELETE FROM `npc_vendor` WHERE `entry`=IFNULL(npc_entry,`entry`) AND `item`=IFNULL(item_entry,`item`);
+	ELSE
+		CALL MUST_PROVIDE_ENTRY_OR_ITEM;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_questgiver`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_questgiver`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_questgiver`(IN qg_type VARCHAR(10),IN qg_entry INT(10), IN quest_entry INT(10))
+BEGIN
+	IF qg_entry IS NOT NULL OR quest_entry IS NOT NULL THEN
+		CASE UCASE(qg_type)
+			WHEN 'NPC' THEN BEGIN
+				DELETE FROM `creature_questrelation` WHERE `id`=IFNULL(qg_entry,`id`) AND `quest`=IFNULL(quest_entry,`quest`);
+			END;
+			WHEN 'GO' THEN BEGIN
+				DELETE FROM `gameobject_questrelation` WHERE `id`=IFNULL(qg_entry,`id`) AND `quest`=IFNULL(quest_entry,`quest`);
+			END;
+			ELSE CALL INVALID_ENTRY_TYPE;
+		END CASE;
+	ELSE CALL MUST_PROVIDE_ENTRY_OR_QUEST;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_questtaker`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_questtaker`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_questtaker`(IN qt_type VARCHAR(10),IN qt_entry INT(10), IN quest_entry INT(10))
+BEGIN
+	IF qt_entry IS NOT NULL OR quest_entry IS NOT NULL THEN
+		CASE UCASE(qt_type)
+			WHEN 'NPC' THEN BEGIN
+				DELETE FROM `creature_involvedrelation` WHERE `id`=IFNULL(qt_entry,`id`) AND `quest`=IFNULL(quest_entry,`quest`);
+			END;
+			WHEN 'GO' THEN BEGIN
+				DELETE FROM `gameobject_involvedrelation` WHERE `id`=IFNULL(qt_entry,`id`) AND `quest`=IFNULL(quest_entry,`quest`);
+			END;
+			ELSE CALL INVALID_ENTRY_TYPE;
+		END CASE;
+	ELSE CALL MUST_PROVIDE_ENTRY_OR_QUEST;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_script`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_script`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_script`(IN script_type VARCHAR(10), IN script_id INT(10))
+BEGIN
+	CASE UCASE(script_type)
+		WHEN 'EAI' THEN BEGIN
+			DELETE FROM `creature_ai_scripts` WHERE `id`=script_id;
+		END;
+		WHEN 'GO' THEN BEGIN
+			DELETE FROM `gameobject_scripts` WHERE `id`=script_id;
+		END;
+		WHEN 'GOSSIP' THEN BEGIN
+			DELETE FROM `gossip_scripts` WHERE `id`=script_id;
+		END;
+		WHEN 'Q_START' THEN BEGIN
+			DELETE FROM `quest_start_scripts` WHERE `id`=script_id;
+		END;
+		WHEN 'Q_END' THEN BEGIN
+			DELETE FROM `quest_end_scripts` WHERE `id`=script_id;
+		END;
+		WHEN 'SPELL' THEN BEGIN
+			DELETE FROM `spell_scripts` WHERE `id`=script_id;
+		END;
+		WHEN 'WP' THEN BEGIN
+			DELETE FROM `waypoint_scripts` WHERE `id`=script_id;
+		END;
+		ELSE CALL INVALID_SCRIPT_TYPE;
+	END CASE;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_script_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_script_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_script_bylist`(IN script_type VARCHAR(10), IN script_id_list LONGTEXT)
+BEGIN
+	CALL `sp_set_entry_list` (script_id_list,null);
+	CASE UCASE(script_type)
+		WHEN 'EAI' THEN BEGIN
+			DELETE FROM `creature_ai_scripts` WHERE `id` IN (SELECT * FROM `tdb_entry_list`);
+		END;
+		WHEN 'GO' THEN BEGIN
+			DELETE FROM `gameobject_scripts` WHERE `id` IN (SELECT * FROM `tdb_entry_list`);
+		END;
+		WHEN 'GOSSIP' THEN BEGIN
+			DELETE FROM `gossip_scripts` WHERE `id` IN (SELECT * FROM `tdb_entry_list`);
+		END;
+		WHEN 'Q_START' THEN BEGIN
+			DELETE FROM `quest_start_scripts` WHERE `id` IN (SELECT * FROM `tdb_entry_list`);
+		END;
+		WHEN 'Q_END' THEN BEGIN
+			DELETE FROM `quest_end_scripts` WHERE `id` IN (SELECT * FROM `tdb_entry_list`);
+		END;
+		WHEN 'SPELL' THEN BEGIN
+			DELETE FROM `spell_scripts` WHERE `id` IN (SELECT * FROM `tdb_entry_list`);
+		END;
+		WHEN 'WP' THEN BEGIN
+			DELETE FROM `waypoint_scripts` WHERE `id` IN (SELECT * FROM `tdb_entry_list`);
+		END;
+		ELSE CALL INVALID_SCRIPT_TYPE;
+	END CASE;
+	DROP TABLE `tdb_entry_list`; 
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_spawn`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_spawn`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_spawn`(IN spawn_type VARCHAR(10),IN spawn_guid INT(10), IN spawn_entry INT(10))
+BEGIN
+	IF spawn_guid IS NOT NULL OR spawn_entry IS NOT NULL THEN
+		CASE UCASE(spawn_type)
+			WHEN 'NPC' THEN BEGIN
+				DELETE FROM `creature` WHERE `guid`=IFNULL(spawn_guid,`guid`) AND `id`=IFNULL(spawn_entry,`id`);
+				DELETE FROM `game_event_creature` WHERE `guid`=IFNULL(spawn_guid,-1);
+			END;
+			WHEN 'GO' THEN BEGIN
+				DELETE FROM `gameobject` WHERE `guid`=IFNULL(spawn_guid,`guid`) AND `id`=IFNULL(spawn_entry,`id`);
+				DELETE FROM `game_event_gameobject` WHERE `guid`=IFNULL(spawn_guid,-1);
+			END;
+			ELSE CALL INVALID_SPAWN_TYPE;
+		END CASE;
+	ELSE 
+		CALL MUST_PROVIDE_GUID_OR_ENTRY;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_spell_area`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_spell_area`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_spell_area`(IN spell_id INT(10), IN area_id INT(10))
+BEGIN
+ 
+	IF spell_id IS NOT NULL OR area_id IS NOT NULL THEN
+		DELETE FROM `spell_area` WHERE `spell`=IFNULL(spell_id,`spell`) AND `area`=IFNULL(area_id,`area`);
+	ELSE
+		CALL MUST_PROVIDE_SPELL_OR_AREA;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_spell_position`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_spell_position`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_spell_position`(IN spell_id INT(10))
+BEGIN
+	DELETE FROM `spell_target_position` WHERE `id`=spell_id;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_spell_position_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_spell_position_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_spell_position_bylist`(IN spell_list LONGTEXT)
+BEGIN
+	CALL `sp_set_entry_list` (spell_list,null);
+	DELETE FROM `spell_target_position` WHERE `id` IN (SELECT * FROM `tdb_entry_list`);
+	DROP TABLE `tdb_entry_list`; 
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_delete_spell_target`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_delete_spell_target`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_spell_target`(IN spell_id INT(10),IN target_entry INT(10))
+BEGIN
+	IF spell_id IS NOT NULL OR target_entry IS NOT NULL THEN
+		DELETE FROM `spell_script_target` WHERE `entry`=IFNULL(spell_id,`entry`) AND `targetEntry`=IFNULL(target_entry,`targetEntry`);
+	ELSE
+		CALL MUST_PROVIDE_SPELL_OR_TARGET;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_dev_cleanup_loot`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_dev_cleanup_loot`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_dev_cleanup_loot`()
+BEGIN
+CREATE TABLE `Loot_temp` (
+    `lootid` INT(8) UNSIGNED NOT NULL PRIMARY KEY DEFAULT '0'
+);
+INSERT IGNORE INTO `Loot_temp` SELECT `entry` FROM `item_template`;
+DELETE FROM `prospecting_loot_template` WHERE `entry` NOT IN (SELECT `lootid` FROM `Loot_temp`);
+DELETE FROM `Loot_temp`;
+INSERT IGNORE INTO `Loot_temp` SELECT `skinloot` FROM `creature_template` WHERE skinloot>0;
+DELETE FROM `skinning_loot_template` WHERE `entry` NOT IN (SELECT `lootid` FROM `Loot_temp`);
+DELETE FROM `Loot_temp`;
+INSERT IGNORE INTO `Loot_temp` SELECT `lootid` FROM `creature_template` WHERE lootid>0;
+DELETE FROM `creature_loot_template` WHERE `entry` NOT IN (SELECT `lootid` FROM `Loot_temp`);
+DELETE FROM `Loot_temp`;
+DROP TABLE `Loot_temp`;
+DELETE FROM `disenchant_loot_template` WHERE `item` NOT IN (SELECT `entry` FROM `item_template`);
+DELETE FROM `disenchant_loot_template` WHERE `entry` NOT IN (SELECT `disenchantid` FROM `item_template`);
+DELETE FROM `pickpocketing_loot_template` WHERE `item` NOT IN (SELECT `entry` FROM `item_template`);
+DELETE FROM `prospecting_loot_template` WHERE `entry` NOT IN (SELECT `entry` FROM `item_template`);
+DELETE FROM `prospecting_loot_template` WHERE `item` NOT IN (SELECT `entry` FROM `item_template`);
+DELETE FROM `mail_loot_template` WHERE `item` NOT IN (SELECT `entry` FROM `item_template`);
+    END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_dev_cleanup_reference_loot`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_dev_cleanup_reference_loot`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_dev_cleanup_reference_loot`()
+BEGIN
+CREATE TABLE `RL_temp` (
+    `ref_id` INT(8) UNSIGNED NOT NULL PRIMARY KEY DEFAULT '0'
+);
+INSERT IGNORE INTO `RL_temp` SELECT DISTINCT(`mincountOrRef`)*-1 FROM `gameobject_loot_template` WHERE `mincountOrRef` <0;
+INSERT IGNORE INTO `RL_temp` SELECT DISTINCT(`mincountOrRef`)*-1 FROM `item_loot_template` WHERE `mincountOrRef` <0;
+INSERT IGNORE INTO `RL_temp` SELECT DISTINCT(`mincountOrRef`)*-1 FROM `creature_loot_template` WHERE `mincountOrRef` <0;
+INSERT IGNORE INTO `RL_temp` SELECT DISTINCT(`mincountOrRef`)*-1 FROM `spell_loot_template` WHERE `mincountOrRef` <0;
+INSERT IGNORE INTO `RL_temp` SELECT DISTINCT(`mincountOrRef`)*-1 FROM `prospecting_loot_template` WHERE `mincountOrRef` <0;
+INSERT IGNORE INTO `RL_temp` SELECT DISTINCT(`mincountOrRef`)*-1 FROM `milling_loot_template` WHERE `mincountOrRef` <0;
+INSERT IGNORE INTO `RL_temp` SELECT DISTINCT(`mincountOrRef`)*-1 FROM `mail_loot_template` WHERE `mincountOrRef` <0;
+INSERT IGNORE INTO `RL_temp` SELECT DISTINCT(`mincountOrRef`)*-1 FROM `reference_loot_template` WHERE `mincountOrRef`<0;
+DELETE FROM `reference_loot_template` WHERE `entry` NOT IN (SELECT `ref_id` FROM `RL_temp`);
+DROP TABLE `RL_temp`;
+    END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_dev_cleanup_world`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_dev_cleanup_world`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_dev_cleanup_world`()
+BEGIN
+DELETE FROM `gameobject` WHERE `id` NOT IN (SELECT `entry` FROM `gameobject_template`);
+DELETE FROM `creature` WHERE `id` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM areatrigger_involvedrelation WHERE `quest` NOT IN (SELECT `entry` FROM `quest_template`);
+DELETE FROM `battlemaster_entry` WHERE `entry` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `battlemaster_entry` WHERE `bg_template` NOT IN (SELECT `id` FROM `battleground_template`);
+UPDATE `creature` SET `equipment_id`=0 WHERE `equipment_id` NOT IN (SELECT `entry` FROM `creature_equip_template`) AND `equipment_id`!=0;
+DELETE FROM `creature_addon` WHERE `guid` NOT IN (SELECT `guid` FROM `creature`);
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `creature_formations` WHERE leaderGUID NOT IN (SELECT `guid` FROM `creature`);
+DELETE FROM `creature_formations` WHERE memberGUID NOT IN (SELECT `guid` FROM `creature`);
+DELETE FROM `creature_involvedrelation` WHERE `id` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `creature_involvedrelation` WHERE `quest` NOT IN (SELECT `entry` FROM `quest_template`);
+DELETE FROM `creature_linked_respawn` WHERE `guid` NOT IN (SELECT `guid` FROM `creature`);
+DELETE FROM `creature_linked_respawn` WHERE `linkedGuid` NOT IN (SELECT `guid` FROM `creature`);
+DELETE FROM `creature_onkill_reputation` WHERE `creature_id` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `creature_questrelation` WHERE `id` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `creature_questrelation` WHERE `quest` NOT IN (SELECT `entry` FROM `quest_template`);
+DELETE FROM `creature_template_addon` WHERE `entry` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `game_event_creature_quest` WHERE `id` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `game_event_creature_quest` WHERE `quest` NOT IN (SELECT `entry` FROM `quest_template`);
+DELETE FROM `game_event_creature_quest` WHERE `event` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_gameobject_quest` WHERE `id` NOT IN (SELECT `entry` FROM `gameobject_template`);
+DELETE FROM `game_event_gameobject_quest` WHERE `quest` NOT IN (SELECT `entry` FROM `quest_template`);
+DELETE FROM `game_event_gameobject_quest` WHERE `event` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_npc_gossip` WHERE `event_id` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_model_equip` WHERE `event` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_battleground_holiday` WHERE `event` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_condition` WHERE `event_id` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_creature` WHERE `event` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_gameobject` WHERE `event` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_npc_vendor` WHERE `item` NOT IN (SELECT `entry` FROM `item_template`);
+DELETE FROM `game_event_npc_vendor` WHERE `event` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_npcflag` WHERE `event_id` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_pool` WHERE `event` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_prerequisite` WHERE `event_id` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_prerequisite` WHERE `prerequisite_event` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_quest_condition` WHERE `event_id` NOT IN (SELECT `entry` FROM `game_event`);
+DELETE FROM `game_event_quest_condition` WHERE `quest` NOT IN (SELECT `entry` FROM `quest_template`);
+DELETE FROM `gameobject_involvedrelation` WHERE `id` NOT IN (SELECT `entry` FROM `gameobject_template`);
+DELETE FROM `gameobject_involvedrelation` WHERE `quest` NOT IN (SELECT `entry` FROM `quest_template`);
+DELETE FROM `item_required_target` WHERE `targetEntry` NOT IN (SELECT `entry` FROM `creature_template`) AND `type` IN (1,2);
+DELETE FROM `mail_level_reward` WHERE `senderEntry` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `npc_gossip` WHERE `npc_guid` NOT IN (SELECT `guid` FROM `creature`);
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `npc_spellclick_spells` WHERE `quest_start` NOT IN (SELECT `entry` FROM `quest_template`) AND `quest_start`<>0;
+DELETE FROM `npc_spellclick_spells` WHERE `quest_end` NOT IN (SELECT `entry` FROM `quest_template`) AND `quest_end`<>0;
+DELETE FROM `npc_trainer` WHERE `entry` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `npc_vendor` WHERE `entry` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `npc_vendor` WHERE `item` NOT IN (SELECT `entry` FROM `item_template`);
+DELETE FROM `pet_levelstats` WHERE `creature_entry` NOT IN (SELECT `entry` FROM `creature_template`);
+DELETE FROM `quest_end_scripts` WHERE `id` NOT IN (SELECT `CompleteScript` FROM `quest_template`);
+DELETE FROM `quest_start_scripts` WHERE `id` NOT IN (SELECT `StartScript` FROM `quest_template`);
+DELETE FROM `spell_script_target` WHERE `targetEntry` NOT IN (SELECT `entry` FROM `creature_template`) AND `type` IN (1,2,3) AND `targetEntry`!=0;
+DELETE FROM `spell_script_target` WHERE `targetEntry` NOT IN (SELECT `entry` FROM `gameobject_template`) AND `type`=0 AND `targetEntry`!=0;
+    END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_dev_re_guid`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_dev_re_guid`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_dev_re_guid`(IN new_base_guid INT(10))
+BEGIN
+    CALL `sp_dev_reguid_alter_tables`();
+    SET @s = CONCAT("ALTER TABLE `creature_temp` AUTO_INCREMENT=",new_base_guid,";");
+    PREPARE STM FROM @s;
+    EXECUTE STM;
+    INSERT INTO `creature_temp` (id,map,spawnMask,phaseMask,modelid,equipment_id,position_x,position_y,position_z,orientation,spawndist,currentwaypoint,curhealth,curmana,DeathState,MovementType,old_guid)
+    SELECT id,map,spawnMask,phaseMask,modelid,equipment_id,position_x,position_y,position_z,orientation,spawndist,currentwaypoint,curhealth,curmana,DeathState,MovementType,guid FROM `creature` ORDER BY `id` ASC;
+    UPDATE `creature_temp` SET guid = old_guid WHERE `old_guid`>250000;    
+		UPDATE game_event_npc_gossip p
+                INNER JOIN creature_temp pp
+                ON p.guid = pp.old_guid
+                SET p.new_guid = pp.guid;
+                UPDATE game_event_npc_vendor p
+                INNER JOIN creature_temp pp
+                ON p.guid = pp.old_guid
+                SET p.new_guid = pp.guid;
+                UPDATE game_event_npcflag p
+                INNER JOIN creature_temp pp
+                ON p.guid = pp.old_guid
+                SET p.new_guid = pp.guid;
+                UPDATE npc_gossip p
+                INNER JOIN creature_temp pp
+                ON p.npc_guid = pp.old_guid
+                SET p.new_guid = pp.guid;
+                UPDATE game_event_model_equip p
+                INNER JOIN creature_temp pp
+                ON p.guid = pp.old_guid
+                SET p.new_guid = pp.guid;
+                UPDATE creature_addon p
+                INNER JOIN creature_temp pp
+                ON p.guid = pp.old_guid
+                SET p.new_guid = pp.guid;
+                UPDATE creature_formations p
+                INNER JOIN creature_temp pp
+                ON p.leaderGUID = pp.old_guid
+                SET p.new_guid_leader = pp.guid;
+                UPDATE creature_formations p
+                INNER JOIN creature_temp pp
+                ON p.memberGUID = pp.old_guid
+                SET p.new_guid_member = pp.guid;
+                UPDATE creature_linked_respawn p
+                INNER JOIN creature_temp pp
+                ON p.guid = pp.old_guid
+                SET p.new_guid = pp.guid;
+                UPDATE creature_linked_respawn p
+                INNER JOIN creature_temp pp
+                ON p.guid = pp.old_guid
+                SET p.new_linked_guid = pp.guid;
+                UPDATE game_event_creature p
+                INNER JOIN creature_temp pp
+                ON p.guid = pp.old_guid
+                SET p.new_guid = pp.guid;
+                UPDATE pool_creature p
+                INNER JOIN creature_temp pp
+                ON p.guid = pp.old_guid
+                SET p.new_guid = pp.guid;
+                ALTER TABLE `creature_temp` DROP COLUMN `old_guid`;
+                DROP TABLE `creature`;
+                RENAME TABLE `creature_temp` TO `creature`;
+                ALTER TABLE game_event_npc_gossip DISABLE KEYS;
+                UPDATE `game_event_npc_gossip` SET `guid`=`new_guid`;        
+                ALTER TABLE `game_event_npc_gossip` DROP COLUMN `new_guid`;
+                ALTER TABLE game_event_npc_gossip ENABLE KEYS;
+                ALTER TABLE game_event_npc_vendor DISABLE KEYS;
+                UPDATE `game_event_npc_vendor` SET `guid`=`new_guid`;        
+                ALTER TABLE `game_event_npc_vendor` DROP COLUMN `new_guid`;
+                ALTER TABLE game_event_npc_vendor ENABLE KEYS;
+                ALTER TABLE game_event_npcflag DISABLE KEYS;
+                UPDATE `game_event_npcflag` SET `guid`=`new_guid`;        
+                ALTER TABLE `game_event_npcflag` DROP COLUMN `new_guid`;
+                ALTER TABLE game_event_npcflag ENABLE KEYS;
+                ALTER TABLE `npc_gossip` DROP PRIMARY KEY;
+                UPDATE `npc_gossip` SET `npc_guid`=`new_guid`;      
+                SELECT npc_guid,new_guid FROM npc_gossip;  
+                ALTER TABLE `npc_gossip` DROP COLUMN `new_guid`;
+                ALTER TABLE `npc_gossip` ADD PRIMARY KEY(`npc_guid`);
+                ALTER TABLE game_event_model_equip DISABLE KEYS;
+                UPDATE `game_event_model_equip` SET `guid`=`new_guid`;        
+                ALTER TABLE `game_event_model_equip` DROP COLUMN `new_guid`;
+                ALTER TABLE game_event_model_equip ENABLE KEYS;
+                ALTER TABLE `creature_addon` DROP PRIMARY KEY;
+                UPDATE `creature_addon` SET `guid`=`new_guid`;        
+                ALTER TABLE `creature_addon` DROP COLUMN `new_guid`;
+                ALTER TABLE `creature_addon` ADD PRIMARY KEY(`guid`);
+                ALTER TABLE creature_formations DISABLE KEYS;
+                UPDATE `creature_formations` SET leaderGUID = new_guid_leader;
+                ALTER TABLE `creature_formations` DROP COLUMN `new_guid_leader`;
+                UPDATE `creature_formations` SET memberGUID = new_guid_member;
+                ALTER TABLE `creature_formations` DROP COLUMN `new_guid_member`;
+                ALTER TABLE creature_formations ENABLE KEYS;
+                ALTER TABLE `creature_linked_respawn` DROP PRIMARY KEY;
+                UPDATE `creature_linked_respawn` SET guid = new_guid;
+                ALTER TABLE `creature_linked_respawn` DROP COLUMN `new_guid`;
+                UPDATE `creature_linked_respawn` SET linkedGuid = new_linked_guid;
+                ALTER TABLE `creature_linked_respawn` DROP COLUMN `new_linked_guid`;
+                ALTER TABLE `creature_linked_respawn` ADD PRIMARY KEY(`guid`);
+                ALTER TABLE `game_event_creature` DROP PRIMARY KEY;
+                UPDATE `game_event_creature` SET guid = new_guid;
+                ALTER TABLE `game_event_creature` DROP COLUMN `new_guid`;
+                ALTER TABLE `game_event_creature` ADD PRIMARY KEY(`guid`);
+                ALTER TABLE pool_creature DISABLE KEYS;
+                UPDATE `pool_creature` SET guid = new_guid;
+                ALTER TABLE `pool_creature` DROP COLUMN `new_guid`;
+                ALTER TABLE pool_creature ENABLE KEYS;
+    END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_dev_reguid_alter_tables`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_dev_reguid_alter_tables`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_dev_reguid_alter_tables`()
+BEGIN
+            CREATE TABLE `creature_temp` (
+  `guid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
+  `id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Creature Identifier',
+  `map` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
+  `spawnMask` TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
+  `phaseMask` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '1',
+  `modelid` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `equipment_id` MEDIUMINT(9) NOT NULL DEFAULT '0',
+  `position_x` FLOAT NOT NULL DEFAULT '0',
+  `position_y` FLOAT NOT NULL DEFAULT '0',
+  `position_z` FLOAT NOT NULL DEFAULT '0',
+  `orientation` FLOAT NOT NULL DEFAULT '0',
+  `spawntimesecs` INT(10) UNSIGNED NOT NULL DEFAULT '120',
+  `spawndist` FLOAT NOT NULL DEFAULT '5',
+  `currentwaypoint` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `curhealth` INT(10) UNSIGNED NOT NULL DEFAULT '1',
+  `curmana` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `DeathState` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  `MovementType` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  `old_guid` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`guid`),
+  KEY `idx_map` (`map`),
+  KEY `idx_id` (`id`)
+) ENGINE=MYISAM AUTO_INCREMENT=250001 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
+        ALTER TABLE `creature_addon` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `creature_formations` ADD COLUMN `new_guid_leader` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `creature_formations` ADD COLUMN `new_guid_member` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `creature_linked_respawn` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `creature_linked_respawn` ADD COLUMN `new_linked_guid` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `game_event_creature` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `pool_creature` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `game_event_model_equip` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `game_event_npc_gossip` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `game_event_npc_vendor` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `game_event_npcflag` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
+        ALTER TABLE `npc_gossip` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
+    END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_eai_cast_onspawn`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_eai_cast_onspawn`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_eai_cast_onspawn`(IN npc_entry INT(10), spell_id MEDIUMINT(6))
+BEGIN
+    CALL `sp_error_entry`('NPC',npc_entry);
+    UPDATE `creature_template` SET `AIName`= 'EventAI' WHERE `entry`=npc_entry; 
+    
+    CALL `sp_eai_select_id`(npc_entry,@event_id);
+    
+    INSERT INTO `creature_ai_scripts` (`id`,`creature_id`,`event_type`,`event_inverse_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`,`comment`) VALUES 
+        (@event_id,npc_entry,11,0,100,0,0,0,0,0,11,spell_id,0,0,0,0,0,0,0,0,0,0, 'Stored procedures eAI: NPC cast spell on self');
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_eai_inverse_phase_mask`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_eai_inverse_phase_mask`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_eai_inverse_phase_mask`(IN max_phase INT, IN phase_list VARCHAR(255))
+BEGIN
+DECLARE max_phase_mask INT;
+DECLARE phase_yes INT;
+DECLARE inverse_phase_mask INT;
+CALL `sp_eai_table_phase_mask`();
+CALL `sp_set_entry_list`(phase_list);
+SET max_phase_mask = (SELECT SUM(phase_mask) FROM phase_mask WHERE phaseID <= max_phase);
+SET phase_yes = (SELECT SUM(phase_mask) FROM phase_mask WHERE phaseID IN (SELECT `value` FROM tdb_entry_list));
+SET inverse_phase_mask = (max_phase_mask - phase_yes);
+DROP TABLE `tdb_entry_list`;
+DROP TABLE `phase_mask`;
+IF inverse_phase_mask < 0 THEN
+SELECT "PhaseID is bigger then maximum phase entered" AS `inverse_phase_mask`;
+ELSE IF phase_list="0" THEN
+SELECT 0 AS `inverse_phase_mask`;
+ELSE
+SELECT inverse_phase_mask;
+END IF;
+END IF;
+    END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_eai_kill_ondeath`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_eai_kill_ondeath`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_eai_kill_ondeath`(IN npc_entry INT(10), trigger_id INT(10))
+BEGIN
+    CALL `sp_error_entry`('NPC',npc_entry);
+    UPDATE `creature_template` SET `AIName`= 'EventAI' WHERE `entry`=npc_entry; 
+    
+    CALL `sp_eai_select_id`(npc_entry, @event_id);
+    INSERT INTO `creature_ai_scripts` (`id`,`creature_id`,`event_type`,`event_inverse_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`,`comment`) VALUES 
+        (@event_id,npc_entry,6,0,100,0,0,0,0,0,33,trigger_id,6,0,23,1,0,0,0,0,0,0, 'Stored procedures eAI: quest - kill trigger on NPC death');
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_eai_quest_credit_on_spellhit`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_eai_quest_credit_on_spellhit`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_eai_quest_credit_on_spellhit`(IN npc_entry INT(10), spell_id MEDIUMINT(6), trigger_id INT(10), despawn_time INT(10))
+BEGIN
+    CALL `sp_error_entry`('NPC',npc_entry);
+    CALL `sp_error_trigger` (trigger_id);
+    UPDATE `creature_template` SET `AIName`= 'EventAI' WHERE `entry`=npc_entry; 
+    
+        CALL `sp_eai_select_id` (npc_entry, @event_id);
+    INSERT INTO `creature_ai_scripts` (`id`,`creature_id`,`event_type`,`event_inverse_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`,`comment`) VALUES 
+        (@event_id,npc_entry,8,0,100,1,spell_ID,-1,0,0,33,trigger_ID,6,0,23,1,0,0,0,0,0,0, 'Stored procedures eAI: quest - kill trigger on spellcast');
+    INSERT INTO `creature_ai_scripts` (`id`,`creature_id`,`event_type`,`event_inverse_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`,`comment`) VALUES 
+        (@event_id+1,npc_entry,1,1,100,0,despawn_time,despawn_time,despawn_time,despawn_time,41,0,0,0,0,0,0,0,0,0,0,0, 'Stored procedures eAI: despawn after defined time');
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_eai_select_id`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_eai_select_id`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_eai_select_id`(IN npc_entry INT(10), OUT event_id INT(10))
+BEGIN
+	CALL `sp_error_entry`('NPC',npc_entry);
+	SET event_id = (SELECT MAX(id)+1 FROM `creature_ai_scripts` WHERE `creature_id`=npc_entry);
+    DELETE FROM `creature_ai_scripts` WHERE `creature_id`=npc_entry AND `comment` LIKE "Stored procedures eAI%";
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_eai_spawn_spellhit`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_eai_spawn_spellhit`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_eai_spawn_spellhit`(IN npc_entry INT(10),IN spell_id MEDIUMINT(6),IN spawn_id INT(10),IN despawn_time INT(10))
+BEGIN
+    CALL `sp_error_entry`('NPC',npc_entry);
+    CALL `sp_error_entry`('NPC',spawn_id);
+    UPDATE `creature_template` SET `AIName`= 'EventAI' WHERE `entry`=npc_entry; 
+    CALL `sp_eai_select_id`(npc_entry,@event_id); 
+    INSERT INTO `creature_ai_scripts` (`id`,`creature_id`,`event_type`,`event_inverse_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`,`comment`) VALUES 
+        (@event_id,npc_entry,8,0,100,1,spell_id,-1,0,0,32,spawn_id,6,0,41,0,0,0,0,0,0,0, 'Stored procedures eAI: quest - summon mob on spellcast');
+    INSERT INTO `creature_ai_scripts` (`id`,`creature_id`,`event_type`,`event_inverse_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`action2_type`,`action2_param1`,`action2_param2`,`action2_param3`,`action3_type`,`action3_param1`,`action3_param2`,`action3_param3`,`comment`) VALUES 
+        (@event_id+1,spawn_id,1,1,100,0,despawn_time,despawn_time,despawn_time,despawn_time,41,0,0,0,0,0,0,0,0,0,0,0, 'Stored procedures eAI: despawn after defined time');
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_eai_table_phase_mask`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_eai_table_phase_mask`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_eai_table_phase_mask`()
+BEGIN
+ 
+CREATE TABLE `phase_mask`(
+`phaseID` INT(2) NOT NULL DEFAULT '0' ,
+`phase_mask` INT(11) UNSIGNED NOT NULL DEFAULT '0' ,
+PRIMARY KEY (`phaseID`));
+INSERT INTO phase_mask VALUES
+(0,1),
+(1,2),
+(2,4),
+(3,8),
+(4,16),
+(5,32),
+(6,64),
+(7,128),
+(8,256),
+(9,512),
+(10,1024),
+(11,2048),
+(12,4096),
+(13,8192),
+(14,16384),
+(15,32768),
+(16,65536),
+(17,131072),
+(18,262144),
+(19,524288),
+(20,1048576),
+(21,2097152),
+(22,4194304),
+(23,8388608),
+(24,16777216),
+(25,33554432),
+(26,67108864),
+(27,134217728),
+(28,268435456),
+(29,536870912),
+(30,1073741824),
+(31,2147483648);
+    END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_error_entry`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_error_entry`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_error_entry`(IN entry_type VARCHAR(10), IN e_entry INT(10))
+BEGIN
+	DECLARE check_entry INT;
+	CASE UPPER(entry_type)
+		WHEN 'NPC' THEN
+			SET check_entry = (SELECT COUNT(`entry`) FROM `creature_template` WHERE `entry`=e_entry);
+		WHEN 'GO' THEN
+			SET check_entry = (SELECT COUNT(`entry`) FROM `gameobject_template` WHERE `entry`=e_entry);
+		WHEN 'ITEM' THEN
+			SET check_entry = (SELECT COUNT(`entry`) FROM `item_template` WHERE `entry`=e_entry);
+		WHEN 'QUEST' THEN
+			SET check_entry = (SELECT COUNT(`entry`) FROM `quest_template` WHERE `entry`=e_entry);
+		ELSE
+			CALL INCORRECT_ENTRY_TYPE;
+	END CASE;
+	
+	IF check_entry=0 THEN
+		CALL INCORRECT_ENTRY;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_error_guid`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_error_guid`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_error_guid`(IN guid_type VARCHAR(10),IN npc_or_go_guid INT(10))
+BEGIN
+	DECLARE check_guid INT;
+	CASE UPPER(guid_type)
+		WHEN 'NPC' THEN
+			SET check_guid = (SELECT COUNT(`guid`) FROM `creature` WHERE `guid`=npc_or_go_guid);
+		WHEN 'GO' THEN
+			SET check_guid = (SELECT COUNT(`guid`) FROM `gameobject` WHERE `entry`=npc_or_go_entry);
+		ELSE
+			CALL INCORRECT_GUID_TYPE;
+	END CASE;
+	
+	IF check_guid=0 THEN
+		CALL INCORRECT_CREATURE_OR_GO_GUID;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_error_trigger`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_error_trigger`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_error_trigger`(IN trigger_entry INT)
+BEGIN
+    DECLARE Check_trigger INT;
+    SET Check_trigger = (SELECT COUNT(ReqCreatureOrGOId1) FROM `quest_template` WHERE `ReqCreatureOrGOId1`= trigger_entry)
+    + (SELECT COUNT(ReqCreatureOrGOId2) FROM `quest_template` WHERE `ReqCreatureOrGOId2`= trigger_entry)
+    + (SELECT COUNT(ReqCreatureOrGOId3) FROM `quest_template` WHERE `ReqCreatureOrGOId3`= trigger_entry)
+    + (SELECT COUNT(ReqCreatureOrGOId4) FROM `quest_template` WHERE `ReqCreatureOrGOId4`= trigger_entry);
+    IF Check_trigger = 0 THEN
+        CALL NO_QUEST_WITH_REQUIREMENT();
+    END IF;
+    END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_get_go_lootid`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_get_go_lootid`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_go_lootid`(IN gobjID MEDIUMINT(6),OUT gobjLootID INT(10))
+BEGIN
+        CALL `sp_error_entry`('GO',gobjID);
+        SELECT `data1` FROM `gameobject_template` WHERE `entry`=gobjID AND `type`=3 INTO gobjLootID;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_get_npc_diffentry`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_get_npc_diffentry`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_npc_diffentry`(IN normalEntry MEDIUMINT(5),IN difficulty TINYINT(1),OUT output MEDIUMINT(8))
+BEGIN
+    CALL `sp_error_entry`('NPC',normalEntry);
+    CASE difficulty
+        WHEN 1 THEN BEGIN 
+            SELECT `difficulty_entry_1` FROM `creature_template` WHERE `entry`=normalEntry INTO output; 
+        END;
+        WHEN 2 THEN BEGIN 
+            SELECT `difficulty_entry_2` FROM `creature_template` WHERE `entry`=normalEntry INTO output; 
+        END;
+        WHEN 3 THEN BEGIN 
+            SELECT `difficulty_entry_3` FROM `creature_template` WHERE `entry`=normalEntry INTO output; 
+        END;
+        ELSE CALL INVALID_DIFFICULTY();
+    END CASE;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_get_ref_id`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_get_ref_id`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_ref_id`(IN refType VARCHAR(10),OUT reference MEDIUMINT(5))
+BEGIN
+    CASE UCASE(refType)
+        WHEN 'SKIN' THEN BEGIN
+            SET @Low :=00000;
+            SET @High :=1000;
+        END;
+        WHEN 'ITEM' THEN BEGIN
+            SET @Low :=10000;
+            SET @High :=10999;
+        END;
+        WHEN 'FISH' THEN BEGIN
+            SET @Low :=11000;
+            SET @High :=11799;
+        END;
+        WHEN 'MILL' THEN BEGIN
+            SET @Low :=11800;
+            SET @High :=11999;
+        END;
+        WHEN 'RAID_GOBJ' THEN BEGIN
+            SET @Low :=12000;
+            SET @High :=12899;
+        END;
+        WHEN 'MINE' THEN BEGIN
+            SET @Low :=12900;
+            SET @High :=12999;
+        END;
+        WHEN 'PROSPECT' THEN BEGIN
+            SET @Low :=13000;
+            SET @High :=13999;
+        END;
+        WHEN 'WORLD' THEN BEGIN
+            SET @Low :=14000;
+            SET @High :=29000;
+        END;
+        WHEN 'RAID_CRE' THEN BEGIN
+            SET @Low :=34000;
+            SET @High :=34999;
+        END;
+        WHEN 'DUNGEON' THEN BEGIN
+            SET @Low :=35000;
+            SET @High :=35999;
+        END;
+        ELSE CALL INVALID_REFERENCE_TYPE;
+    END CASE;
+    SET reference :=1+(SELECT `entry` FROM `reference_loot_template` WHERE `entry` BETWEEN @Low AND @High ORDER BY `entry` DESC LIMIT 1);
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_PetExtraLevelStats`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_PetExtraLevelStats`;
+DELIMITER ;;
+CREATE DEFINER=`SkyFire`@`%` PROCEDURE `sp_PetExtraLevelStats`()
+BEGIN
+  
+  DECLARE intMaxHP       INT   DEFAULT 6553500;
+  DECLARE intMaxMana     INT   DEFAULT 6553500;
+  DECLARE intMaxArmor    INT   DEFAULT 6553500;
+  DECLARE intMaxStats    INT   DEFAULT 100000;
+  DECLARE sngHPInc       FLOAT DEFAULT 0.05;    
+  DECLARE sngManaInc     FLOAT DEFAULT 0.05;    
+  DECLARE sngArmorInc    FLOAT DEFAULT 0.05;    
+  DECLARE sngStatsInc    FLOAT DEFAULT 0.015;    
+  DECLARE intStartLvl    INT   DEFAULT 80;      
+  DECLARE intFinishLvl   INT   DEFAULT 85;      
+  
+  DECLARE intRecordDone  INT   DEFAULT 0;
+  DECLARE intCreature    INT   DEFAULT 0;
+  DECLARE intLevel       INT   DEFAULT 0;
+  DECLARE intClass       INT   DEFAULT 0;
+  DECLARE intCurrHP      INT   DEFAULT 0;
+  DECLARE intCurrMana    INT   DEFAULT 0;
+  DECLARE intCurrArmor   INT   DEFAULT 0;
+  DECLARE intCurrSTR     INT   DEFAULT 0;
+  DECLARE intCurrAGI     INT   DEFAULT 0;
+  DECLARE intCurrSTA     INT   DEFAULT 0;
+  DECLARE intCurrINT     INT   DEFAULT 0;
+  DECLARE intCurrSPI     INT   DEFAULT 0;
+  
+  DECLARE curPetStat  CURSOR FOR SELECT `creature_entry`, `level`, `hp`, `mana`, `armor`, `str`, `agi`, `sta`, `inte`, `spi` FROM pet_levelstats;
+  DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET intRecordDone = 1;
+  
+  OPEN curPetStat;
+  
+  REPEAT
+    
+    FETCH curPetStat INTO intCreature, intLevel, intCurrHP, intCurrMana, intCurrArmor, intCurrSTR, intCurrAGI, intCurrSTA, intCurrINT, intCurrSPI;
+    
+    IF intLevel = intStartLvl THEN
+       REPEAT
+         
+         SET intLevel = intLevel + 1;
+         
+         DELETE FROM pet_levelstats WHERE `creature_entry` = intCreature AND `level` = intLevel;
+         
+         IF (ROUND(intCurrHP * (1 + sngHPInc) + 1)) <= intMaxHP THEN
+           SET intCurrHP = ROUND(intCurrHP * (1 + sngHPInc) + 100);
+         ELSE
+           SET intCurrHP = intMaxHP;  
+         END IF;
+         
+         IF (ROUND(intCurrMana * (1 + sngManaInc) + 1)) <= intMaxMana THEN
+           SET intCurrMana = ROUND(intCurrMana * (1 + sngManaInc) + 100);
+         ELSE
+           SET intCurrMana = intMaxMana;
+         END IF;
+         
+         IF (ROUND(intCurrArmor * (1 + sngArmorInc) + 1)) <= intMaxArmor THEN
+           SET intCurrArmor = ROUND(intCurrArmor * (1 + sngArmorInc) + 800);
+         ELSE
+           SET intCurrArmor = intMaxArmor;
+         END IF;
+         
+         IF (ROUND(intCurrSTR * (1 + sngStatsInc) + 1)) <= intMaxStats THEN
+           SET intCurrSTR = ROUND(intCurrSTR * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrSTR = intMaxStats;
+         END IF;
+         
+         IF (ROUND(intCurrAGI * (1 + sngStatsInc) + 1)) <= intMaxStats THEN
+           SET intCurrAGI = ROUND(intCurrAGI * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrAGI = intMaxStats;
+         END IF;
+         
+         IF (ROUND(intCurrSTA * (1 + sngStatsInc) + 1)) <= intMaxStats THEN
+           SET intCurrSTA = ROUND(intCurrSTA * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrSTA = intMaxStats;
+         END IF;
+         
+         IF (ROUND(intCurrINT * (1 + sngStatsInc) + 1)) <= intMaxStats THEN
+           SET intCurrINT = ROUND(intCurrINT * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrINT = intMaxStats;
+         END IF;
+         
+         IF (ROUND(intCurrSPI * (1 + sngStatsInc) + 1)) <= intMaxStats THEN
+           SET intCurrSPI = ROUND(intCurrSPI * (1 + sngStatsInc) + 10);
+         ELSE
+           SET intCurrSPI = intMaxStats;
+         END IF;
+         
+         INSERT INTO pet_levelstats
+         (`creature_entry`, `level`, `hp`, `mana`, `armor`, `str`, `agi`, `sta`, `inte`, `spi`)
+         VALUES
+         (intCreature, intLevel, intCurrHP, intCurrMana, intCurrArmor, intCurrSTR, intCurrAGI, intCurrSTA, intCurrINT, intCurrSPI);
+       UNTIL intLevel = intFinishLvl END REPEAT;
+    END IF;
+  UNTIL intRecordDone END REPEAT;
+  
+  CLOSE curPetStat;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_entry_list`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_entry_list`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_entry_list`(IN input LONGTEXT,IN appendExisting BIT)
+BEGIN
+    DECLARE cur_position INT DEFAULT 1;
+    DECLARE remainder TEXT;
+    DECLARE cur_string VARCHAR(10);
+    DECLARE entry_count MEDIUMINT;
+    IF appendExisting IS NULL OR appendExisting IS FALSE THEN
+	CREATE TABLE `tdb_entry_list` (`value` INT NOT NULL PRIMARY KEY) ENGINE=MYISAM;
+    END IF;
+    SET remainder = input;
+    WHILE CHAR_LENGTH(remainder) > 0 AND cur_position > 0 DO
+        SET cur_position = INSTR(remainder, ',');
+        IF cur_position = 0 THEN
+            SET cur_string = remainder;
+        ELSE
+            SET cur_string = LEFT(remainder, cur_position-1);
+        END IF;
+        IF TRIM(cur_string) != '' AND(SELECT COUNT(*) FROM `tdb_entry_list` WHERE `value`=cur_string)=0 THEN
+            INSERT INTO `tdb_entry_list` VALUES (cur_string);
+        END IF;
+        SET remainder = SUBSTRING(remainder, cur_position+1);
+    END WHILE;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_item_money`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_item_money`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_item_money`(IN item_entry INT, IN min_money INT, IN max_money INT)
+BEGIN
+CALL sp_error_entry('ITEM',item_entry);
+UPDATE item_template SET minMoneyLoot=min_money, maxMoneyLoot=max_money WHERE entry = item_entry;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_item_money_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_item_money_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_item_money_bylist`(IN item_entry TEXT, IN min_money INT, IN max_money INT)
+BEGIN
+DECLARE remaining INT;
+DECLARE min_entry INT;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+CALL sp_error_entry('ITEM',min_entry);
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+UPDATE item_template SET minMoneyLoot=min_money, maxMoneyLoot=max_money WHERE entry = item_entry;
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_aggro`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_aggro`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_aggro`(IN creature_entry INT(10),IN on_off BOOLEAN)
+BEGIN
+	CALL `sp_error_entry`('NPC',creature_entry);
+	IF on_off = 1 THEN
+		UPDATE `creature_template` SET `flags_extra`=`flags_extra`&~2 WHERE `entry`= creature_entry;
+	ELSE 
+		UPDATE `creature_template` SET `flags_extra`=`flags_extra`|2 WHERE `entry`= creature_entry;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_aggro_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_aggro_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_aggro_bylist`(IN entry_list LONGTEXT,IN on_off BOOLEAN)
+BEGIN
+	CALL `sp_set_entry_list` (entry_list,null);
+	IF on_off = 1 THEN
+		UPDATE `creature_template` SET `flags_extra`=`flags_extra`&~2 WHERE `entry` IN (SELECT * FROM `tdb_entry_list`);
+	ELSE 
+		UPDATE `creature_template` SET `flags_extra`=`flags_extra`|2 WHERE `entry` IN (SELECT * FROM `tdb_entry_list`);
+	END IF;
+	DROP TABLE `tdb_entry_list`; 
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_attackable`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_attackable`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_attackable`(IN npc_entry INT, IN on_off BOOLEAN)
+BEGIN
+CALL sp_error_entry('NPC',npc_entry);
+IF on_off = 1 THEN
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`|256 WHERE `entry`= npc_entry;
+END IF;
+IF on_off = 0 THEN
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`&~256 WHERE `entry`= npc_entry;
+END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_attackable_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_attackable_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_attackable_bylist`(IN npc_entry TEXT, IN on_off BOOLEAN)
+BEGIN
+DECLARE remaining INT;
+DECLARE min_entry INT;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+CALL sp_error_entry('NPC',min_entry);
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+IF on_off = 1 THEN
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`|256 WHERE `entry`= min_entry;
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+END IF;
+IF on_off = 0 THEN
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`&~256 WHERE `entry`= min_entry;
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_civilian`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_civilian`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_civilian`(IN npc_entry INT(10), IN on_off BOOLEAN)
+BEGIN
+CALL sp_error_entry('NPC',npc_entry);
+IF on_off = 1 THEN
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`|2 WHERE `entry`= npc_entry;
+ELSEIF on_off = 0 THEN
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`&~2 WHERE `entry`= npc_entry;
+END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_civilian_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_civilian_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_civilian_bylist`(IN npc_entry TEXT, IN on_off BOOLEAN)
+BEGIN
+  
+DECLARE remaining INT;
+DECLARE min_entry INT;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+CALL sp_error_entry('NPC',min_entry);
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+CALL sp_error_entry('NPC',min_entry);
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+IF on_off = 1 THEN
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`|2 WHERE `entry`= min_entry;
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+END IF;
+IF on_off = 0 THEN
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`&~2 WHERE `entry`= min_entry;
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_deadquest`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_deadquest`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_deadquest`(IN npc_entry INT(10))
+BEGIN
+	DECLARE check_addon_exists INT;
+	CALL `sp_error_entry`('NPC',npc_entry);
+	UPDATE `creature` SET `MovementType`=0,`spawndist`=0,`Deathstate`=0 WHERE `id`=npc_entry;
+	UPDATE `creature_template` SET `flags_extra`=`flags_extra`|2 WHERE `entry`=npc_entry;
+    
+	
+	SET check_addon_exists = (SELECT COUNT(`entry`) FROM `creature_template_addon` WHERE `entry`=npc_entry);
+	IF check_addon_exists > 0 THEN 
+		UPDATE `creature_template_addon` SET `bytes1`=7 WHERE `entry`=npc_entry;
+	ELSE 
+		INSERT INTO `creature_template_addon` VALUES (npc_entry,0,0,7,0,0, '');
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_faction`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_faction`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_faction`(IN npc_entry INT(10), factionA INT(10), factionH INT(10))
+BEGIN
+	CALL `sp_error_entry`('NPC',npc_entry);
+	UPDATE `creature_template` SET `faction_A`=IFNULL(factionA,`faction_A`),`faction_H`=IFNULL(factionH,`faction_A`) WHERE `entry`=npc_entry;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_faction_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_faction_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_faction_bylist`(IN entry_list LONGTEXT, factionA INT(10), factionH INT(10))
+BEGIN
+	CALL `sp_set_entry_list` (entry_list,null);
+	UPDATE `creature_template` SET `faction_A`=IFNULL(factionA,`faction_A`),`faction_H`=IFNULL(factionH,`faction_A`) WHERE `entry` IN (SELECT * FROM `tdb_entry_list`);
+	DROP TABLE `tdb_entry_list`; 
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_lootable`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_lootable`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_lootable`(IN npc_entry INT(10), IN on_off BOOLEAN)
+BEGIN
+CALL sp_error_entry('NPC',npc_entry);
+IF on_off = 1 THEN
+UPDATE `creature_template` SET `dynamicflags`=`dynamicflags`&~1 WHERE `entry`= npc_entry;
+ELSEIF on_off = 0 THEN
+UPDATE `creature_template` SET `dynamicflags`=`dynamicflags`|1 WHERE `entry`= npc_entry;
+END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_lootable_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_lootable_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_lootable_bylist`(IN npc_entry TEXT, IN on_off BOOLEAN)
+BEGIN
+  
+DECLARE remaining INT;
+DECLARE min_entry INT;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+CALL sp_error_entry('NPC',min_entry);
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+CALL sp_error_entry('NPC',min_entry);
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+IF on_off = 1 THEN
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+UPDATE `creature_template` SET `dynamicflags`=`dynamicflags`&~1 WHERE `entry`= min_entry;
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+END IF;
+IF on_off = 0 THEN
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+UPDATE `creature_template` SET `dynamicflags`=`dynamicflags`|1 WHERE `entry`= min_entry;
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_lootid`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_lootid`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_lootid`(IN npcEntry MEDIUMINT(5),IN lootID MEDIUMINT(5))
+BEGIN    
+    CALL `sp_error_entry`('NPC',npcEntry);
+    UPDATE `creature_template` SET `lootid`=IFNULL(lootID,npcEntry) WHERE `entry`=npcEntry;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_lootid_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_lootid_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_lootid_bylist`(IN entryList LONGTEXT,IN lootID MEDIUMINT(5))
+BEGIN    
+    CALL `sp_set_entry_list` (entryList,null);
+    UPDATE `creature_template` SET `lootid`=IFNULL(lootID,`entry`) WHERE `entry` IN (SELECT DISTINCT * FROM `tdb_entry_list`);
+    
+    DROP TABLE `tdb_entry_list`; 
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_lootid_bytable`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_lootid_bytable`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_lootid_bytable`(IN lootID MEDIUMINT(5))
+BEGIN    
+    UPDATE `creature_template` SET `lootid`=IFNULL(lootID,`entry`) WHERE `entry` IN (SELECT DISTINCT * FROM `tdb_entry_list`);
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_path`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_path`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_path`(IN npc_guid INT(10),OUT path INT(10))
+BEGIN
+	CALL `sp_error_guid`('NPC',npc_guid);
+	
+	SELECT npc_guid*10 INTO path;
+	UPDATE `creature` SET `MovementType`=2,`spawndist`=0 WHERE `guid`=npc_guid;
+	IF (SELECT COUNT(*) FROM `creature_addon` WHERE `guid`=npc_guid) > 0 THEN
+		UPDATE `creature_addon` SET `path_id`=path WHERE `guid`=npc_guid;
+	ELSE
+		INSERT INTO `creature_addon` (`guid`,`path_id`) VALUES (npc_guid,path);
+	END IF;
+	
+	DELETE FROM `waypoint_data` WHERE `id`=path;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_selectable`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_selectable`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_selectable`(IN npc_entry INT(10),IN on_off BOOLEAN)
+BEGIN
+	CALL `sp_error_entry`('NPC',npc_entry);
+	IF on_off=1 THEN
+		UPDATE `creature_template` SET `unit_flags`=`unit_flags`&~33554432 WHERE `entry`=npc_entry;
+	ELSE
+		UPDATE `creature_template` SET `unit_flags`=`unit_flags`|33554432 WHERE `entry`=npc_entry;
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_selectable_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_selectable_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_selectable_bylist`(IN entry_list LONGTEXT,IN on_off BOOLEAN)
+BEGIN
+	CALL `sp_set_entry_list` (entry_list,null);
+	IF on_off=1 THEN
+		UPDATE `creature_template` SET `unit_flags`=`unit_flags`&~33554432 WHERE `entry` IN (SELECT * FROM `tdb_entry_list`);
+	ELSE
+		UPDATE `creature_template` SET `unit_flags`=`unit_flags`|33554432 WHERE `entry` IN (SELECT * FROM `tdb_entry_list`);
+	END IF;
+	DROP TABLE `tdb_entry_list`; 
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_targetable`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_targetable`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_targetable`(IN npc_entry INT(10), IN on_off BOOLEAN)
+BEGIN
+CALL sp_error_entry('NPC',npc_entry);
+IF on_off = 1 THEN
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`&~33554432 WHERE `entry`= npc_entry;
+ELSEIF on_off = 0 THEN
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`|33554432 WHERE `entry`= npc_entry;
+END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_targetable_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_targetable_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_targetable_bylist`(IN npc_entry TEXT, IN on_off BOOLEAN)
+BEGIN
+  
+DECLARE remaining INT;
+DECLARE min_entry INT;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+CALL sp_error_entry('NPC',min_entry);
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+CALL sp_set_entry_list(npc_entry);
+SET remaining = (SELECT COUNT(`value`) FROM tdb_entry_list);
+IF on_off = 1 THEN
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`&~33554432 WHERE `entry`= min_entry;
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+END IF;
+IF on_off = 0 THEN
+WHILE remaining > 0 DO
+SET min_entry = (SELECT MIN(`value`) FROM tdb_entry_list);
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`|33554432 WHERE `entry`=  min_entry;
+DELETE FROM tdb_entry_list WHERE `value`=min_entry;
+SET remaining = remaining -1;
+END WHILE;
+END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_trigger`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_trigger`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_trigger`(IN npc_entry INT(10),IN on_off BOOLEAN)
+BEGIN
+	CALL `sp_error_entry`('NPC',npc_entry);
+	IF on_off=1 THEN
+		UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `id`=npc_entry;
+		UPDATE `creature_template` SET `flags_extra`=`flags_extra`|2,`unit_flags`=`unit_flags`|33554432  WHERE `entry`=npc_entry;        
+	ELSE
+		UPDATE `creature_template` SET `flags_extra`=`flags_extra`&~2,`unit_flags`=`unit_flags`&~33554432  WHERE `entry`=npc_entry; 
+	END IF;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_npc_trigger_bylist`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_npc_trigger_bylist`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_npc_trigger_bylist`(IN entry_list LONGTEXT,IN on_off BOOLEAN)
+BEGIN
+	CALL `sp_set_entry_list` (entry_list,null);
+	IF on_off=1 THEN
+		UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `id` IN (SELECT * FROM `tdb_entry_list`);
+		UPDATE `creature_template` SET `flags_extra`=`flags_extra`|2,`unit_flags`=`unit_flags`|33554432  WHERE `entry` IN (SELECT * FROM `tdb_entry_list`);        
+	ELSE
+		UPDATE `creature_template` SET `flags_extra`=`flags_extra`&~2,`unit_flags`=`unit_flags`&~33554432  WHERE `entry` IN (SELECT * FROM `tdb_entry_list`); 
+	END IF;
+	DROP TABLE `tdb_entry_list`; 
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_quest_level`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_quest_level`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_quest_level`(IN quest_entry INT(10), IN quest_level INT(10))
+BEGIN
+CALL `sp_error_entry`('QUEST',quest_entry);
+UPDATE `quest_template` SET `MinLevel`= quest_level WHERE `entry`= quest_entry;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_quest_next`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_quest_next`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_quest_next`(IN quest_entry INT(10), IN next_quest INT(10))
+BEGIN
+CALL `sp_error_entry`('QUEST',quest_entry);
+UPDATE `quest_template` SET `NextQuestId`= next_quest WHERE `entry`= quest_entry;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_quest_previous`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_quest_previous`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_quest_previous`(IN quest_entry INT(10), IN prev_quest INT(10))
+BEGIN
+CALL `sp_error_entry`('QUEST',quest_entry);
+UPDATE `quest_template` SET `PrevQuestId`= prev_quest WHERE `entry`= quest_entry;
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for `sp_set_spell_target`
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `sp_set_spell_target`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_set_spell_target`(IN target_type VARCHAR(10),IN target_entry INT(11),IN spell_id INT(11))
+BEGIN
+    CASE UCASE(target_type)
+        WHEN 'GO' THEN BEGIN
+	    IF target_entry > 0 THEN 
+		CALL `sp_error_entry`('GO',target_entry); 
+	    END IF;
+            DELETE FROM `spell_script_target` WHERE `entry`=spell_id;
+            INSERT INTO `spell_script_target`(`entry`,`type`,`targetEntry`) VALUES (spell_id,0,target_entry);
+        END;
+        WHEN 'NPC' THEN BEGIN
+	    IF target_entry > 0 THEN 
+		CALL `sp_error_entry`('NPC',target_entry); 
+	    END IF;
+            DELETE FROM `spell_script_target` WHERE `entry`=spell_id;
+            INSERT INTO `spell_script_target`(`entry`,`type`,`targetEntry`) VALUES (spell_id,1,target_entry);
+        END;
+        WHEN 'DEAD_NPC' THEN BEGIN
+	    CALL `sp_error_entry`('NPC',target_entry);
+            DELETE FROM `spell_script_target` WHERE `entry`=spell_id;
+            INSERT INTO `spell_script_target`(`entry`,`type`,`targetEntry`) VALUES (spell_id,2,target_entry);
+        END;
+        WHEN 'MINION' THEN BEGIN
+	    CALL `sp_error_entry`('NPC',target_entry);
+            DELETE FROM `spell_script_target` WHERE `entry`=spell_id;
+            INSERT INTO `spell_script_target`(`entry`,`type`,`targetEntry`) VALUES (spell_id,3,target_entry);
+        END;
+        ELSE CALL INCORRECT_TARGET_TYPE;
+    END CASE;
+END
+;;
+DELIMITER ;
 
 -- ----------------------------
 -- Indexes structure for table areatrigger_teleport
@@ -4990,7 +5980,7 @@ CREATE FULLTEXT INDEX `name` ON `areatrigger_teleport`(`name`) ;
 -- ----------------------------
 -- Auto increment value for `blackmarket_template`
 -- ----------------------------
-ALTER TABLE `blackmarket_template` AUTO_INCREMENT=269;
+ALTER TABLE `blackmarket_template` AUTO_INCREMENT=264;
 
 -- ----------------------------
 -- Indexes structure for table creature
@@ -5001,34 +5991,19 @@ CREATE INDEX `idx_id` ON `creature`(`id`) USING BTREE ;
 -- ----------------------------
 -- Auto increment value for `creature`
 -- ----------------------------
-ALTER TABLE `creature` AUTO_INCREMENT=999484;
-
--- ----------------------------
--- Indexes structure for table creature_copy
--- ----------------------------
-CREATE INDEX `idx_map` ON `creature_copy`(`map`) USING BTREE ;
-CREATE INDEX `idx_id` ON `creature_copy`(`id`) USING BTREE ;
-
--- ----------------------------
--- Auto increment value for `creature_copy`
--- ----------------------------
-ALTER TABLE `creature_copy` AUTO_INCREMENT=303341;
-
--- ----------------------------
--- Indexes structure for table creature_new
--- ----------------------------
-CREATE INDEX `idx_map` ON `creature_new`(`map`) USING BTREE ;
-CREATE INDEX `idx_id` ON `creature_new`(`id`) USING BTREE ;
-
--- ----------------------------
--- Auto increment value for `creature_new`
--- ----------------------------
-ALTER TABLE `creature_new` AUTO_INCREMENT=998118;
+ALTER TABLE `creature` AUTO_INCREMENT=409866;
 
 -- ----------------------------
 -- Indexes structure for table creature_template
 -- ----------------------------
 CREATE INDEX `idx_name` ON `creature_template`(`name`) USING BTREE ;
+
+-- ----------------------------
+-- Indexes structure for table creature_template_difficulty
+-- ----------------------------
+CREATE UNIQUE INDEX `entryDiff` ON `creature_template_difficulty`(`entry`, `difficulty`) USING BTREE ;
+CREATE INDEX `entry` ON `creature_template_difficulty`(`entry`) USING BTREE ;
+CREATE INDEX `entry_2` ON `creature_template_difficulty`(`entry`) USING BTREE ;
 
 -- ----------------------------
 -- Indexes structure for table creature_transport
@@ -5039,27 +6014,6 @@ CREATE UNIQUE INDEX `entry` ON `creature_transport`(`transport_entry`, `guid`) U
 -- Auto increment value for `creature_transport`
 -- ----------------------------
 ALTER TABLE `creature_transport` AUTO_INCREMENT=1;
-
--- ----------------------------
--- Indexes structure for table creature_transport_copy
--- ----------------------------
-CREATE UNIQUE INDEX `entry` ON `creature_transport_copy`(`transport_entry`, `guid`) USING BTREE ;
-
--- ----------------------------
--- Auto increment value for `creature_transport_copy`
--- ----------------------------
-ALTER TABLE `creature_transport_copy` AUTO_INCREMENT=1;
-
--- ----------------------------
--- Indexes structure for table creatureold
--- ----------------------------
-CREATE INDEX `idx_map` ON `creatureold`(`map`) USING BTREE ;
-CREATE INDEX `idx_id` ON `creatureold`(`id`) USING BTREE ;
-
--- ----------------------------
--- Auto increment value for `creatureold`
--- ----------------------------
-ALTER TABLE `creatureold` AUTO_INCREMENT=997600;
 
 -- ----------------------------
 -- Indexes structure for table game_event_arena_seasons
@@ -5079,12 +6033,12 @@ CREATE INDEX `idx_quest` ON `game_event_seasonal_questrelation`(`questId`) USING
 -- ----------------------------
 -- Auto increment value for `game_tele`
 -- ----------------------------
-ALTER TABLE `game_tele` AUTO_INCREMENT=54367;
+ALTER TABLE `game_tele` AUTO_INCREMENT=2022;
 
 -- ----------------------------
 -- Auto increment value for `gameobject`
 -- ----------------------------
-ALTER TABLE `gameobject` AUTO_INCREMENT=6017496;
+ALTER TABLE `gameobject` AUTO_INCREMENT=211617;
 
 -- ----------------------------
 -- Indexes structure for table gameobject_template
@@ -5092,19 +6046,14 @@ ALTER TABLE `gameobject` AUTO_INCREMENT=6017496;
 CREATE INDEX `idx_name` ON `gameobject_template`(`name`) USING BTREE ;
 
 -- ----------------------------
--- Indexes structure for table guild_finder_applicant
+-- Auto increment value for `gmi_logs`
 -- ----------------------------
-CREATE UNIQUE INDEX `guildId` ON `guild_finder_applicant`(`guildId`, `playerGuid`) USING BTREE ;
+ALTER TABLE `gmi_logs` AUTO_INCREMENT=57;
 
 -- ----------------------------
--- Indexes structure for table ip2nation
+-- Auto increment value for `gmi_themes`
 -- ----------------------------
-CREATE INDEX `ip` ON `ip2nation`(`ip`) USING BTREE ;
-
--- ----------------------------
--- Indexes structure for table ip2nationcountries
--- ----------------------------
-CREATE INDEX `code` ON `ip2nationcountries`(`code`) USING BTREE ;
+ALTER TABLE `gmi_themes` AUTO_INCREMENT=5;
 
 -- ----------------------------
 -- Indexes structure for table item_template
@@ -5126,6 +6075,12 @@ ALTER TABLE `pet_name_generation` AUTO_INCREMENT=314;
 -- Auto increment value for `phase_definitions`
 -- ----------------------------
 ALTER TABLE `phase_definitions` AUTO_INCREMENT=1;
+
+-- ----------------------------
+-- Indexes structure for table player_factionchange_quests
+-- ----------------------------
+CREATE UNIQUE INDEX `alliance_uniq` ON `player_factionchange_quests`(`alliance_id`) USING BTREE ;
+CREATE UNIQUE INDEX `horde_uniq` ON `player_factionchange_quests`(`horde_id`) USING BTREE ;
 
 -- ----------------------------
 -- Indexes structure for table playercreateinfo_action
@@ -5158,9 +6113,9 @@ CREATE INDEX `idx_guid` ON `pool_quest`(`entry`) USING BTREE ;
 CREATE INDEX `questId_id` ON `quest_poi_points`(`questId`, `id`) USING BTREE ;
 
 -- ----------------------------
--- Auto increment value for `shop_item`
+-- Auto increment value for `research_digsite_finds`
 -- ----------------------------
-ALTER TABLE `shop_item` AUTO_INCREMENT=3;
+ALTER TABLE `research_digsite_finds` AUTO_INCREMENT=3685;
 
 -- ----------------------------
 -- Indexes structure for table spell_linked_spell
@@ -5178,11 +6133,6 @@ CREATE UNIQUE INDEX `spell_id` ON `spell_ranks`(`spell_id`) USING BTREE ;
 CREATE UNIQUE INDEX `spell_id` ON `spell_script_names`(`spell_id`, `ScriptName`) USING BTREE ;
 
 -- ----------------------------
--- Auto increment value for `time_diff_log`
--- ----------------------------
-ALTER TABLE `time_diff_log` AUTO_INCREMENT=1;
-
--- ----------------------------
 -- Indexes structure for table transports
 -- ----------------------------
 CREATE UNIQUE INDEX `idx_entry` ON `transports`(`entry`) USING BTREE ;
@@ -5196,13 +6146,3 @@ ALTER TABLE `transports` AUTO_INCREMENT=29;
 -- Auto increment value for `warden_checks`
 -- ----------------------------
 ALTER TABLE `warden_checks` AUTO_INCREMENT=787;
-
--- ----------------------------
--- Auto increment value for `warden_data_result`
--- ----------------------------
-ALTER TABLE `warden_data_result` AUTO_INCREMENT=803;
-
--- ----------------------------
--- Auto increment value for `zone_skip_update`
--- ----------------------------
-ALTER TABLE `zone_skip_update` AUTO_INCREMENT=1;

@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -26,43 +28,44 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "steam_vault.h"
+#include "SpellInfo.h"
 
-#define SAY_INTRO                   -1545016
-#define SAY_REGEN                   -1545017
-#define SAY_AGGRO1                  -1545018
-#define SAY_AGGRO2                  -1545019
-#define SAY_AGGRO3                  -1545020
-#define SAY_SLAY1                   -1545021
-#define SAY_SLAY2                   -1545022
-#define SAY_DEATH                   -1545023
+enum NagaDistiller
+{
+    SAY_INTRO                   = 0,
+    SAY_REGEN                   = 1,
+    SAY_AGGRO                   = 2,
+    SAY_SLAY                    = 3,
+    SAY_DEATH                   = 4,
 
-#define SPELL_SPELL_REFLECTION      31534
-#define SPELL_IMPALE                39061
-#define SPELL_WARLORDS_RAGE         37081
-#define SPELL_WARLORDS_RAGE_NAGA    31543
+    SPELL_SPELL_REFLECTION      = 31534,
+    SPELL_IMPALE                = 39061,
+    SPELL_WARLORDS_RAGE         = 37081,
+    SPELL_WARLORDS_RAGE_NAGA    = 31543,
 
-#define SPELL_WARLORDS_RAGE_PROC    36453
+    SPELL_WARLORDS_RAGE_PROC    = 36453
+};
 
-class mob_naga_distiller : public CreatureScript
+class npc_naga_distiller : public CreatureScript
 {
 public:
-    mob_naga_distiller() : CreatureScript("mob_naga_distiller") { }
+    npc_naga_distiller() : CreatureScript("npc_naga_distiller") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_naga_distillerAI (creature);
+        return new npc_naga_distillerAI(creature);
     }
 
-    struct mob_naga_distillerAI : public ScriptedAI
+    struct npc_naga_distillerAI : public ScriptedAI
     {
-        mob_naga_distillerAI(Creature* creature) : ScriptedAI(creature)
+        npc_naga_distillerAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() override
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -70,7 +73,7 @@ public:
             //hack, due to really weird spell behaviour :(
             if (instance)
             {
-                if (instance->GetData(TYPE_DISTILLER) == IN_PROGRESS)
+                if (instance->GetData(DATA_DISTILLER) == IN_PROGRESS)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -78,7 +81,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) override { }
 
         void StartRageGen(Unit* /*caster*/)
         {
@@ -88,14 +91,14 @@ public:
             DoCast(me, SPELL_WARLORDS_RAGE_NAGA, true);
 
             if (instance)
-                instance->SetData(TYPE_DISTILLER, IN_PROGRESS);
+                instance->SetData(DATA_DISTILLER, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             if (me->GetHealth() <= damage)
                 if (instance)
-                    instance->SetData(TYPE_DISTILLER, DONE);
+                    instance->SetData(DATA_DISTILLER, DONE);
         }
     };
 
@@ -106,9 +109,9 @@ class boss_warlord_kalithresh : public CreatureScript
 public:
     boss_warlord_kalithresh() : CreatureScript("boss_warlord_kalithresh") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_warlord_kalithreshAI (creature);
+        return new boss_warlord_kalithreshAI(creature);
     }
 
     struct boss_warlord_kalithreshAI : public ScriptedAI
@@ -125,7 +128,7 @@ public:
         uint32 Rage_Timer;
         bool CanRage;
 
-        void Reset()
+        void Reset() override
         {
             Reflection_Timer = 10000;
             Impale_Timer = 7000+rand()%7000;
@@ -133,40 +136,40 @@ public:
             CanRage = false;
 
             if (instance)
-                instance->SetData(TYPE_WARLORD_KALITHRESH, NOT_STARTED);
+                instance->SetBossState(DATA_WARLORD_KALITHRESH, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
+            Talk(SAY_AGGRO);
 
             if (instance)
-                instance->SetData(TYPE_WARLORD_KALITHRESH, IN_PROGRESS);
+                instance->SetBossState(DATA_WARLORD_KALITHRESH, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             //hack :(
             if (spell->Id == SPELL_WARLORDS_RAGE_PROC)
                 if (instance)
-                    if (instance->GetData(TYPE_DISTILLER) == DONE)
+                    if (instance->GetData(DATA_DISTILLER) == DONE)
                         me->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(TYPE_WARLORD_KALITHRESH, DONE);
+                instance->SetBossState(DATA_WARLORD_KALITHRESH, DONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -175,9 +178,9 @@ public:
             {
                 if (Creature* distiller = me->FindNearestCreature(17954, 100.0f))
                 {
-                    DoScriptText(SAY_REGEN, me);
+                    Talk(SAY_REGEN);
                     DoCast(me, SPELL_WARLORDS_RAGE);
-                    CAST_AI(mob_naga_distiller::mob_naga_distillerAI, distiller->AI())->StartRageGen(me);
+                    CAST_AI(npc_naga_distiller::npc_naga_distillerAI, distiller->AI())->StartRageGen(me);
                 }
                 Rage_Timer = 3000+rand()%15000;
             } else Rage_Timer -= diff;
@@ -201,11 +204,10 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_warlord_kalithresh()
 {
-    new mob_naga_distiller();
+    new npc_naga_distiller();
     new boss_warlord_kalithresh();
 }

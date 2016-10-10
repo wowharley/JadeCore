@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -15,46 +18,45 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "violet_hold.h"
+#include "Player.h"
 
 enum Spells
 {
-    SPELL_ARCANE_BARRAGE_VOLLEY               = 54202,
-    SPELL_ARCANE_BARRAGE_VOLLEY_H             = 59483,
-    SPELL_ARCANE_BUFFET                       = 54226,
-    SPELL_ARCANE_BUFFET_H                     = 59485,
-    SPELL_SUMMON_ETHEREAL_SPHERE_1            = 54102,
-    SPELL_SUMMON_ETHEREAL_SPHERE_2            = 54137,
-    SPELL_SUMMON_ETHEREAL_SPHERE_3            = 54138,
+    SPELL_ARCANE_BARRAGE_VOLLEY                 = 54202,
+    SPELL_ARCANE_BARRAGE_VOLLEY_H               = 59483,
+    SPELL_ARCANE_BUFFET                         = 54226,
+    SPELL_ARCANE_BUFFET_H                       = 59485,
+    SPELL_SUMMON_ETHEREAL_SPHERE_1              = 54102,
+    SPELL_SUMMON_ETHEREAL_SPHERE_2              = 54137,
+    SPELL_SUMMON_ETHEREAL_SPHERE_3              = 54138
 };
 
 enum NPCs
 {
-    NPC_ETHEREAL_SPHERE                       = 29271,
-    //NPC_ETHEREAL_SPHERE2                    = 32582, // heroic only?
+    NPC_ETHEREAL_SPHERE                         = 29271,
+    //NPC_ETHEREAL_SPHERE2                      = 32582, // heroic only?
 };
 
 enum CreatureSpells
 {
-    SPELL_ARCANE_POWER                             = 54160,
-    H_SPELL_ARCANE_POWER                           = 59474,
-    SPELL_SUMMON_PLAYERS                           = 54164,
-    SPELL_POWER_BALL_VISUAL                        = 54141,
+    SPELL_ARCANE_POWER                          = 54160,
+    H_SPELL_ARCANE_POWER                        = 59474,
+    SPELL_SUMMON_PLAYERS                        = 54164,
+    SPELL_POWER_BALL_VISUAL                     = 54141
 };
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1608027,
-    SAY_SLAY_1                                  = -1608028,
-    SAY_SLAY_2                                  = -1608029,
-    SAY_SLAY_3                                  = -1608030,
-    SAY_DEATH                                   = -1608031,
-    SAY_SPAWN                                   = -1608032,
-    SAY_CHARGED                                 = -1608033,
-    SAY_REPEAT_SUMMON_1                         = -1608034,
-    SAY_REPEAT_SUMMON_2                         = -1608035,
-    SAY_SUMMON_ENERGY                           = -1608036
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_CHARGED                                 = 4,
+    SAY_REPEAT_SUMMON                           = 5,
+    SAY_SUMMON_ENERGY                           = 6
 };
 
 class boss_xevozz : public CreatureScript
@@ -62,9 +64,9 @@ class boss_xevozz : public CreatureScript
 public:
     boss_xevozz() : CreatureScript("boss_xevozz") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_xevozzAI (creature);
+        return new boss_xevozzAI(creature);
     }
 
     struct boss_xevozzAI : public ScriptedAI
@@ -80,7 +82,7 @@ public:
         uint32 uiArcaneBarrageVolley_Timer;
         uint32 uiArcaneBuffet_Timer;
 
-        void Reset()
+        void Reset() override
         {
             if (instance)
             {
@@ -111,7 +113,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summoned->SetSpeed(MOVE_RUN, 0.5f);
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -121,7 +123,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
@@ -135,9 +137,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             if (instance)
             {
                 if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_XEVOZZ_CELL)))
@@ -153,9 +155,10 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void UpdateAI(const uint32 uiDiff)
+
+        void UpdateAI(uint32 uiDiff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -172,7 +175,7 @@ public:
             {
                 if (uiArcaneBuffet_Timer < uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_ARCANE_BUFFET);
+                    DoCastVictim(SPELL_ARCANE_BUFFET);
                     uiArcaneBuffet_Timer = 0;
                 }
                 else uiArcaneBuffet_Timer -= uiDiff;
@@ -180,7 +183,7 @@ public:
 
             if (uiSummonEtherealSphere_Timer < uiDiff)
             {
-                DoScriptText(SAY_SPAWN, me);
+                Talk(SAY_SPAWN);
                 DoCast(me, SPELL_SUMMON_ETHEREAL_SPHERE_1);
                 if (IsHeroic()) // extra one for heroic
                     me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX()-5+rand()%10, me->GetPositionY()-5+rand()%10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
@@ -193,9 +196,9 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             DespawnSphere();
 
@@ -213,30 +216,30 @@ public:
                 }
             }
         }
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
-            if (victim == me)
+            if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
     };
 
 };
 
-class mob_ethereal_sphere : public CreatureScript
+class npc_ethereal_sphere : public CreatureScript
 {
 public:
-    mob_ethereal_sphere() : CreatureScript("mob_ethereal_sphere") { }
+    npc_ethereal_sphere() : CreatureScript("npc_ethereal_sphere") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_ethereal_sphereAI (creature);
+        return new npc_ethereal_sphereAI(creature);
     }
 
-    struct mob_ethereal_sphereAI : public ScriptedAI
+    struct npc_ethereal_sphereAI : public ScriptedAI
     {
-        mob_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
+        npc_ethereal_sphereAI(Creature* creature) : ScriptedAI(creature)
         {
             instance   = creature->GetInstanceScript();
         }
@@ -246,13 +249,13 @@ public:
         uint32 uiSummonPlayers_Timer;
         uint32 uiRangeCheck_Timer;
 
-        void Reset()
+        void Reset() override
         {
             uiSummonPlayers_Timer = urand(33000, 35000);
             uiRangeCheck_Timer = 1000;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -289,8 +292,8 @@ public:
 
                     if (!PlayerList.isEmpty())
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                            if (i->getSource()->isAlive())
-                                DoTeleportPlayer(i->getSource(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), i->getSource()->GetOrientation());
+                            if (i->GetSource()->IsAlive())
+                                DoTeleportPlayer(i->GetSource(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), i->GetSource()->GetOrientation());
                 }
 
                 uiSummonPlayers_Timer = urand(33000, 35000);
@@ -304,5 +307,5 @@ public:
 void AddSC_boss_xevozz()
 {
     new boss_xevozz();
-    new mob_ethereal_sphere();
+    new npc_ethereal_sphere();
 }

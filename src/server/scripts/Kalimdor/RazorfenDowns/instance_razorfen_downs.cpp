@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -18,6 +21,8 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "razorfen_downs.h"
+#include "Player.h"
+#include "TemporarySummon.h"
 
 #define    MAX_ENCOUNTER  1
 
@@ -26,7 +31,7 @@ class instance_razorfen_downs : public InstanceMapScript
 public:
     instance_razorfen_downs() : InstanceMapScript("instance_razorfen_downs", 129) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_razorfen_downs_InstanceMapScript(map);
     }
@@ -45,7 +50,7 @@ public:
 
         std::string str_data;
 
-        void Initialize()
+        void Initialize() override
         {
             uiGongGUID = 0;
 
@@ -54,7 +59,7 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() override
         {
             OUT_SAVE_INST_DATA;
 
@@ -69,7 +74,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in)
+        void Load(const char* in) override
         {
             if (!in)
             {
@@ -99,21 +104,21 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
                 case GO_GONG:
                     uiGongGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 default:
                     break;
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 uiType, uint32 uiData) override
         {
             if (uiType == DATA_GONG_WAVES)
             {
@@ -124,7 +129,7 @@ public:
                     case 9:
                     case 14:
                         if (GameObject* go = instance->GetGameObject(uiGongGUID))
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case 1:
                     case 10:
@@ -135,7 +140,7 @@ public:
                         if (!go)
                             return;
 
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                         uint32 uiCreature = 0;
                         uint8 uiSummonTimes = 0;
@@ -143,15 +148,15 @@ public:
                         switch (uiGongWaves)
                         {
                             case 1:
-                                uiCreature = CREATURE_TOMB_FIEND;
+                                uiCreature = NPC_TOMB_FIEND;
                                 uiSummonTimes = 7;
                                 break;
                             case 10:
-                                uiCreature = CREATURE_TOMB_REAVER;
+                                uiCreature = NPC_TOMB_REAVER;
                                 uiSummonTimes = 3;
                                 break;
                             case 16:
-                                uiCreature = CREATURE_TUTEN_KASH;
+                                uiCreature = NPC_TUTEN_KASH;
                                 break;
                             default:
                                 break;
@@ -185,7 +190,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 uiType) const override
         {
             switch (uiType)
             {
@@ -196,7 +201,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiType)
+        uint64 GetData64(uint32 uiType) const override
         {
             switch (uiType)
             {

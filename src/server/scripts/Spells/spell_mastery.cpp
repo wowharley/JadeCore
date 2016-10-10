@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,13 +34,11 @@ enum MasterySpells
     MASTERY_SPELL_HAND_OF_LIGHT         = 96172,
     MASTERY_SPELL_IGNITE                = 12654,
     MASTERY_SPELL_BLOOD_SHIELD          = 77535,
+    MASTERY_SPELL_COMBO_BREAKER         = 115636,
+    MASTERY_SPELL_COMBO_BREAKER_1       = 118864,
+    MASTERY_SPELL_COMBO_BREAKER_2       = 116768,
     MASTERY_SPELL_DISCIPLINE_SHIELD     = 77484,
     SPELL_DK_SCENT_OF_BLOOD             = 50421,
-    SPELL_MAGE_MASTERY_ICICLES          = 76613,
-    SPELL_MAGE_ICICLE_DAMAGE            = 148022,
-    SPELL_MAGE_FINGERS_OF_FROST         = 44544,
-    SPELL_MAGE_ICICLE_PERIODIC_TRIGGER  = 148023,
-    SPELL_PRIEST_ECHO_OF_LIGHT          = 77489
 };
 
 // Called by Power Word : Shield - 17, Power Word : Shield (Divine Insight) - 123258, Spirit Shell - 114908, Angelic Bulwark - 114214 and Divine Aegis - 47753
@@ -54,13 +52,13 @@ class spell_mastery_shield_discipline : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_shield_discipline_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr , int32 & amount, bool & )
+            void CalculateAmount(AuraEffect const* , int32 & amount, bool & )
             {
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && caster->getLevel() >= 80)
                     {
-                        float Mastery = 1 + (caster->GetFloatValue(PLAYER_MASTERY) * 1.6f / 100.0f);
+                        float Mastery = 1 + (caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f / 100.0f);
                         amount = int32(amount * Mastery);
                     }
                 }
@@ -75,6 +73,51 @@ class spell_mastery_shield_discipline : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_mastery_shield_discipline_AuraScript();
+        }
+};
+
+// Called by 100780 / 108557 / 115698 / 115687 / 115693 / 115695 - Jab (and overrides)
+// 115636 - Mastery : Combo Breaker
+class spell_mastery_combo_breaker : public SpellScriptLoader
+{
+    public:
+        spell_mastery_combo_breaker() : SpellScriptLoader("spell_mastery_combo_breaker") { }
+
+        class spell_mastery_combo_breaker_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_combo_breaker_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(MASTERY_SPELL_COMBO_BREAKER))
+                        {
+                            float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.4f;
+
+                            if (roll_chance_f(Mastery))
+                            {
+                                if (roll_chance_i(50))
+                                    caster->CastSpell(caster, MASTERY_SPELL_COMBO_BREAKER_1, true);
+                                else
+                                    caster->CastSpell(caster, MASTERY_SPELL_COMBO_BREAKER_2, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mastery_combo_breaker_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_combo_breaker_SpellScript();
         }
 };
 
@@ -100,14 +143,14 @@ class spell_mastery_blood_shield : public SpellScriptLoader
                             // Check the Mastery aura while in Blood presence
                             if (_plr->HasAura(77513) && _plr->HasAura(48263))
                             {
-                                float Mastery = _plr->GetFloatValue(PLAYER_MASTERY) * 6.25f / 100.0f;
+                                float Mastery = _plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 6.25f / 100.0f;
 
                                 int32 bp = -int32(GetHitDamage() * Mastery);
 
-                                if (AuraPtr scentOfBlood = _plr->GetAura(SPELL_DK_SCENT_OF_BLOOD))
+                                if (Aura* scentOfBlood = _plr->GetAura(SPELL_DK_SCENT_OF_BLOOD))
                                     AddPct(bp, (scentOfBlood->GetStackAmount() * 20));
 
-                                if (AuraEffectPtr bloodShield = target->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
+                                if (AuraEffect* bloodShield = target->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
                                     bp += bloodShield->GetAmount();
 
                                 bp = std::min(uint32(bp), target->GetMaxHealth());
@@ -153,7 +196,7 @@ class spell_mastery_ignite : public SpellScriptLoader
                             uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
                             if (procSpellId != MASTERY_SPELL_IGNITE)
                             {
-                                float value = caster->GetFloatValue(PLAYER_MASTERY) * 1.5f / 100.0f;
+								float value = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f / 100.0f;
 
                                 int32 bp = GetHitDamage();
                                 bp = int32(bp * value / 2);
@@ -200,30 +243,16 @@ class spell_mastery_hand_of_light : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->GetGUID() != target->GetGUID()&& caster->HasAura(76672) && caster->getLevel() >= 80)
+                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(76672) && caster->getLevel() >= 80)
                         {
                             uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
                             if (procSpellId != MASTERY_SPELL_HAND_OF_LIGHT)
                             {
-                                float value = caster->GetFloatValue(PLAYER_MASTERY) * 1.85f;
+								float value = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.85f;
 
                                 int32 bp = int32(GetHitDamage() * value / 100);
 
-                                // [Inquisition - 84963] does increase the holy damage done by Mastery : Hand of Light - 76672
-                                if (caster->HasAura(84963))
-                                    bp *= 1.3f;
-
-                                // Need to recalculate if damage is absorbed
-                                if (bp == 0)
-                                {
-                                    int32 absorbedDamage = int32(GetAbsorbedDamage() * value / 100);
-                                    // If spell didn't hit, absorbedDamage will be random negative value, because of it players receive 1kk+ heal/damage from it.
-                                    // 100000 - just in case, to prevent bug with high damage, because it's unreal to deal ~666k damage (666k*0.15%=100k).
-                                    if (absorbedDamage > 0 && absorbedDamage < 100000)
-                                        caster->CastCustomSpell(target, MASTERY_SPELL_HAND_OF_LIGHT, &absorbedDamage, NULL, NULL, true);
-                                }
-                                else
-                                    caster->CastCustomSpell(target, MASTERY_SPELL_HAND_OF_LIGHT, &bp, NULL, NULL, true);
+                                caster->CastCustomSpell(target, MASTERY_SPELL_HAND_OF_LIGHT, &bp, NULL, NULL, true);
                             }
                         }
                     }
@@ -242,240 +271,86 @@ class spell_mastery_hand_of_light : public SpellScriptLoader
         }
 };
 
-const int IcicleAuras[5] = { 148012, 148013, 148014, 148015, 148016 };
-const int IcicleHits[5] = { 148017, 148018, 148019, 148020, 148021 };
-bool IcicleOverstack = false;
-
-// Called by Frostbolt - 116 and Frostfire bolt - 44614
-// Mastery: Icicles - 76613
-class spell_mastery_icicles : public SpellScriptLoader
+// Called by 403 - Lightning Bolt, 421 - Chain Lightning, 51505 - Lava Burst and 117014 - Elemental Blast
+// 77222 - Mastery : Elemental Overload
+class spell_mastery_elemental_overload : public SpellScriptLoader
 {
     public:
-        spell_mastery_icicles() : SpellScriptLoader("spell_mastery_icicles") { }
+        spell_mastery_elemental_overload() : SpellScriptLoader("spell_mastery_elemental_overload") { }
 
-        class spell_mastery_icicles_SpellScript : public SpellScript
+        class spell_mastery_elemental_overload_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mastery_icicles_SpellScript);
+            PrepareSpellScript(spell_mastery_elemental_overload_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(403) || !sSpellMgr->GetSpellInfo(421) || !sSpellMgr->GetSpellInfo(51505) || !sSpellMgr->GetSpellInfo(117014))
+                    return false;
+                return true;
+            }
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                SpellInfo const* procSpell = GetSpellInfo();
+
+                if (procSpell)
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* caster = GetCaster())
                     {
-                        // Calculate damage
-                        int32 hitDamage = GetHitDamage();
-                        if (GetSpell()->IsCritForTarget(target))
-                            hitDamage *= 2;
-                        float Mastery = (_player->GetFloatValue(PLAYER_MASTERY) * 2.0f) / 100.0f;
-                        hitDamage *= Mastery;
-
-                        int8 currentMaxAura = 0;
-
-                        // if hitDamage == 0 we have a miss, so we need to except this variant
-                        if (_player->HasAura(SPELL_MAGE_MASTERY_ICICLES) && hitDamage != 0)
+                        if (Unit* unitTarget = GetHitUnit())
                         {
-                            // We need to find how much icicles we have, and which is the last.
-                            for (int i = 0; i < 5; i++)
-                                if (_player->HasAura(IcicleAuras[i]))
-                                    currentMaxAura = i+1;
-
-                            switch (currentMaxAura)
+                            if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(77222))
                             {
-                                case 0:
-                                    _player->AddAura(IcicleAuras[0], _player);
-                                    break;
-                                case 1:
-                                    _player->AddAura(IcicleAuras[1], _player);
-                                    break;
-                                case 2:
-                                    _player->AddAura(IcicleAuras[2], _player);
-                                    break;
-                                case 3:
-                                    _player->AddAura(IcicleAuras[3], _player);
-                                    break;
-                                case 4:
-                                    _player->AddAura(IcicleAuras[4], _player);
-                                    break;
-                                case 5:
+                                // Every Lightning Bolt, Chain Lightning and Lava Burst spells have duplicate vs 75% damage and no cost
+                                switch (procSpell->Id)
                                 {
-                                    // We need to find an icicle, with the smallest duration.
-                                    int32 minDuration = 0;
-                                    int32 smallestIcicle = 0;
-                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[smallestIcicle]))
-                                        minDuration = _player->GetAura(IcicleAuras[0])->GetDuration();
-
-                                    for (int i = 1; i < 5; i++)
+                                    // Lava Burst
+                                    case 51505:
                                     {
-                                        if (AuraPtr tmpCurrentAura = _player->GetAura(IcicleAuras[i]))
-                                        {
-                                            if (minDuration > tmpCurrentAura->GetDuration())
-                                            {
-                                                minDuration = tmpCurrentAura->GetDuration();
-                                                smallestIcicle = i;
-                                            }
-                                        }
-                                    }
+                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
 
-                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[smallestIcicle]))
-                                    {
-                                        int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
-                                        _player->CastSpell(target, IcicleHits[smallestIcicle], true);
-                                        _player->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
-                                        _player->RemoveAura(IcicleAuras[smallestIcicle]);
-                                    }
+                                        if (roll_chance_f(Mastery))
+                                            caster->CastSpell(unitTarget, MASTERY_SPELL_LAVA_BURST, true);
 
-                                    _player->AddAura(IcicleAuras[smallestIcicle], _player);
-
-                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[smallestIcicle]))
-                                        icicleCurrentAura->GetEffect(0)->SetAmount(int32(hitDamage));
-
-                                    IcicleOverstack = true;
-                                    break;
-                                }
-                            }
-
-                            if (IcicleOverstack == false)
-                                if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[currentMaxAura]))
-                                    icicleCurrentAura->GetEffect(0)->SetAmount(hitDamage);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_mastery_icicles_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mastery_icicles_SpellScript();
-        }
-};
-
-// Ice Lance - 30455
-class spell_mastery_icicles_trigger : public SpellScriptLoader
-{
-    public:
-        spell_mastery_icicles_trigger() : SpellScriptLoader("spell_mastery_icicles_trigger") { }
-
-        class spell_mastery_icicles_trigger_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mastery_icicles_trigger_SpellScript);
-
-            void HandleOnHit(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(44544))
-                        SetHitDamage(int32(GetHitDamage() * 1.25f));
-
-                    if (GetHitUnit())
-                        caster->SetIciclesTarget(GetHitUnit()->GetGUID());
-
-                    caster->CastSpell(caster, SPELL_MAGE_ICICLE_PERIODIC_TRIGGER, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_mastery_icicles_trigger_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mastery_icicles_trigger_SpellScript();
-        }
-};
-
-// Icicles (periodic) - 148023
-class spell_mastery_icicles_periodic : public SpellScriptLoader
-{
-    public:
-        spell_mastery_icicles_periodic() : SpellScriptLoader("spell_mastery_icicles_periodic") { }
-
-        class spell_mastery_icicles_periodic_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_icicles_periodic_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (AuraEffectPtr aura = caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
-                    {
-                        if (aura->GetAmount() > 4)
-                            caster->RemoveAura(GetSpellInfo()->Id);
-
-                        // Maybe not the good target selection ...
-                        if (Unit* target = ObjectAccessor::FindUnit(caster->GetIciclesTarget()))
-                        {
-                            if (AuraPtr icicleCurrentAura = caster->GetAura(IcicleAuras[aura->GetAmount()]))
-                            {
-                                int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
-                                caster->CastSpell(target, IcicleHits[aura->GetAmount()], true);
-                                caster->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
-                                caster->RemoveAura(IcicleAuras[aura->GetAmount()]);
-                                aura->SetAmount(aura->GetAmount() + 1);
-                            }
-
-                            IcicleOverstack = false;
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mastery_icicles_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_icicles_periodic_AuraScript();
-        }
-};
-
-// Icicles: 148017, 148018, 148019, 148020, 148021
-class spell_mastery_icicles_hit : public SpellScriptLoader
-{
-    public:
-        spell_mastery_icicles_hit() : SpellScriptLoader("spell_mastery_icicles_hit") { }
-
-        class spell_mastery_icicles_hit_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mastery_icicles_hit_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->GetGUID() != _player->GetGUID())
-                        {
-                            int8 currentMinAura = 0;
-                            if (IcicleOverstack == false)
-                            {
-                                // We need to find the first icicle and if we found it - break, because function will be called one more time.
-                                for (int i = 4; i >= 0; i--)
-                                {
-                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[i]))
-                                    {
-                                        int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
-                                        _player->CastSpell(target, IcicleHits[i], true);
-                                        _player->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
-                                        _player->RemoveAura(IcicleAuras[i]);
                                         break;
                                     }
+                                    // Lightning Bolt
+                                    case 403:
+                                    {
+                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
+
+                                        if (roll_chance_f(Mastery))
+                                            caster->CastSpell(unitTarget, MASTERY_SPELL_LIGHTNING_BOLT, true);
+
+                                        break;
+                                    }
+                                    // Chain Lightning
+                                    case 421:
+                                    {
+                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
+
+                                        if (roll_chance_f(Mastery))
+                                            caster->CastSpell(unitTarget, MASTERY_SPELL_CHAIN_LIGHTNING, true);
+
+                                        break;
+                                    }
+                                    // Elemental Blast
+                                    case 117014:
+                                    {
+                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
+
+                                        if (roll_chance_f(Mastery))
+                                        {
+                                            caster->CastSpell(unitTarget, MASTERY_SPELL_ELEMENTAL_BLAST, true);
+                                            caster->CastSpell(unitTarget, 118517, true); // Nature visual
+                                            caster->CastSpell(unitTarget, 118515, true); // Frost visual
+                                        }
+
+                                        break;
+                                    }
+                                    default: break;
                                 }
                             }
-
-                            IcicleOverstack = false;
                         }
                     }
                 }
@@ -483,69 +358,22 @@ class spell_mastery_icicles_hit : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mastery_icicles_hit_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_mastery_elemental_overload_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_mastery_icicles_hit_SpellScript();
-        }
-};
-
-// Mastery: Echo of Light - 77485
-class spell_mastery_echo_of_light : public SpellScriptLoader
-{
-    public:
-        spell_mastery_echo_of_light() : SpellScriptLoader("spell_mastery_echo_of_light") { }
-
-        class spell_mastery_echo_of_light_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_echo_of_light_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                if (!GetCaster())
-                    return;
-
-                if (!eventInfo.GetHealInfo() || !eventInfo.GetHealInfo()->GetHeal())
-                    return;
-
-                Unit* unitTarget = eventInfo.GetActionTarget();
-                Player* plr = GetCaster()->ToPlayer();
-                if (!unitTarget || !plr)
-                    return;
-
-                float Mastery = plr->GetFloatValue(PLAYER_MASTERY) * 1.25f / 100.0f;
-                int32 bp = (Mastery * eventInfo.GetHealInfo()->GetHeal()) / 6;
-
-                bp += unitTarget->GetRemainingPeriodicAmount(plr->GetGUID(), SPELL_PRIEST_ECHO_OF_LIGHT, SPELL_AURA_PERIODIC_HEAL);
-                plr->CastCustomSpell(unitTarget, SPELL_PRIEST_ECHO_OF_LIGHT, &bp, NULL, NULL, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_mastery_echo_of_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_echo_of_light_AuraScript();
+            return new spell_mastery_elemental_overload_SpellScript();
         }
 };
 
 void AddSC_mastery_spell_scripts()
 {
     new spell_mastery_shield_discipline();
+    new spell_mastery_combo_breaker();
     new spell_mastery_blood_shield();
     new spell_mastery_ignite();
     new spell_mastery_hand_of_light();
-    new spell_mastery_icicles();
-    new spell_mastery_icicles_trigger();
-    new spell_mastery_icicles_periodic();
-    new spell_mastery_icicles_hit();
-    new spell_mastery_echo_of_light();
+    new spell_mastery_elemental_overload();
 }

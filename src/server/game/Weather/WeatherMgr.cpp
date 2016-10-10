@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,13 +25,17 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "AutoPtr.h"
+#include "Player.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
+#include "WorldSession.h"
 
 namespace WeatherMgr
 {
 
 namespace
 {
-    typedef UNORDERED_MAP<uint32, JadeCore::AutoPtr<Weather, ACE_Null_Mutex> > WeatherMap;
+    typedef UNORDERED_MAP<uint32, Trinity::AutoPtr<Weather, ACE_Null_Mutex> > WeatherMap;
     typedef UNORDERED_MAP<uint32, WeatherData> WeatherZoneMap;
 
     WeatherMap m_weathers;
@@ -85,21 +89,15 @@ void LoadWeatherData()
     uint32 count = 0;
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        // 1        2                   3                       4
         "zone, spring_rain_chance, spring_snow_chance, spring_storm_chance,"
-        // 5                     6                   7
         "summer_rain_chance, summer_snow_chance, summer_storm_chance,"
-        // 8                     9                  10
         "fall_rain_chance, fall_snow_chance, fall_storm_chance,"
-        // 11                   12                  13
         "winter_rain_chance, winter_snow_chance, winter_storm_chance,"
-        // 14
         "ScriptName FROM game_weather");
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
-
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
         return;
     }
 
@@ -120,19 +118,19 @@ void LoadWeatherData()
             if (wzc.data[season].rainChance > 100)
             {
                 wzc.data[season].rainChance = 25;
-                sLog->outError(LOG_FILTER_SQL, "Weather for zone %u season %u has wrong rain chance > 100%%", zone_id, season);
+                TC_LOG_ERROR("sql.sql", "Weather for zone %u season %u has wrong rain chance > 100%%", zone_id, season);
             }
 
             if (wzc.data[season].snowChance > 100)
             {
                 wzc.data[season].snowChance = 25;
-                sLog->outError(LOG_FILTER_SQL, "Weather for zone %u season %u has wrong snow chance > 100%%", zone_id, season);
+                TC_LOG_ERROR("sql.sql", "Weather for zone %u season %u has wrong snow chance > 100%%", zone_id, season);
             }
 
             if (wzc.data[season].stormChance > 100)
             {
                 wzc.data[season].stormChance = 25;
-                sLog->outError(LOG_FILTER_SQL, "Weather for zone %u season %u has wrong storm chance > 100%%", zone_id, season);
+                TC_LOG_ERROR("sql.sql", "Weather for zone %u season %u has wrong storm chance > 100%%", zone_id, season);
             }
         }
 
@@ -142,17 +140,14 @@ void LoadWeatherData()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u weather definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    TC_LOG_INFO("server.loading", ">> Loaded %u weather definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SendFineWeatherUpdateToPlayer(Player* player)
 {
     WorldPacket data(SMSG_WEATHER, (4+4+4));
-    data << float(0.0f);
-    data << (uint32)WEATHER_STATE_FINE;
-    data.WriteBit(0);
-    data.FlushBits();
+
+    data << (uint32)WEATHER_STATE_FINE << (float)0.0f << uint8(0);
     player->GetSession()->SendPacket(&data);
 }
 
@@ -165,8 +160,6 @@ void Update(uint32 diff)
         next = itr;
         ++next;
 
-        if (!itr->second)
-            continue;
         ///- and remove Weather objects for zones with no player
         // As interval > WorldTick
         if (!itr->second->Update(diff))

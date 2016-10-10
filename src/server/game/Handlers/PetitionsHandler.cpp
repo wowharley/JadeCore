@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -26,72 +26,44 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Guild.h"
-#include "Arena.h"
 #include "GossipDef.h"
 #include "SocialMgr.h"
 
 #define CHARTER_DISPLAY_ID 16161
 
-/*enum PetitionType // dbc data
-{
-    PETITION_TYPE_GUILD      = 1,
-    PETITION_TYPE_ARENA_TEAM = 3
-};*/
-
 // Charters ID in item_template
 enum CharterItemIDs
 {
     GUILD_CHARTER                                 = 5863,
-    ARENA_TEAM_CHARTER_2v2                        = 23560,
-    ARENA_TEAM_CHARTER_3v3                        = 23561,
-    ARENA_TEAM_CHARTER_5v5                        = 23562
 };
 
 enum CharterCosts
 {
     GUILD_CHARTER_COST                            = 1000,
-    ARENA_TEAM_CHARTER_2v2_COST                   = 800000,
-    ARENA_TEAM_CHARTER_3v3_COST                   = 1200000,
-    ARENA_TEAM_CHARTER_5v5_COST                   = 2000000
 };
 
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_BUY");
-    ObjectGuid npcGuid;
-    uint32 nameLen = 0;
-    std::string name;
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_BUY");
 
-    npcGuid[6] = recvData.ReadBit();
-    npcGuid[1] = recvData.ReadBit();
-    npcGuid[4] = recvData.ReadBit();
-    npcGuid[2] = recvData.ReadBit();
-    npcGuid[5] = recvData.ReadBit();
-    npcGuid[7] = recvData.ReadBit();
-    npcGuid[3] = recvData.ReadBit();
-    nameLen = recvData.ReadBits(7);
-    npcGuid[0] = recvData.ReadBit();
+    ObjectGuid guid;
 
-    recvData.FlushBits();
+    recvData.ReadGuidMask(guid, 5, 2, 3);
 
-    recvData.ReadByteSeq(npcGuid[0]);
-    recvData.ReadByteSeq(npcGuid[2]);
-    recvData.ReadByteSeq(npcGuid[4]);
-    recvData.ReadByteSeq(npcGuid[6]);
-    recvData.ReadByteSeq(npcGuid[7]);
-    recvData.ReadByteSeq(npcGuid[5]);
-    recvData.ReadByteSeq(npcGuid[3]);
-    recvData.ReadByteSeq(npcGuid[1]);
-    
-    name = recvData.ReadString(nameLen);
+    uint8 nameLength = recvData.ReadBits(7);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(npcGuid), name.c_str());
+    recvData.ReadGuidMask(guid, 4, 1, 7, 0, 6);
+
+    std::string name = recvData.ReadString(nameLength);
+
+    recvData.ReadGuidBytes(guid, 1, 7, 4, 6, 0, 5, 2, 3);
+    TC_LOG_DEBUG("network", "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guid), name.c_str());
 
     // prevent cheating
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_PETITIONER);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(npcGuid));
+        TC_LOG_DEBUG("network", "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(guid));
         return;
     }
 
@@ -102,30 +74,26 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     uint32 charterid = 0;
     uint32 cost = 0;
     uint32 type = 0;
-    if (creature->isTabardDesigner())
-    {
-        // if tabard designer, then trying to buy a guild charter.
-        // do not let if already in guild.
-        if (_player->GetGuildId())
-            return;
 
-        charterid = GUILD_CHARTER;
-        cost = GUILD_CHARTER_COST;
-        type = GUILD_CHARTER_TYPE;
+    // if tabard designer, then trying to buy a guild charter.
+    // do not let if already in guild.
+    if (_player->GetGuildId())
+        return;
+
+    charterid = GUILD_CHARTER;
+    cost = GUILD_CHARTER_COST;
+    type = GUILD_CHARTER_TYPE;
+
+    if (sGuildMgr->GetGuildByName(name))
+    {
+        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, name);
+        return;
     }
 
-    if (type == GUILD_CHARTER_TYPE)
+    if (sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
     {
-        if (sGuildMgr->GetGuildByName(name))
-        {
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
-            return;
-        }
-        if (sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
-        {
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_INVALID, name);
-            return;
-        }
+        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_INVALID, name);
+        return;
     }
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(charterid);
@@ -154,9 +122,10 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     if (!charter)
         return;
 
-    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1, charter->GetGUIDLow());
-    // ITEM_FIELD_ENCHANTMENT_1_1 is guild/arenateam id
-    // ITEM_FIELD_ENCHANTMENT_1_1+1 is current signatures count (showed on item)
+    //I think this has changed
+    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT, charter->GetGUIDLow());
+    // ITEM_FIELD_ENCHANTMENT is guild/arenateam id
+    // ITEM_FIELD_ENCHANTMENT+1 is current signatures count (showed on item)
     charter->SetState(ITEM_CHANGED, _player);
     _player->SendNewItem(charter, 1, true, false);
 
@@ -176,14 +145,14 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
         {
             Field* fields = result->Fetch();
             ssInvalidPetitionGUIDs << '\'' << fields[0].GetUInt32() << "', ";
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
     }
 
     // delete petitions with the same guid as this one
     ssInvalidPetitionGUIDs << '\'' << charter->GetGUIDLow() << '\'';
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
+    //Probably DB Charter Petitions has changed too
+    TC_LOG_DEBUG("network", "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.EscapeString(name);
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM petition WHERE petitionguid IN (%s)",  ssInvalidPetitionGUIDs.str().c_str());
@@ -193,7 +162,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     stmt->setUInt32(0, _player->GetGUIDLow());
     stmt->setUInt32(1, charter->GetGUIDLow());
     stmt->setString(2, name);
-    stmt->setUInt8(3, uint8(type));
+    stmt->setUInt8(3, uint8(type)); //Type no needed anymore
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -201,21 +170,17 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 
 void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
 
-    uint8 signs = 0;
-    ObjectGuid petitionguid;
+    uint8 playerCount = 0;
+    ObjectGuid petitionGuid;
 
-    uint8 bitsOrder[8] = { 4, 3, 5, 6, 2, 1, 0, 7 };
-    recvData.ReadBitInOrder(petitionguid, bitsOrder);
+    recvData.ReadGuidMask(petitionGuid, 3, 7, 2, 4, 5, 6, 0, 1);
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 2, 0, 3, 7, 4, 1, 5, 6 };
-    recvData.ReadBytesSeq(petitionguid, bytesOrder);
+    recvData.ReadGuidBytes(petitionGuid, 2, 4, 5, 7, 1, 0, 3, 6);
 
     // solve (possible) some strange compile problems with explicit use GUID_LOPART(petitionguid) at some GCC versions (wrong code optimization in compiler?)
-    uint32 petitionGuidLow = GUID_LOPART(petitionguid);
+    uint32 petitionGuidLow = GUID_LOPART(petitionGuid);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_TYPE);
 
@@ -225,9 +190,10 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 
     if (!result)
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
+        TC_LOG_DEBUG("entities.player.items", "Petition %u is not found for player %u %s", GUID_LOPART(petitionGuid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
         return;
     }
+
     Field* fields = result->Fetch();
     uint32 type = fields[0].GetUInt8();
 
@@ -243,306 +209,235 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 
     // result == NULL also correct in case no sign yet
     if (result)
-        signs = uint8(result->GetRowCount());
+        playerCount = uint8(result->GetRowCount());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionGuidLow);
+    TC_LOG_DEBUG("network", "CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionGuidLow);
 
-    WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES);
-    ByteBuffer signsBuffer;
-    ObjectGuid guid2 = _player->GetGUID();
-    ObjectGuid guid1 = petitionguid;
+    ObjectGuid playerGuid = _player->GetGUID();
+    ObjectGuid* playerGuids = new ObjectGuid[playerCount];
 
-    data.WriteBit(guid2[4]);
-    data.WriteBit(guid1[4]);
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid2[0]);
-    data.WriteBit(guid2[6]);
-    data.WriteBit(guid1[7]);
-    data.WriteBit(guid2[7]);
-    data.WriteBit(guid1[0]);
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid2[3]);
-    data.WriteBits(signs, 21);
-
-    for (uint8 i = 1; i <= signs; ++i)
+    for (uint8 i = 0; i < playerCount; ++i)
     {
         Field* fields2 = result->Fetch();
         uint32 lowGuid = fields2[0].GetUInt32();
-
-        ObjectGuid signerGuid = MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);
-
-        uint8 bitsSendOrder[8] = { 6, 2, 4, 5, 3, 0, 7, 1 };
-        data.WriteBitInOrder(signerGuid, bitsSendOrder);
-
-        signsBuffer.WriteByteSeq(signerGuid[4]);
-        signsBuffer.WriteByteSeq(signerGuid[7]);
-        signsBuffer.WriteByteSeq(signerGuid[5]);
-        signsBuffer.WriteByteSeq(signerGuid[3]);
-        signsBuffer.WriteByteSeq(signerGuid[2]);
-        signsBuffer << uint32(0);
-        signsBuffer.WriteByteSeq(signerGuid[6]);
-        signsBuffer.WriteByteSeq(signerGuid[1]);
-        signsBuffer.WriteByteSeq(signerGuid[0]);
-
+        playerGuids[i] = MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);
         result->NextRow();
     }
 
-    data.WriteBit(guid1[5]);
-    data.WriteBit(guid1[6]);
-    data.WriteBit(guid1[1]);
-    data.WriteBit(guid1[3]);
-    data.WriteBit(guid2[1]);
-    data.WriteBit(guid1[2]);
+    WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (9 + 9 + 3 + 4 + playerCount * (9 + 4)));
+    data.WriteBit(playerGuid[1]);
+    data.WriteBit(petitionGuid[3]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteGuidMask(petitionGuid, 4, 0);
+    data.WriteGuidMask(playerGuid, 7, 5);
+    data.WriteGuidMask(petitionGuid, 1, 5, 7);
+    data.WriteGuidMask(playerGuid, 0, 6);
+    data.WriteBit(petitionGuid[6]);
+    data.WriteGuidMask(playerGuid, 2, 4);
+    data.WriteBits(playerCount, 21);
+
+    for (int i = 0; i < playerCount; i++)
+    {
+        data.WriteGuidMask(playerGuids[i], 2, 0, 4, 7, 5, 1, 6, 3);
+    }
+
+    data.WriteBit(petitionGuid[2]);
     data.FlushBits();
 
-    data << uint32(petitionGuidLow);
-    if (signsBuffer.size())
-        data.append(signsBuffer);
+    for (int i = 0; i < playerCount; i++)
+    {
+        data.WriteGuidBytes(playerGuids[i], 6, 0, 1, 3, 2, 5, 7, 4);
+        data << uint32(1); // Choice ??? Blizzard also stores declined players ???
+    }
 
-    data.WriteByteSeq(guid1[2]);
-    data.WriteByteSeq(guid2[1]);
-    data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid1[3]);
-    data.WriteByteSeq(guid2[7]);
-    data.WriteByteSeq(guid1[0]);
-    data.WriteByteSeq(guid2[0]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid1[4]);
-    data.WriteByteSeq(guid1[7]);
-    data.WriteByteSeq(guid1[6]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid1[5]);
-    data.WriteByteSeq(guid1[1]);
+    data.WriteGuidBytes(petitionGuid, 6, 5, 4);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(petitionGuid[1]);
+    data << uint32(petitionGuidLow); // guildID
+    data.WriteGuidBytes(petitionGuid, 2, 3, 7);
+    data.WriteGuidBytes(playerGuid, 5, 6, 3, 7, 1, 0);
+    data.WriteByteSeq(petitionGuid[0]);
+    data.WriteByteSeq(playerGuid[2]);
 
+    delete[] playerGuids;
     SendPacket(&data);
 }
 
 void WorldSession::HandlePetitionQueryOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_QUERY");   // ok
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_QUERY");   // ok
 
-    uint32 guildId;
+    uint32 guildguid;
     ObjectGuid petitionGuid;
 
-    recvData >> guildId;
+    recvData >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
 
-    uint8 bitsOrder[8] = { 1, 3, 4, 7, 5, 0, 2, 6 };
-    recvData.ReadBitInOrder(petitionGuid, bitsOrder);
+    recvData.ReadGuidMask(petitionGuid, 2, 3, 1, 0, 4, 7, 6, 5);
 
-    recvData.FlushBits();
+    recvData.ReadGuidBytes(petitionGuid, 0, 4, 7, 5, 1, 6, 3, 2);
 
-    uint8 bytesOrder[8] = { 6, 5, 1, 7, 4, 3, 2, 0 };
-    recvData.ReadBytesSeq(petitionGuid, bytesOrder);
+    TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(petitionGuid), guildguid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(petitionGuid), guildId);
-
-    SendPetitionQueryOpcode(uint64(guildId));
+    SendPetitionQueryOpcode(petitionGuid);
 }
 
-void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
+void WorldSession::SendPetitionQueryOpcode(uint64 petitionGuid)
 {
-    uint64 ownerguid = 0;
+    ObjectGuid ownerGuid = 0;
     uint32 type;
     std::string name = "NO_NAME_FOR_GUID";
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION);
 
-    stmt->setUInt32(0, GUID_LOPART(petitionguid));
+    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
     {
         Field* fields = result->Fetch();
-        ownerguid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+        ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
         name      = fields[1].GetString();
         type      = fields[2].GetUInt8();
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionguid));
+        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionGuid));
         return;
     }
 
-    WorldPacket data(SMSG_PETITION_QUERY_RESPONSE);
-    ObjectGuid ownerGuid = ownerguid;
+    WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+name.size()+1+1+4*12+2+10));
+    data << uint32(GUID_LOPART(petitionGuid));              // guild/team guid (in Trinity always same as GUID_LOPART(petition guid)
+    data.WriteBit(1); // hasData;
 
-    data.WriteBit(type == GUILD_CHARTER_TYPE);
+    for (int i = 0; i < 10; i++)
+        data.WriteBits(0, 6); // Unk strings;
 
-    if (type == GUILD_CHARTER_TYPE)
-    {
-        data.WriteBits(name.size(), 7);
-        data.WriteBit(ownerGuid[6]);
-        data.WriteBit(ownerGuid[1]);
-        for (int i = 0; i < 10; ++i)
-            data.WriteBits(0, 6);               // Unk Strings
+    data.WriteGuidMask(ownerGuid, 2, 4);
+    data.WriteBits(0, 12);
+    data.WriteGuidMask(ownerGuid, 0, 7, 3, 6, 5);
+    data.WriteBits(name.size(), 7); //NameLen
+    data.WriteBit(ownerGuid[1]);
+    data.FlushBits();
 
-        data.WriteBit(ownerGuid[2]);
-        data.WriteBit(ownerGuid[5]);
-        data.WriteBit(ownerGuid[3]);
-        data.WriteBit(ownerGuid[0]);
-        data.WriteBits(0, 12);                  // Unk String
-        data.WriteBit(ownerGuid[7]);
-        data.WriteBit(ownerGuid[4]);
-
-        data << uint32(0);
-        data << uint32(0);
-        data.WriteByteSeq(ownerGuid[3]);
-        data << uint32(4);
-        data.WriteByteSeq(ownerGuid[1]);
-        data << uint32(0);
-        data << uint32(0);
-        data.WriteByteSeq(ownerGuid[0]);
-        data.WriteByteSeq(ownerGuid[5]);
-        data << uint32(0);
-        data.WriteByteSeq(ownerGuid[7]);
-        data << uint32(0);
-        data << uint32(0);
-        data.WriteByteSeq(ownerGuid[2]);
-        data.WriteByteSeq(ownerGuid[4]);
-        if (name.size())
-            data.append(name.c_str(), name.size());
-        data.WriteByteSeq(ownerGuid[6]);
-        
-        data << uint32(4);
-        data << uint16(0);
-        data << uint32(GUID_LOPART(petitionguid));
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        
-        //data << uint32(GUID_LOPART(petitionguid));
-    }
-
-    data << uint32(GUID_LOPART(petitionguid));
+    data.WriteByteSeq(ownerGuid[5]);
+    data << uint32(0);
+    data.WriteString(name);
+    data << uint32(0);
+    data.WriteByteSeq(ownerGuid[4]);
+    data << uint32(type); // Type - 4 guild
+    data.WriteByteSeq(ownerGuid[6]);
+    data << uint32(0);
+    data << uint32(sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS)); // Required sign count
+    data.WriteGuidBytes(ownerGuid, 1, 7, 0);
+    data << uint32(0);
+    data << uint32(0);
+    data.WriteByteSeq(ownerGuid[2]);
+    data << uint32(time(NULL) + YEAR); // Deadline
+    data << uint16(0);
+    data << uint32(0);
+    data.WriteByteSeq(ownerGuid[3]);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
 
     SendPacket(&data);
 }
 
 void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_RENAME");
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_RENAME");
 
     ObjectGuid petitionGuid;
-    uint32 type = 0;
+    uint32 type;
+    uint8 nameLen;
     std::string newName;
-    uint32 nameLen = 0;
 
-    petitionGuid[7] = recvData.ReadBit();
-    petitionGuid[1] = recvData.ReadBit();
-    petitionGuid[0] = recvData.ReadBit();
-    petitionGuid[2] = recvData.ReadBit();
     nameLen = recvData.ReadBits(7);
-    petitionGuid[3] = recvData.ReadBit();
-    petitionGuid[5] = recvData.ReadBit();
-    petitionGuid[4] = recvData.ReadBit();
-    petitionGuid[6] = recvData.ReadBit();
+    recvData.ReadGuidMask(petitionGuid, 7, 4, 6, 2, 0, 5, 3, 1);
 
-    recvData.FlushBits();
-
-    recvData.ReadByteSeq(petitionGuid[3]);
-    recvData.ReadByteSeq(petitionGuid[0]);
-    recvData.ReadByteSeq(petitionGuid[5]);
+    recvData.ReadGuidBytes(petitionGuid, 4, 1, 7);
     newName = recvData.ReadString(nameLen);
-    recvData.ReadByteSeq(petitionGuid[7]);
-    recvData.ReadByteSeq(petitionGuid[4]);
-    recvData.ReadByteSeq(petitionGuid[2]);
-    recvData.ReadByteSeq(petitionGuid[6]);
-    recvData.ReadByteSeq(petitionGuid[1]);
+    recvData.ReadGuidBytes(petitionGuid, 0, 3, 2, 6, 5);
 
     Item* item = _player->GetItemByGuid(petitionGuid);
     if (!item)
+        return;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_TYPE);
+
+    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
+
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    if (result)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionGuid));
+        Field* fields = result->Fetch();
+        type = fields[0].GetUInt8();
+    }
+    else
+    {
+        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionGuid));
         return;
     }
 
     if (sGuildMgr->GetGuildByName(newName))
     {
-        Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, newName);
+        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, newName);
         return;
     }
     if (sObjectMgr->IsReservedName(newName) || !ObjectMgr::IsValidCharterName(newName))
     {
-        Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_INVALID, newName);
+        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_INVALID, newName);
         return;
     }
 
-    auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PETITION_NAME);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PETITION_NAME);
+
     stmt->setString(0, newName);
     stmt->setUInt32(1, GUID_LOPART(petitionGuid));
+
     CharacterDatabase.Execute(stmt);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition (GUID: %u) renamed to '%s'", GUID_LOPART(petitionGuid), newName.c_str());
+    TC_LOG_DEBUG("network", "Petition (GUID: %u) renamed to '%s'", GUID_LOPART(petitionGuid), newName.c_str());
 
-    WorldPacket data(SMSG_PETITION_RENAME);
+    WorldPacket data(SMSG_PETITION_RENAME_RESULT, (9 + 1 + newName.size()));
+    data.WriteBits(newName.length(), 7);
+    data.WriteGuidMask(petitionGuid, 0, 3, 4, 2, 6, 5, 7, 1);
 
-    data.WriteBit(petitionGuid[1]);
-    data.WriteBit(petitionGuid[7]);
-    data.WriteBit(petitionGuid[3]);
-    data.WriteBit(petitionGuid[0]);
-    data.WriteBits(nameLen, 7);
-    data.WriteBit(petitionGuid[2]);
-    data.WriteBit(petitionGuid[5]);
-    data.WriteBit(petitionGuid[6]);
-    data.WriteBit(petitionGuid[4]);
-
-    data.WriteByteSeq(petitionGuid[7]);
-    data.WriteByteSeq(petitionGuid[2]);
-    data.WriteByteSeq(petitionGuid[1]);
-    data.WriteByteSeq(petitionGuid[3]);
-    data.WriteByteSeq(petitionGuid[0]);
-    data.WriteByteSeq(petitionGuid[4]);
-    data.WriteByteSeq(petitionGuid[5]);
-    if (nameLen)
-        data.append(newName.c_str(), nameLen);
-    data.WriteByteSeq(petitionGuid[6]);
-
+    data.WriteGuidBytes(petitionGuid, 4, 3, 6, 0, 5, 2, 1, 7);
+    data.WriteString(newName);
     SendPacket(&data);
 }
 
 void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SIGN");
+    TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SIGN");    // ok
 
     Field* fields;
     ObjectGuid petitionGuid;
-    uint8 unk;
 
-    recvData >> unk;
+    recvData.read_skip<uint8>();
+    recvData.ReadGuidMask(petitionGuid, 4, 2, 0, 1, 5, 3, 6, 7);
 
-    uint8 bitsOrder[8] = { 5, 2, 0, 7, 1, 4, 6, 3 };
-    recvData.ReadBitInOrder(petitionGuid, bitsOrder);
+    recvData.ReadGuidBytes(petitionGuid, 6, 1, 7, 2, 5, 3, 0, 4);
 
-    recvData.FlushBits();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURES);
 
-    uint8 bytesOrder[8] = { 5, 0, 6, 4, 2, 7, 1, 3 };
-    recvData.ReadBytesSeq(petitionGuid, bytesOrder);
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION);
     stmt->setUInt32(0, GUID_LOPART(petitionGuid));
+    stmt->setUInt32(1, GUID_LOPART(petitionGuid));
+
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
-        return;
-
-    fields = result->Fetch();
-    ObjectGuid ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURES);
-    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
-    stmt->setUInt32(1, GUID_LOPART(petitionGuid));
-    result = CharacterDatabase.Query(stmt);
-
-    if (!result)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Petition %u is not found for player %u %s", GUID_LOPART(petitionGuid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
+        TC_LOG_ERROR("network", "Petition %u is not found for player %u %s", GUID_LOPART(petitionGuid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
         return;
     }
 
     fields = result->Fetch();
+    uint64 ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
     uint64 signs = fields[1].GetUInt64();
     uint8 type = fields[2].GetUInt8();
 
@@ -553,23 +448,19 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     // not let enemies sign guild charter
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != sObjectMgr->GetPlayerTeamByGUID(ownerGuid))
     {
-        if (type == GUILD_CHARTER_TYPE)
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NOT_ALLIED);
+        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NOT_ALLIED);
         return;
     }
 
-    if (type == GUILD_CHARTER_TYPE)
+    if (_player->GetGuildId())
     {
-        if (_player->GetGuildId())
-        {
-            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, _player->GetName());
-            return;
-        }
-        if (_player->GetGuildIdInvited())
-        {
-            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_INVITED_TO_GUILD_S, _player->GetName());
-            return;
-        }
+        Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_IN_GUILD_S, _player->GetName());
+        return;
+    }
+    if (_player->GetGuildIdInvited())
+    {
+        Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_INVITED_TO_GUILD_S, _player->GetName());
+        return;
     }
 
     if (++signs > type)                                        // client signs maximum
@@ -586,7 +477,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     if (result)
     {
-        SendPetitionSignResult(_player->GetGUID(), petitionGuid, PETITION_SIGN_ALREADY_SIGNED);
+        // close at signer side
+        SendPetitionSignResults(petitionGuid, _player->GetGUID(), PETITION_SIGN_ALREADY_SIGNED);
         return;
     }
 
@@ -599,246 +491,195 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     CharacterDatabase.Execute(stmt);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", GUID_LOPART(petitionGuid), _player->GetName(), playerGuid, GetAccountId());
+    TC_LOG_DEBUG("network", "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", GUID_LOPART(petitionGuid), _player->GetName().c_str(), playerGuid, GetAccountId());
 
-    SendPetitionSignResult(_player->GetGUID(), petitionGuid, PETITION_SIGN_OK);
+    // close at signer side
+    SendPetitionSignResults(petitionGuid, _player->GetGUID(), PETITION_SIGN_OK);
 
-    Player* owner = ObjectAccessor::FindPlayer(ownerGuid);
-    if (owner)
-        owner->GetSession()->SendPetitionSignResult(_player->GetGUID(), petitionGuid, PETITION_SIGN_OK);
+    // update signs count on charter, required testing...
+    //Item* item = _player->GetItemByGuid(petitionguid));
+    //if (item)
+    //    item->SetUInt32Value(ITEM_FIELD_ENCHANTMENT+1, signs);
+
+    // update for owner if online
+    if (Player* owner = ObjectAccessor::FindPlayer(ownerGuid))
+        owner->GetSession()->SendPetitionSignResults(petitionGuid, _player->GetGUID(), PETITION_SIGN_OK);
 }
 
 void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_DECLINE");
+    TC_LOG_DEBUG("network", "Received opcode MSG_PETITION_DECLINE");  // ok
 
     ObjectGuid petitionGuid;
+    uint64 ownerGuid;
 
-    uint8 bitsOrder[8] = { 1, 4, 6, 7, 3, 2, 0, 5 };
-    recvData.ReadBitInOrder(petitionGuid, bitsOrder);
+    recvData.ReadGuidMask(petitionGuid, 5, 6, 4, 3, 1, 7, 0, 2);
 
-    recvData.FlushBits();
+    recvData.ReadGuidBytes(petitionGuid, 6, 2, 1, 5, 0, 7, 4, 3);
 
-    uint8 bytesOrder[8] = { 5, 3, 4, 6, 0, 7, 2, 1 };
-    recvData.ReadBytesSeq(petitionGuid, bytesOrder);
+    TC_LOG_DEBUG("network", "Petition %u declined by %u", GUID_LOPART(petitionGuid), _player->GetGUIDLow());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u declined by %u", GUID_LOPART(petitionGuid), _player->GetGUIDLow());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_OWNER_BY_GUID);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION);
     stmt->setUInt32(0, GUID_LOPART(petitionGuid));
+
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
         return;
 
     Field* fields = result->Fetch();
-    ObjectGuid ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+    ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
 
     Player* owner = ObjectAccessor::FindPlayer(ownerGuid);
-    if (owner)
-        owner->GetSession()->SendPetitionSignResult(ownerGuid, petitionGuid, PETITION_SIGN_DECLINED);
+    if (owner)                                               // petition owner online
+        owner->GetSession()->SendPetitionSignResults(petitionGuid, _player->GetGUID(), PETITION_SIGN_OK);
 }
 
 void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_OFFER_PETITION");
+    TC_LOG_DEBUG("network", "Received opcode CMSG_OFFER_PETITION");   // ok
 
+    uint8 playerCount = 0;
     ObjectGuid petitionGuid, playerGuid;
-    uint32 type, junk;
+    uint32 type;
     Player* player;
 
-    ObjectGuid guid1;
-    ObjectGuid guid2;
-    recvData >> junk;                                      // this is not petition type!
+    recvData.read_skip<uint32>();
 
-    guid1[3] = recvData.ReadBit();
-    guid1[2] = recvData.ReadBit();
-    guid1[5] = recvData.ReadBit();
-    guid2[4] = recvData.ReadBit();
-    guid1[7] = recvData.ReadBit();
-    guid1[6] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-    guid2[7] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid1[4] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[2] = recvData.ReadBit();
-    guid1[1] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-    guid1[0] = recvData.ReadBit();
+    recvData.ReadGuidMask(playerGuid, 4, 1);
+    petitionGuid[2] = recvData.ReadBit();
+    playerGuid[6] = recvData.ReadBit();
+    petitionGuid[1] = recvData.ReadBit();
+    playerGuid[2] = recvData.ReadBit();
+    petitionGuid[4] = recvData.ReadBit();
+    recvData.ReadGuidMask(playerGuid, 3, 7);
+    recvData.ReadGuidMask(petitionGuid, 0, 6);
+    recvData.ReadGuidMask(playerGuid, 5, 0);
+    recvData.ReadGuidMask(petitionGuid, 3, 5, 7);
 
-    recvData.FlushBits();
-
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid2[5]);
-    recvData.ReadByteSeq(guid2[4]);
-    recvData.ReadByteSeq(guid1[7]);
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid1[2]);
-    recvData.ReadByteSeq(guid1[0]);
-    recvData.ReadByteSeq(guid1[6]);
-    recvData.ReadByteSeq(guid2[7]);
-    recvData.ReadByteSeq(guid1[1]);
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid1[3]);
-    recvData.ReadByteSeq(guid1[5]);
-    recvData.ReadByteSeq(guid2[6]);
-
-    petitionGuid = guid1;
-    playerGuid = guid2;
+    recvData.ReadByteSeq(playerGuid[7]);
+    recvData.ReadGuidBytes(petitionGuid, 1, 4, 2);
+    recvData.ReadByteSeq(playerGuid[6]);
+    recvData.ReadGuidBytes(petitionGuid, 3, 0, 5);
+    recvData.ReadGuidBytes(playerGuid, 0, 2, 5, 3, 4);
+    recvData.ReadByteSeq(petitionGuid[7]);
+    recvData.ReadByteSeq(playerGuid[1]);
+    recvData.ReadByteSeq(petitionGuid[6]);
 
     player = ObjectAccessor::FindPlayer(playerGuid);
     if (!player)
         return;
 
-    type = GUILD_CHARTER_TYPE;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_TYPE);
 
-    uint32 petitionGuidLow = GUID_LOPART(petitionGuid);
+    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "OFFER PETITION: type %u, GUID1 %u, to player id: %u", type, petitionGuidLow, GUID_LOPART(playerGuid));
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+        return;
+
+    Field* fields = result->Fetch();
+    type = fields[0].GetUInt8();
+
+    TC_LOG_DEBUG("network", "OFFER PETITION: type %u, GUID1 %u, to player id: %u", type, GUID_LOPART(petitionGuid), GUID_LOPART(playerGuid));
 
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != player->GetTeam())
     {
-        if (type == GUILD_CHARTER_TYPE)
-            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NOT_ALLIED);
+        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NOT_ALLIED);
         return;
     }
 
-    if (type == GUILD_CHARTER_TYPE)
+    if (player->GetGuildId())
     {
-        if (player->GetGuildIdInvited())
-        {
-            SendPetitionSignResult(_player->GetGUID(), MAKE_NEW_GUID(petitionGuidLow, 0, HIGHGUID_ITEM), PETITION_SIGN_ALREADY_SIGNED_OTHER);
-            return;
-        }
-
-        if (player->GetGuildId())
-        {
-            SendPetitionSignResult(_player->GetGUID(), MAKE_NEW_GUID(petitionGuidLow, 0, HIGHGUID_ITEM), PETITION_SIGN_ALREADY_IN_GUILD);
-            return;
-        }
+        Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_IN_GUILD_S, _player->GetName());
+        return;
     }
 
-    auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURE);
-    stmt->setUInt32(0, petitionGuidLow);
-    auto result = CharacterDatabase.Query(stmt);
+    if (player->GetGuildIdInvited())
+    {
+        Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_INVITED_TO_GUILD_S, _player->GetName());
+        return;
+    }
 
-    typedef std::vector<uint32> storage;
-    storage loParts;
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURE);
+
+    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
+
+    result = CharacterDatabase.Query(stmt);
 
     // result == NULL also correct charter without signs
     if (result)
+        playerCount = uint8(result->GetRowCount());
+
+    ObjectGuid* playerGuids = new ObjectGuid[playerCount];
+
+    for (uint8 i = 0; i < playerCount; ++i)
     {
-        loParts.reserve(uint32(result->GetRowCount()));
-
-        do
-        {
-            auto fields = result->Fetch();
-            auto loPart = fields[0].GetUInt32();
-            if (GUID_LOPART(playerGuid) == loPart)
-            {
-                player->GetSession()->SendAlreadySigned(playerGuid);
-                return;
-            }
-
-            loParts.push_back(loPart);
-        }
-        while (result->NextRow());
+        Field* fields2 = result->Fetch();
+        uint32 lowGuid = fields2[0].GetUInt32();
+        playerGuids[i] = MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);
+        result->NextRow();
     }
 
-    WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES);
-    ByteBuffer signsBuffer;
+    WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (9 + 9 + 3 + 4 + playerCount * (9 + 4)));
+    data.WriteBit(playerGuid[1]);
+    data.WriteBit(petitionGuid[3]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteGuidMask(petitionGuid, 4, 0);
+    data.WriteGuidMask(playerGuid, 7, 5);
+    data.WriteGuidMask(petitionGuid, 1, 5, 7);
+    data.WriteGuidMask(playerGuid, 0, 6);
+    data.WriteBit(petitionGuid[6]);
+    data.WriteGuidMask(playerGuid, 2, 4);
+    data.WriteBits(playerCount, 21);
 
-    guid2 = _player->GetGUID();
-    //ObjectGuid guid1 = petitionGuid;
-
-    data.WriteBit(guid2[4]);
-    data.WriteBit(guid1[4]);
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid2[0]);
-    data.WriteBit(guid2[6]);
-    data.WriteBit(guid1[7]);
-    data.WriteBit(guid2[7]);
-    data.WriteBit(guid1[0]);
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid2[3]);
-    data.WriteBits(loParts.size(), 21);
-
-    for (auto lowGuid : loParts)
+    for (int i = 0; i < playerCount; i++)
     {
-        ObjectGuid signerGuid = MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);
-
-        uint8 bitsSendOrder[8] = { 6, 2, 4, 5, 3, 0, 7, 1 };
-        data.WriteBitInOrder(signerGuid, bitsSendOrder);
-
-        signsBuffer.WriteByteSeq(signerGuid[4]);
-        signsBuffer.WriteByteSeq(signerGuid[7]);
-        signsBuffer.WriteByteSeq(signerGuid[5]);
-        signsBuffer.WriteByteSeq(signerGuid[3]);
-        signsBuffer.WriteByteSeq(signerGuid[2]);
-        signsBuffer << uint32(0);
-        signsBuffer.WriteByteSeq(signerGuid[6]);
-        signsBuffer.WriteByteSeq(signerGuid[1]);
-        signsBuffer.WriteByteSeq(signerGuid[0]);
+        data.WriteGuidMask(playerGuids[i], 2, 0, 4, 7, 5, 1, 6, 3);
     }
 
-    data.WriteBit(guid1[5]);
-    data.WriteBit(guid1[6]);
-    data.WriteBit(guid1[1]);
-    data.WriteBit(guid1[3]);
-    data.WriteBit(guid2[1]);
-    data.WriteBit(guid1[2]);
+    data.WriteBit(petitionGuid[2]);
     data.FlushBits();
 
-    data << uint32(petitionGuidLow);
-    if (signsBuffer.size())
-        data.append(signsBuffer);
+    for (int i = 0; i < playerCount; i++)
+    {
+        data.WriteGuidBytes(playerGuids[i], 6, 0, 1, 3, 2, 5, 7, 4);
+        data << uint32(1); // Choice ??? Blizzard also stores declined players ???
+    }
 
-    data.WriteByteSeq(guid1[2]);
-    data.WriteByteSeq(guid2[1]);
-    data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid1[3]);
-    data.WriteByteSeq(guid2[7]);
-    data.WriteByteSeq(guid1[0]);
-    data.WriteByteSeq(guid2[0]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid1[4]);
-    data.WriteByteSeq(guid1[7]);
-    data.WriteByteSeq(guid1[6]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid1[5]);
-    data.WriteByteSeq(guid1[1]);
+    data.WriteGuidBytes(petitionGuid, 6, 5, 4);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(petitionGuid[1]);
+    data << uint32(GUID_LOPART(petitionGuid)); // guildID
+    data.WriteGuidBytes(petitionGuid, 2, 3, 7);
+    data.WriteGuidBytes(playerGuid, 5, 6, 3, 7, 1, 0);
+    data.WriteByteSeq(petitionGuid[0]);
+    data.WriteByteSeq(playerGuid[2]);
 
+    delete[] playerGuids;
     player->GetSession()->SendPacket(&data);
 }
 
 void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_TURN_IN_PETITION");
+    TC_LOG_DEBUG("network", "Received opcode CMSG_TURN_IN_PETITION");
 
     // Get petition guid from packet
     WorldPacket data;
     ObjectGuid petitionGuid;
 
-    uint8 bitsOrder[8] = { 2, 3, 5, 0, 7, 1, 4, 6 };
-    recvData.ReadBitInOrder(petitionGuid, bitsOrder);
+    recvData.ReadGuidMask(petitionGuid, 1, 2, 3, 0, 5, 7, 4, 6);
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 7, 5, 1, 3, 6, 4, 2, 0 };
-    recvData.ReadBytesSeq(petitionGuid, bytesOrder);
+    recvData.ReadGuidBytes(petitionGuid, 2, 1, 4, 6, 0, 7, 5, 3);
 
     // Check if player really has the required petition charter
     Item* item = _player->GetItemByGuid(petitionGuid);
     if (!item)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u turned in by %u", GUID_LOPART(petitionGuid), _player->GetGUIDLow());
+    TC_LOG_DEBUG("network", "Petition %u turned in by %u", GUID_LOPART(petitionGuid), _player->GetGUIDLow());
 
     // Get petition data from db
     uint32 ownerguidlo;
@@ -858,7 +699,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     }
     else
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (guid: %u) tried to turn in petition (guid: %u) that is not present in the database", _player->GetName(), _player->GetGUIDLow(), GUID_LOPART(petitionGuid));
+        TC_LOG_ERROR("network", "Player %s (guid: %u) tried to turn in petition (guid: %u) that is not present in the database", _player->GetName().c_str(), _player->GetGUIDLow(), GUID_LOPART(petitionGuid));
         return;
     }
 
@@ -866,20 +707,21 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     if (_player->GetGUIDLow() != ownerguidlo)
         return;
 
+    // Petition type (guild/arena) specific checks
     // Check if player is already in a guild
     if (_player->GetGuildId())
     {
-        data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 4);
+        data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 1);
         data.WriteBits(PETITION_TURN_ALREADY_IN_GUILD, 4);
         data.FlushBits();
-        SendPacket(&data);
+        _player->GetSession()->SendPacket(&data);
         return;
     }
 
     // Check if guild name is already taken
     if (sGuildMgr->GetGuildByName(name))
     {
-        Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
+        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, name);
         return;
     }
 
@@ -896,12 +738,15 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         signatures = 0;
 
     uint32 requiredSignatures;
-    requiredSignatures = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
+    if (type == GUILD_CHARTER_TYPE)
+        requiredSignatures = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
+    else
+        requiredSignatures = type-1;
 
     // Notify player if signatures are missing
     if (signatures < requiredSignatures)
     {
-        data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 4);
+        data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 1);
         data.WriteBits(PETITION_TURN_NEED_MORE_SIGNATURES, 4);
         data.FlushBits();
         SendPacket(&data);
@@ -925,6 +770,8 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     // Register guild and add guild master
     sGuildMgr->AddGuild(guild);
 
+    Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_COMMAND_SUCCESS, name);
+
     // Add members from signatures
     for (uint8 i = 0; i < signatures; ++i)
     {
@@ -946,9 +793,9 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     CharacterDatabase.CommitTransaction(trans);
 
     // created
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "TURN IN PETITION GUID %u", GUID_LOPART(petitionGuid));
+    TC_LOG_DEBUG("network", "TURN IN PETITION GUID %u", GUID_LOPART(petitionGuid));
 
-    data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 4);
+    data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 1);
     data.WriteBits(PETITION_TURN_OK, 4);
     data.FlushBits();
     SendPacket(&data);
@@ -956,10 +803,20 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
 
 void WorldSession::HandlePetitionShowListOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received CMSG_PETITION_SHOWLIST");
+    TC_LOG_DEBUG("network", "Received CMSG_PETITION_SHOWLIST");
 
-    uint64 guid;
-    recvData >> guid;
+    ObjectGuid guid;
+
+    recvData.ReadGuidMask(guid, 1, 7, 2, 5, 4, 0, 3, 6);
+
+    recvData.ReadGuidBytes(guid, 6, 3, 2, 4, 1, 7, 5, 0);
+
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
+    if (!unit)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandlePetitionerShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        return;
+    }
 
     SendPetitionShowList(guid);
 }
@@ -969,84 +826,48 @@ void WorldSession::SendPetitionShowList(uint64 guid)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 
-    WorldPacket data(SMSG_PETITION_SHOW_LIST, 8 + 1 + 4 * 6);
     ObjectGuid npcGuid = guid;
 
-    uint8 bitsOrder[8] = { 3, 6, 2, 0, 1, 4, 7, 5 };
-    data.WriteBitInOrder(npcGuid, bitsOrder);
+    WorldPacket data(SMSG_PETITION_SHOWLIST, 9 + 4);
+    data.WriteGuidMask(npcGuid, 3, 5, 7, 6, 1, 0, 2, 4);
 
-    data.WriteByteSeq(npcGuid[2]);
-    data.WriteByteSeq(npcGuid[7]);
-    data.WriteByteSeq(npcGuid[5]);
-    data.WriteByteSeq(npcGuid[4]);
-    data.WriteByteSeq(npcGuid[1]);
-    data.WriteByteSeq(npcGuid[0]);
-    data.WriteByteSeq(npcGuid[3]);
-    data << uint32(GUILD_CHARTER_COST);                 // charter cost
-    data.WriteByteSeq(npcGuid[6]);
+    data.WriteGuidBytes(npcGuid, 6, 0, 1);
+    data << uint32(GUILD_CHARTER_COST); // Petition Cost
+    data.WriteGuidBytes(npcGuid, 4, 3, 5, 2, 7);
 
     SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Sent SMSG_PETITION_SHOW_LIST");
+    TC_LOG_DEBUG("network", "Sent SMSG_PETITION_SHOWLIST");
 }
 
-void WorldSession::SendPetitionSignResult(ObjectGuid ownerGuid, ObjectGuid petitionGuid, uint8 result)
+void WorldSession::SendPetitionSignResults(ObjectGuid petitionGuid, ObjectGuid playerGuid, uint8 result)
 {
-    ObjectGuid guid2 = ownerGuid;
-    ObjectGuid guid1 = petitionGuid;
+    WorldPacket data(SMSG_PETITION_SIGN_RESULTS, 9 + 9 +1);
+    data.WriteGuidMask(playerGuid, 2, 0);
+    data.WriteBit(petitionGuid[0]);
+    data.WriteBit(playerGuid[1]);
+    data.WriteGuidMask(petitionGuid, 5, 2, 4);
+    data.WriteBit(playerGuid[6]);
+    data.WriteGuidMask(petitionGuid, 1, 6);
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(petitionGuid[3]);
+    data.WriteGuidMask(playerGuid, 5, 3);
+    data.WriteBit(petitionGuid[7]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBits(result, 4);
+    data.FlushBits();
 
-    WorldPacket data(SMSG_PETITION_DECLINED);
-
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid2[4]);
-    data.WriteBit(guid1[6]);
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid1[3]);
-    data.WriteBit(guid2[1]);
-    data.WriteBit(guid1[7]);
-    data.WriteBit(guid1[2]);
-    data.WriteBits(PetitionSigns(result), 4);
-    data.WriteBit(guid2[0]);
-    data.WriteBit(guid2[7]);
-    data.WriteBit(guid1[4]);
-    data.WriteBit(guid1[0]);
-    data.WriteBit(guid2[3]);
-    data.WriteBit(guid1[1]);
-    data.WriteBit(guid2[6]);
-    data.WriteBit(guid1[5]);
-
-    data.WriteByteSeq(guid2[0]);
-    data.WriteByteSeq(guid1[5]);
-    data.WriteByteSeq(guid2[7]);
-    data.WriteByteSeq(guid1[2]);
-    data.WriteByteSeq(guid2[1]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid1[4]);
-    data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid1[6]);
-    data.WriteByteSeq(guid1[3]);
-    data.WriteByteSeq(guid1[0]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid1[7]);
-    data.WriteByteSeq(guid1[1]);
-
-    SendPacket(&data);
-}
-
-void WorldSession::SendAlreadySigned(ObjectGuid playerGuid)
-{
-    WorldPacket data(SMSG_PETITION_ALREADY_SIGNED);
-
-    uint8 bitsOrder[8] = { 4, 2, 1, 5, 7, 6, 0, 3 };
-    data.WriteBitInOrder(playerGuid, bitsOrder);
-
-    uint8 bytesOder[8] = { 6, 2, 7, 1, 3, 4, 0, 5 };
-    data.WriteBytesSeq(playerGuid, bytesOder);
-
+    data.WriteGuidBytes(petitionGuid, 0, 5);
+    data.WriteGuidBytes(playerGuid, 3, 0);
+    data.WriteByteSeq(petitionGuid[3]);
+    data.WriteGuidBytes(playerGuid, 2, 6, 4, 1);
+    data.WriteGuidBytes(petitionGuid, 6, 7);
+    data.WriteByteSeq(playerGuid[7]);
+    data.WriteGuidBytes(petitionGuid, 2, 1);
+    data.WriteByteSeq(playerGuid[5]);
+    data.WriteByteSeq(petitionGuid[4]);
     SendPacket(&data);
 }

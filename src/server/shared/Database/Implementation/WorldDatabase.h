@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,8 +26,8 @@ class WorldDatabaseConnection : public MySQLConnection
 {
     public:
         //- Constructors for sync and async connections
-        WorldDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
-        WorldDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
+        WorldDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
+        WorldDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
 
         //- Loads database type specific prepared statements
         void DoPrepareStatements();
@@ -60,7 +61,6 @@ enum WorldDatabaseStatements
     WORLD_UPD_CREATURE_MOVEMENT_TYPE,
     WORLD_UPD_CREATURE_FACTION,
     WORLD_UPD_CREATURE_NPCFLAG,
-    WORLD_UPD_CREATURE_NPCFLAG2,
     WORLD_UPD_CREATURE_POSITION,
     WORLD_UPD_CREATURE_SPAWN_DISTANCE,
     WORLD_UPD_CREATURE_SPAWN_TIME_SECS,
@@ -96,17 +96,14 @@ enum WorldDatabaseStatements
     WORLD_UPD_WAYPOINT_SCRIPT_O,
     WORLD_SEL_WAYPOINT_SCRIPT_ID_BY_GUID,
     WORLD_DEL_CREATURE,
-    WORLD_INS_CREATURE_TRANSPORT,
-    WORLD_UPD_CREATURE_TRANSPORT_EMOTE,
     WORLD_SEL_COMMANDS,
     WORLD_SEL_CREATURE_TEMPLATE,
     WORLD_SEL_WAYPOINT_SCRIPT_BY_ID,
-    WORLD_SEL_IP2NATION_COUNTRY,
     WORLD_SEL_ITEM_TEMPLATE_BY_NAME,
     WORLD_SEL_CREATURE_BY_ID,
     WORLD_SEL_GAMEOBJECT_NEAREST,
-    WORLD_SEL_GAMEOBJECT_TARGET,
     WORLD_SEL_CREATURE_NEAREST,
+    WORLD_SEL_GAMEOBJECT_TARGET,
     WORLD_INS_CREATURE,
     WORLD_DEL_GAME_EVENT_CREATURE,
     WORLD_DEL_GAME_EVENT_MODEL_EQUIP,
@@ -114,16 +111,10 @@ enum WorldDatabaseStatements
     WORLD_SEL_DISABLES,
     WORLD_INS_DISABLES,
     WORLD_DEL_DISABLES,
+    WORLD_SEL_REQ_XP,
     WORLD_SEL_BLACKMARKET_TEMPLATE,
 
-    WORLD_SEL_RATE_TEMPLATE,
-    WORLD_INS_RATE_TEMPLATE,
-    WORLD_DEL_RATE_TEMPLATE,
-    WORLD_UPD_XP_RATE_TEMPLATE,
-    WORLD_UPD_HONOR_RATE_TEMPLATE,
-    WORLD_UPD_GOLD_RATE_TEMPLATE,
-
-    MAX_WORLDDATABASE_STATEMENTS,
+    MAX_WORLDDATABASE_STATEMENTS
 };
 
 #endif

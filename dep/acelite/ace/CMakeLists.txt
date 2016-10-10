@@ -1,6 +1,4 @@
-# Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-# Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -321,6 +319,11 @@ set(ace_STAT_SRCS
   XTI_ATM_Mcast.cpp
 )
 
+if (USE_COREPCH)
+  set(ace_PCH_HDR PrecompiledHeaders/WinAcePCH.h)
+  set(ace_PCH_SRC PrecompiledHeaders/WinAcePCH.cpp)
+endif()
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/dep/acelite
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
@@ -339,6 +342,11 @@ add_library(ace SHARED
 
 if (MINGW) # GCC ignores "#prama comment"
   target_link_libraries(ace ws2_32 iphlpapi netapi32 mswsock)
+endif()
+
+# Generate precompiled header
+if( USE_COREPCH )
+  add_cxx_pch(ace ${ace_PCH_HDR} ${ace_PCH_SRC})
 endif()
 
 install(TARGETS ace RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")

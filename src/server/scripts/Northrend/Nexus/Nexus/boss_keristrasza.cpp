@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -16,8 +18,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "nexus.h"
+#include "Player.h"
 
 enum Spells
 {
@@ -36,11 +42,11 @@ enum Spells
 enum Yells
 {
     //Yell
-    SAY_AGGRO                                     = -1576040,
-    SAY_SLAY                                      = -1576041,
-    SAY_ENRAGE                                    = -1576042,
-    SAY_DEATH                                     = -1576043,
-    SAY_CRYSTAL_NOVA                              = -1576044
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_ENRAGE                                    = 2,
+    SAY_DEATH                                     = 3,
+    SAY_CRYSTAL_NOVA                              = 4
 };
 
 enum Misc
@@ -54,16 +60,19 @@ class boss_keristrasza : public CreatureScript
 public:
     boss_keristrasza() : CreatureScript("boss_keristrasza") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_keristraszaAI (creature);
+        return new boss_keristraszaAI(creature);
     }
 
-    struct boss_keristraszaAI : public BossAI
+    struct boss_keristraszaAI : public ScriptedAI
     {
-        boss_keristraszaAI(Creature* c) : BossAI(c, DATA_KERISTRASZA)
+        boss_keristraszaAI(Creature* creature) : ScriptedAI(creature)
         {
+            instance = creature->GetInstanceScript();
         }
+
+        InstanceScript* instance;
 
         std::list<uint64> intenseColdList;
         uint64 auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
@@ -73,7 +82,7 @@ public:
         bool intenseCold;
         bool bEnrage;
 
-        void Reset()
+        void Reset() override
         {
             uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
             uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS, 11*IN_MILLISECONDS);
@@ -87,27 +96,30 @@ public:
 
             RemovePrison(CheckContainmentSpheres());
 
-            instance->SetBossState(DATA_KERISTRASZA, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             DoCastAOE(SPELL_INTENSE_COLD);
 
-            instance->SetBossState(DATA_KERISTRASZA, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
-            instance->SetBossState(DATA_KERISTRASZA, DONE);
+            if (instance)
+                instance->SetData(DATA_KERISTRASZA_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
-            DoScriptText(SAY_SLAY, me);
+            Talk(SAY_SLAY);
         }
 
         bool CheckContainmentSpheres(bool remove_prison = false)
@@ -115,9 +127,9 @@ public:
             if (!instance)
                 return false;
 
-            auiContainmentSphereGUIDs[0] = instance->GetData64(DATA_ANOMALUS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[1] = instance->GetData64(DATA_ORMOROKS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[2] = instance->GetData64(DATA_TELESTRAS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[0] = instance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[1] = instance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[2] = instance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
 
             GameObject* ContainmentSpheres[DATA_CONTAINMENT_SPHERES];
 
@@ -151,27 +163,27 @@ public:
             }
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */)
+        void SetGUID(uint64 guid, int32 id/* = 0 */) override
         {
             if (id == DATA_INTENSE_COLD)
                 intenseColdList.push_back(guid);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
             if (!bEnrage && HealthBelowPct(25))
             {
-                DoScriptText(SAY_ENRAGE, me);
+                Talk(SAY_ENRAGE);
                 DoCast(me, SPELL_ENRAGE);
                 bEnrage = true;
             }
 
             if (uiCrystalfireBreathTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CRYSTALFIRE_BREATH);
+                DoCastVictim(SPELL_CRYSTALFIRE_BREATH);
                 uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
             } else uiCrystalfireBreathTimer -= diff;
 
@@ -183,7 +195,7 @@ public:
 
             if (uiCrystalChainsCrystalizeTimer <= diff)
             {
-                DoScriptText(SAY_CRYSTAL_NOVA, me);
+                Talk(SAY_CRYSTAL_NOVA);
                 if (IsHeroic())
                     DoCast(me, SPELL_CRYSTALIZE);
                 else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -202,16 +214,16 @@ class containment_sphere : public GameObjectScript
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
-        InstanceScript* instance = pGO->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
 
-        Creature* pKeristrasza = Unit::GetCreature(*pGO, instance ? instance->GetData64(DATA_KERISTRASZA) : 0);
-        if (pKeristrasza && pKeristrasza->isAlive())
+        Creature* pKeristrasza = Unit::GetCreature(*go, instance ? instance->GetData64(DATA_KERISTRASZA) : 0);
+        if (pKeristrasza && pKeristrasza->IsAlive())
         {
             // maybe these are hacks :(
-            pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            pGO->SetGoState(GO_STATE_ACTIVE);
+            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go->SetGoState(GO_STATE_ACTIVE);
 
             CAST_AI(boss_keristrasza::boss_keristraszaAI, pKeristrasza->AI())->CheckContainmentSpheres(true);
         }
@@ -229,24 +241,24 @@ class spell_intense_cold : public SpellScriptLoader
         {
             PrepareAuraScript(spell_intense_cold_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr aurEff)
+            void HandlePeriodicTick(AuraEffect const* aurEff)
             {
                 if (aurEff->GetBase()->GetStackAmount() < 2)
                     return;
                 Unit* caster = GetCaster();
-                //TODO: the caster should be boss but not the player
+                /// @todo the caster should be boss but not the player
                 if (!caster || !caster->GetAI())
                     return;
                 caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_intense_cold_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_intense_cold_AuraScript();
         }
@@ -259,7 +271,7 @@ class achievement_intense_cold : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* player, Unit* target)
+        bool OnCheck(Player* player, Unit* target) override
         {
             if (!target)
                 return false;

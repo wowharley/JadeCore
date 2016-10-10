@@ -1,6 +1,16 @@
+# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 # output generic information about the core and buildtype chosen
 message("")
-message("* JadeCore revision      : ${rev_hash} ${rev_date} (${rev_branch} branch)")
+message("* JadeCore revision   : ${rev_hash} ${rev_date} (${rev_branch} branch)")
 if( UNIX )
   message("* JadeCore buildtype  : ${CMAKE_BUILD_TYPE}")
 endif()
@@ -28,11 +38,11 @@ if( SCRIPTS )
   add_definitions(-DSCRIPTS)
 else()
   message("* Build with scripts     : No")
-  set(USE_SCRIPTPCH 0)
 endif()
 
 if( TOOLS )
   message("* Build map/vmap tools   : Yes")
+  add_definitions(-DNO_CORE_FUNCS)
 else()
   message("* Build map/vmap tools   : No  (default)")
 endif()
@@ -56,55 +66,10 @@ else()
 endif()
 
 if( WITH_COREDEBUG )
-  message("")
-  message(" *** WITH_COREDEBUG - WARNING!")
-  message(" *** additional core debug logs have been enabled!")
-  message(" *** this setting doesn't help to get better crash logs!")
-  message(" *** in case you are searching for better crash logs use")
-  message(" *** -DCMAKE_BUILD_TYPE=RelWithDebug")
-  message(" *** DO NOT ENABLE IT UNLESS YOU KNOW WHAT YOU'RE DOING!")
   message("* Use coreside debug     : Yes")
   add_definitions(-DTRINITY_DEBUG)
 else()
   message("* Use coreside debug     : No  (default)")
-endif()
-
-if( WITH_SOURCE_TREE STREQUAL "flat" OR WITH_SOURCE_TREE STREQUAL "hierarchical" )
-  # TODO: Remove this after Debian 8 is released and set general required version to 2.8.12
-  #       Debian 7 is shipped with CMake 2.8.9 . But DIRECTORY flag of get_filename_component requires 2.8.12 .
-  if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
-    message("* Show source tree       : Yes - ${WITH_SOURCE_TREE}")
-    set(_WITH_SOURCE_TREE ${WITH_SOURCE_TREE} CACHE INTERNAL "WITH_SOURCE_TREE support enabled.")
-  else()
-    message("* Show source tree       : No  (default)")
-
-    message("")
-    message(" *** WITH_SOURCE_TREE - WARNING!")
-    message(" *** This functionality is ONLY supported on CMake 2.8.12 or higher.")
-    message(" *** You are running ${CMAKE_VERSION}, which does not have the functions needed")
-    message(" *** to create a sourcetree - this option is thus forced to disabled!")
-    message("")
-
-    set(_WITH_SOURCE_TREE "" CACHE INTERNAL "WITH_SOURCE_TREE support disabled.")
-  endif()
-else()
-  message("* Show source tree       : No  (default)")
-  set(_WITH_SOURCE_TREE "" CACHE INTERNAL "WITH_SOURCE_TREE support disabled.")
-endif()
-
-if ( WITHOUT_GIT )
-  message("* Use GIT revision hash  : No")
-  message("")
-  message(" *** WITHOUT_GIT - WARNING!")
-  message(" *** By choosing the WITHOUT_GIT option you have waived all rights for support,")
-  message(" *** and accept that or all requests for support or assistance sent to the core")
-  message(" *** developers will be rejected. This due to that we will be unable to detect")
-  message(" *** what revision of the codebase you are using in a proper way.")
-  message(" *** We remind you that you need to use the repository codebase and a supported")
-  message(" *** version of git for the revision-hash to work, and be allowede to ask for")
-  message(" *** support if needed.")
-else()
-  message("* Use GIT revision hash  : Yes (default)")
 endif()
 
 if( WIN32 )
@@ -117,8 +82,11 @@ endif( WIN32 )
 
 if ( NOJEM )
   message("")
-  message("*** WARNING: jemalloc linking has been disabled!")
-  message("*** Please note that this is for DEBUGGING WITH VALGRIND only!")
-  message("*** DO NOT DISABLE IT UNLESS YOU KNOW WHAT YOU'RE DOING!")
+  message(" *** NOJEM - WARNING!")
+  message(" *** jemalloc linking has been disabled!")
+  message(" *** Please note that this is for DEBUGGING WITH VALGRIND only!")
+  message(" *** DO NOT DISABLE IT UNLESS YOU KNOW WHAT YOU'RE DOING!")
 endif()
+
 message("")
+

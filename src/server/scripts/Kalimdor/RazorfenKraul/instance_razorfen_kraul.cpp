@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -26,6 +28,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "razorfen_kraul.h"
+#include "Player.h"
 
 #define WARD_KEEPERS_NR 2
 
@@ -34,19 +37,19 @@ class instance_razorfen_kraul : public InstanceMapScript
 public:
     instance_razorfen_kraul() : InstanceMapScript("instance_razorfen_kraul", 47) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_razorfen_kraul_InstanceMapScript(map);
     }
 
     struct instance_razorfen_kraul_InstanceMapScript : public InstanceScript
     {
-        instance_razorfen_kraul_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_razorfen_kraul_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint64 DoorWardGUID;
         int WardKeeperDeath;
 
-        void Initialize()
+        void Initialize() override
         {
             WardKeeperDeath = 0;
             DoorWardGUID = 0;
@@ -60,19 +63,20 @@ public:
             {
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (Player* player = itr->getSource())
+                    if (Player* player = itr->GetSource())
                         return player;
                 }
             }
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
+            TC_LOG_DEBUG("scripts", "Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
             return NULL;
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
                 case 21099: DoorWardGUID = go->GetGUID(); break;
+                case 20920: go->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, 0); break; // big fat fugly hack
             }
         }
 
@@ -81,12 +85,12 @@ public:
             if (WardKeeperDeath == WARD_KEEPERS_NR)
                 if (GameObject* go = instance->GetGameObject(DoorWardGUID))
                 {
-                    go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
+                    go->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 33);
                     go->SetGoState(GO_STATE_ACTIVE);
                 }
         }
 
-        void SetData(uint32 type, uint32 /*data*/)
+        void SetData(uint32 type, uint32 /*data*/) override
         {
             switch (type)
             {

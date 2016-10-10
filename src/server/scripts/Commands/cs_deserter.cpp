@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -27,6 +26,8 @@
 #include "Chat.h"
 #include "Player.h"
 #include "Language.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
 
 enum Spells
 {
@@ -45,29 +46,29 @@ public:
 
     ChatCommand* GetCommands() const
     {
-        static ChatCommand deserterInstanceCommandTable[] = 
+        static ChatCommand deserterInstanceCommandTable[] =
         {
-            { "add",            SEC_ADMINISTRATOR, false, &HandleDeserterInstanceAdd,          "", NULL },
-            { "remove",         SEC_ADMINISTRATOR, false, &HandleDeserterInstanceRemove,       "", NULL },
-            { NULL,             SEC_PLAYER,        false, NULL,                                "", NULL }
+            { "add",      rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_ADD,    false, &HandleDeserterInstanceAdd,    "", NULL },
+            { "remove",   rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE, false, &HandleDeserterInstanceRemove, "", NULL },
+            { NULL,       0,                                          false, NULL,                          "", NULL }
         };
-        static ChatCommand deserterBGCommandTable[] = 
+        static ChatCommand deserterBGCommandTable[] =
         {
-            { "add",            SEC_ADMINISTRATOR, false, &HandleDeserterBGAdd,                "", NULL },
-            { "remove",         SEC_ADMINISTRATOR, false, &HandleDeserterBGRemove,             "", NULL },
-            { NULL,             SEC_PLAYER,        false, NULL,                                "", NULL }
+            { "add",      rbac::RBAC_PERM_COMMAND_DESERTER_BG_ADD,    false, &HandleDeserterBGAdd,    "", NULL },
+            { "remove",   rbac::RBAC_PERM_COMMAND_DESERTER_BG_REMOVE, false, &HandleDeserterBGRemove, "", NULL },
+            { NULL,       0,                                    false, NULL,                    "", NULL }
         };
 
-        static ChatCommand deserterCommandTable[] = 
+        static ChatCommand deserterCommandTable[] =
         {
-            { "instance",       SEC_ADMINISTRATOR, false, NULL,        "", deserterInstanceCommandTable },
-            { "bg",             SEC_ADMINISTRATOR, false, NULL,              "", deserterBGCommandTable },
-            { NULL,             SEC_PLAYER,        false, NULL,                                "", NULL }
+            { "instance", rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE, false, NULL, "", deserterInstanceCommandTable },
+            { "bg",       rbac::RBAC_PERM_COMMAND_DESERTER_BG,       false, NULL, "", deserterBGCommandTable },
+            { NULL,       0,                                   false, NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "deserter",       SEC_ADMINISTRATOR,  false, NULL,               "", deserterCommandTable },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "deserter", rbac::RBAC_PERM_COMMAND_DESERTER, false, NULL, "", deserterCommandTable },
+            { NULL,       0,                          false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -120,9 +121,17 @@ public:
             return false;
         }
 
-		 player->AddAura(isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER, player);
+        Aura* aura = player->AddAura(isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER, player);
 
-		 return true;
+        if (!aura)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        aura->SetDuration(time * IN_MILLISECONDS);
+
+        return true;
     }
 
     /**
@@ -145,7 +154,7 @@ public:
     * .deserter bg remove
     * @endcode
     */
-    static bool HandleDeserterRemove(ChatHandler* handler, char const* args, bool isInstance)
+    static bool HandleDeserterRemove(ChatHandler* handler, char const* /*args*/, bool isInstance)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)

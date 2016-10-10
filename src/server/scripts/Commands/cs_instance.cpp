@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -30,7 +29,7 @@ EndScriptData */
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
 #include "MapManager.h"
-#include "World.h"
+#include "Player.h"
 
 class instance_commandscript : public CommandScript
 {
@@ -41,236 +40,22 @@ public:
     {
         static ChatCommand instanceCommandTable[] =
         {
-            { "listbinds",          SEC_ADMINISTRATOR,  false,  &HandleInstanceListBindsCommand,    "", NULL },
-            { "unbind",             SEC_ADMINISTRATOR,  false,  &HandleInstanceUnbindCommand,       "", NULL },
-            { "dungeonclear",       SEC_ADMINISTRATOR, false,   &HandleDungeonClearnbindCommand, "", NULL },
-            { "resetallencounters", SEC_ADMINISTRATOR, false,   &HandleResetAllEncountersbindCommand, "", NULL },
-            { "stats",              SEC_ADMINISTRATOR,  true,   &HandleInstanceStatsCommand,        "", NULL },
-            { "savedata",           SEC_ADMINISTRATOR,  false,  &HandleInstanceSaveDataCommand,     "", NULL },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
-        };
-
-        static ChatCommand ratesCommandTable[] =
-        {
-            { "info", SEC_ADMINISTRATOR, false, &HandleRateDataInfo, "", NULL },
-            { "delete", SEC_ADMINISTRATOR, false, &HandleRateDataDelete, "", NULL },
-            { "xp",     SEC_ADMINISTRATOR,     false, &HandleRateDataXp, "", NULL },
-            { "gold", SEC_ADMINISTRATOR, false, &HandleRateDataGold, "", NULL },
-            { "honor", SEC_ADMINISTRATOR, false, &HandleRateDataHonor, "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "listbinds", rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS, false, &HandleInstanceListBindsCommand,    "", NULL },
+            { "unbind",    rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,    false, &HandleInstanceUnbindCommand,       "", NULL },
+            { "stats",     rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,      true, &HandleInstanceStatsCommand,        "", NULL },
+            { "savedata",  rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,  false, &HandleInstanceSaveDataCommand,     "", NULL },
+            { NULL,        0,                                    false, NULL,                               "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "instance",          SEC_ADMINISTRATOR,  true,   NULL,                               "", instanceCommandTable },
-            { "rates",             SEC_PLAYER,  true,   NULL,                               "", ratesCommandTable },
-            { NULL,             0,                     false,  NULL,                               "", NULL }
+            { "instance", rbac::RBAC_PERM_COMMAND_INSTANCE,  true, NULL, "", instanceCommandTable },
+            { NULL,       0,                          false, NULL, "", NULL }
         };
 
         return commandTable;
     }
 
-    static bool HandleRateDataInfo(ChatHandler* handler, char const* /*args*/)
-    {
-        Player* player = handler->getSelectedPlayer();
-        if (!player)
-            player = handler->GetSession()->GetPlayer();
-
-        // Create new values if there's no previous ones.
-        PreparedStatement* stmt = NULL;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_RATE_TEMPLATE);
-        stmt->setUInt32(0, player->GetGUIDLow());
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
-        if (result)
-        {
-            Field* field = result->Fetch();
-
-            uint32 l_Guid =  field[0].GetInt32();
-            uint32 l_Xp =    field[1].GetInt32();
-            uint32 l_Honor = field[2].GetInt32();
-            uint32 l_Gold =  field[3].GetInt32();
-
-            handler->PSendSysMessage("Your current customized rates are: XP: %u, HONOR: %u, GOLD: %u ", l_Xp, l_Honor, l_Gold);
-            return true;
-        }
-        else
-        return false;
-
-        return true;
-    }
-
-    static bool HandleRateDataDelete(ChatHandler* handler, char const* /*args*/)
-    {
-        Player* player = handler->getSelectedPlayer();
-        if (!player)
-            player = handler->GetSession()->GetPlayer();
-
-        // Create new values if there's no previous ones.
-        PreparedStatement* stmt = NULL;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_RATE_TEMPLATE);
-        stmt->setUInt32(0, player->GetGUIDLow());
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
-        if (result)
-        {
-            CharacterDatabase.PExecute("DELETE FROM personal_rates_table WHERE guid = %u", player->GetGUID());
-            handler->PSendSysMessage("All your personal customized rate data has been removed and is now once again based on the server default rates.");
-        }
-        else
-            handler->PSendSysMessage("There's no personal rates currently to remove, you're on server's default rates which are: XP: %f, HONOR: %f, GOLD: %f ", sWorld->getRate(RATE_XP_KILL), sWorld->getRate(RATE_HONOR), sWorld->getRate(RATE_DROP_MONEY));
-
-        return true;
-    }
-
-    static bool HandleRateDataXp(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        Player* player = handler->getSelectedPlayer();
-        if (!player)
-            player = handler->GetSession()->GetPlayer();
-
-        // Create new values if there's no previous ones.
-        PreparedStatement* stmt = NULL;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_RATE_TEMPLATE);
-        stmt->setUInt32(0, player->GetGUIDLow());
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
-        if (!result)
-        {
-            stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_RATE_TEMPLATE);
-            stmt->setUInt32(0, player->GetGUIDLow());
-            stmt->setUInt32(1, NULL);
-            stmt->setUInt32(2, NULL);
-            stmt->setUInt32(3, NULL);
-
-            WorldDatabase.Execute(stmt);
-            
-            return true;
-        }
-        else
-        {
-            // Handle XP Rates
-            char* l_XpRate = strtok((char*)args, " ");
-            uint32 l_XpRateNum = atoi(l_XpRate);
-
-            if (float(l_XpRateNum) > sWorld->getRate(RATE_XP_KILL))
-            {
-                handler->PSendSysMessage("Your personal rate cannot be any higher then server's static rates.");
-                return false;
-            }
-
-            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_XP_RATE_TEMPLATE);
-
-            stmt->setUInt32(0, l_XpRateNum);
-            stmt->setUInt32(1, player->GetGUIDLow());
-
-            WorldDatabase.Execute(stmt);  
-
-            return true;
-        }
-        return true;
-    }
-
-    static bool HandleRateDataHonor(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        Player* player = handler->getSelectedPlayer();
-        if (!player)
-            player = handler->GetSession()->GetPlayer();
-
-        // Create new values if there's no previous ones.
-        PreparedStatement* stmt = NULL;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_RATE_TEMPLATE);
-        stmt->setUInt32(0, player->GetGUIDLow());
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
-        if (!result)
-        {
-            stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_RATE_TEMPLATE);
-            stmt->setUInt32(0, player->GetGUIDLow());
-            stmt->setUInt32(1, NULL);
-            stmt->setUInt32(2, NULL);
-            stmt->setUInt32(3, NULL);
-
-            WorldDatabase.Execute(stmt);
-            return true;
-        }
-        else
-        {
-
-            // Handle HONOR Rates
-            char* l_HonorRate = strtok((char*)args, " ");
-            uint32 l_HonorRateNum = atoi(l_HonorRate);
-
-            if (float(l_HonorRateNum) > sWorld->getRate(RATE_HONOR))
-            {
-                handler->PSendSysMessage("Your personal rate cannot be any higher then server's static rates.");
-                return false;
-            }
-
-            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_HONOR_RATE_TEMPLATE);
-
-            stmt->setUInt32(0, l_HonorRateNum);
-            stmt->setUInt32(1, player->GetGUIDLow());
-
-            WorldDatabase.Execute(stmt);
-            return true;
-        }
-        return true;
-    }
-
-    // Handle Gold Rates
-    static bool HandleRateDataGold(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        Player* player = handler->getSelectedPlayer();
-        if (!player)
-            player = handler->GetSession()->GetPlayer();
-
-        // Create new Gold if there's no previous ones.
-        PreparedStatement* stmt = NULL;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_RATE_TEMPLATE);
-        stmt->setUInt32(0, player->GetGUIDLow());
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
-        if (!result)
-        {
-            stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_RATE_TEMPLATE);
-            stmt->setUInt32(0, player->GetGUIDLow());
-            stmt->setUInt32(1, NULL);
-            stmt->setUInt32(2, NULL);
-            stmt->setUInt32(3, NULL);
-
-            WorldDatabase.Execute(stmt);
-            return true;
-        }
-        else
-        {
-
-            // Handle Money Rates
-            char* l_MoneyRate = strtok((char*)args, " ");
-            uint32 l_MoneyRateNum = atoi(l_MoneyRate);
-
-            if (float(l_MoneyRateNum) > sWorld->getRate(RATE_DROP_MONEY))
-            {
-                handler->PSendSysMessage("Your personal rate cannot be any higher then server's static rates.");
-                return false;
-            }
-
-            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(l_MoneyRateNum);
-
-            stmt->setUInt32(0, l_MoneyRateNum);
-            stmt->setUInt32(1, player->GetGUIDLow());
-
-            WorldDatabase.Execute(stmt);
-            return true;
-        }
-        return true;
-    }
-
-    // Instance
     static std::string GetTimeString(uint64 time)
     {
         uint64 days = time / DAY, hours = (time % DAY) / HOUR, minute = (time % HOUR) / MINUTE;
@@ -367,29 +152,6 @@ public:
         handler->PSendSysMessage("instances unbound: %d", counter);
 
         return true;
-    } 
-
-    static bool HandleDungeonClearnbindCommand(ChatHandler* handler, char const* args)
-    {     
-        Player* player = handler->GetSession()->GetPlayer();
-
-        if (!player)
-            return false;
-
-        CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = %u AND permanent = 0", player->GetGUID());
-  
-        return true;
-    }
-    
-    static bool HandleResetAllEncountersbindCommand(ChatHandler* handler, char const* args)
-    {
-        Player* player = handler->GetSession()->GetPlayer();
-
-        if (!player)
-            return false;
-
-        CharacterDatabase.PExecute("DELETE FROM character_instance WHERE permanent = 0");
-        return true;
     }
 
     static bool HandleInstanceStatsCommand(ChatHandler* handler, char const* /*args*/)
@@ -431,4 +193,3 @@ void AddSC_instance_commandscript()
 {
     new instance_commandscript();
 }
- 

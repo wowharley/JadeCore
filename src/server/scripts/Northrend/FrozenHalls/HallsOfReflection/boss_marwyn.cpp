@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -49,16 +52,16 @@ class boss_marwyn : public CreatureScript
 public:
     boss_marwyn() : CreatureScript("boss_marwyn") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_marwynAI(creature);
     }
 
     struct boss_marwynAI : public boss_horAI
     {
-        boss_marwynAI(Creature* creature) : boss_horAI(creature) {}
+        boss_marwynAI(Creature* creature) : boss_horAI(creature) { }
 
-        void Reset()
+        void Reset() override
         {
             boss_horAI::Reset();
 
@@ -66,19 +69,19 @@ public:
                 instance->SetBossState(DATA_MARWYN_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             if (instance)
                 instance->SetBossState(DATA_MARWYN_EVENT, IN_PROGRESS);
 
-            events.ScheduleEvent(EVENT_OBLITERATE, urand(2000,3000));          /// @todo Check timer
-            events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 5000);
+            events.ScheduleEvent(EVENT_OBLITERATE, 30000);          /// @todo Check timer
+            events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
             events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
             events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);    /// @todo Check timer
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -86,12 +89,12 @@ public:
                 instance->SetBossState(DATA_MARWYN_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff) override
         {
             // Return since we have no target
             if (!UpdateVictim())
@@ -106,12 +109,11 @@ public:
             {
                 case EVENT_OBLITERATE:
                     DoCast(SPELL_OBLITERATE);
-                    events.ScheduleEvent(EVENT_OBLITERATE, urand(13000,15000));
+                    events.ScheduleEvent(EVENT_OBLITERATE, 30000);
                     break;
                 case EVENT_WELL_OF_CORRUPTION:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(target, SPELL_WELL_OF_CORRUPTION);
-                    events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, urand(13000,15000));
+                    DoCast(SPELL_WELL_OF_CORRUPTION);
+                    events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
                     break;
                 case EVENT_CORRUPTED_FLESH:
                     Talk(SAY_CORRUPTED_FLESH);

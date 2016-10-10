@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,7 +26,7 @@ void WorldPacket::Compress(z_stream* compressionStream)
     Opcodes uncompressedOpcode = GetOpcode();
     if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
+        TC_LOG_ERROR("network", "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
@@ -45,8 +46,7 @@ void WorldPacket::Compress(z_stream* compressionStream)
     *this << uint32(size);
     append(&storage[0], destsize);
     SetOpcode(opcode);
-
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Successfully compressed opcode %u (len %u) to %u (len %u)", uncompressedOpcode, size, opcode, destsize);
+    TC_LOG_INFO("network", "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(uncompressedOpcode, true).c_str(), size, opcode, destsize);
 }
 
 //! Compresses another packet and stores it in self (source left intact)
@@ -57,7 +57,7 @@ void WorldPacket::Compress(z_stream* compressionStream, WorldPacket const* sourc
     Opcodes uncompressedOpcode = source->GetOpcode();
     if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
+        TC_LOG_ERROR("network", "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
@@ -78,7 +78,7 @@ void WorldPacket::Compress(z_stream* compressionStream, WorldPacket const* sourc
 
     SetOpcode(opcode);
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Successfully compressed opcode %u (len %u) to %u (len %u)", uncompressedOpcode, size, opcode, destsize);
+    TC_LOG_INFO("network", "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(uncompressedOpcode, true).c_str(), size, opcode, destsize);
 }
 
 void WorldPacket::Compress(void* dst, uint32 *dst_size, const void* src, int src_size)
@@ -91,14 +91,14 @@ void WorldPacket::Compress(void* dst, uint32 *dst_size, const void* src, int src
     int32 z_res = deflate(_compressionStream, Z_SYNC_FLUSH);
     if (z_res != Z_OK)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Can't compress packet (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
+        TC_LOG_ERROR("network", "Can't compress packet (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
         *dst_size = 0;
         return;
     }
 
     if (_compressionStream->avail_in != 0)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Can't compress packet (zlib: deflate not greedy)");
+        TC_LOG_ERROR("network", "Can't compress packet (zlib: deflate not greedy)");
         *dst_size = 0;
         return;
     }

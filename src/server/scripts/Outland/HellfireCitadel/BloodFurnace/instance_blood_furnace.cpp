@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -36,11 +38,11 @@ class instance_blood_furnace : public InstanceMapScript
 {
     public:
         instance_blood_furnace()
-            : InstanceMapScript("instance_blood_furnace", 542) {}
+            : InstanceMapScript("instance_blood_furnace", 542) { }
 
         struct instance_blood_furnace_InstanceMapScript : public InstanceScript
         {
-            instance_blood_furnace_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_blood_furnace_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint64 The_MakerGUID;
             uint64 BroggokGUID;
@@ -77,7 +79,7 @@ class instance_blood_furnace : public InstanceMapScript
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             std::string str_data;
 
-            void Initialize()
+            void Initialize() override
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -106,10 +108,15 @@ class instance_blood_furnace : public InstanceMapScript
                 PrisonersCell7.clear();
                 PrisonersCell8.clear();
 
+                PrisonerCounter5 = 0;
+                PrisonerCounter6 = 0;
+                PrisonerCounter7 = 0;
+                PrisonerCounter8 = 0;
+
                 BroggokLeverGUID = 0;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -128,13 +135,13 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit)
+            void OnUnitDeath(Unit* unit) override
             {
                 if (unit && unit->GetTypeId() == TYPEID_UNIT && unit->GetEntry() == 17398)
                     PrisonerDied(unit->GetGUID());
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) override
             {
                  if (go->GetEntry() == 181766)                //Final exit door
                      Door1GUID = go->GetGUID();
@@ -165,11 +172,12 @@ class instance_blood_furnace : public InstanceMapScript
                      PrisonCell7GUID = go->GetGUID();
                  if (go->GetEntry() == 181817)               //Broggok prison cell back left
                      PrisonCell8GUID = go->GetGUID();
+
                  if (go->GetEntry() == 181982)
                      BroggokLeverGUID = go->GetGUID();       //Broggok lever
             }
 
-            uint64 GetData64(uint32 data)
+            uint64 GetData64(uint32 data) const override
             {
                 switch (data)
                 {
@@ -192,19 +200,19 @@ class instance_blood_furnace : public InstanceMapScript
                      case DATA_PRISON_CELL8:         return PrisonCell8GUID;
                      case DATA_BROGGOK_LEVER:        return BroggokLeverGUID;
                 }
-
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
                  switch (type)
                  {
                      case TYPE_THE_MAKER_EVENT:
-                         m_auiEncounter[0] = data;     
+                         m_auiEncounter[0] = data;
                          break;
                      case TYPE_BROGGOK_EVENT:
                          m_auiEncounter[1] = data;
+                         UpdateBroggokEvent(data);
                          break;
                      case TYPE_KELIDAN_THE_BREAKER_EVENT:
                          m_auiEncounter[2] = data;
@@ -225,7 +233,7 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -233,7 +241,6 @@ class instance_blood_furnace : public InstanceMapScript
                     case TYPE_BROGGOK_EVENT:               return m_auiEncounter[1];
                     case TYPE_KELIDAN_THE_BREAKER_EVENT:   return m_auiEncounter[2];
                 }
-
                 return 0;
             }
 
@@ -242,7 +249,7 @@ class instance_blood_furnace : public InstanceMapScript
                 return str_data.c_str();
             }
 
-            void Load(const char* in)
+            void Load(const char* in) override
             {
                 if (!in)
                 {
@@ -266,17 +273,17 @@ class instance_blood_furnace : public InstanceMapScript
             {
                 switch (data)
                 {
-                case IN_PROGRESS:
-                    ActivateCell(DATA_PRISON_CELL5);
-                    HandleGameObject(Door4GUID, false);
-                    break;
-                case NOT_STARTED:
-                    ResetPrisons();
-                    HandleGameObject(Door5GUID, false);
-                    HandleGameObject(Door4GUID, true);
-                    if (GameObject* lever = instance->GetGameObject(BroggokLeverGUID))
-                        lever->Respawn();
-                    break;
+                    case IN_PROGRESS:
+                        ActivateCell(DATA_PRISON_CELL5);
+                        HandleGameObject(Door4GUID, false);
+                        break;
+                    case NOT_STARTED:
+                        ResetPrisons();
+                        HandleGameObject(Door5GUID, false);
+                        HandleGameObject(Door4GUID, true);
+                        if (GameObject* lever = instance->GetGameObject(BroggokLeverGUID))
+                            lever->Respawn();
+                        break;
                 }
             }
 
@@ -299,16 +306,16 @@ class instance_blood_furnace : public InstanceMapScript
                 HandleGameObject(PrisonCell8GUID, false);
             }
 
-            void ResetPrisoners(std::set<uint64> prisoners)
+            void ResetPrisoners(const std::set<uint64>& prisoners)
             {
-                for (std::set<uint64>::iterator i = prisoners.begin(); i != prisoners.end(); ++i)
+                for (std::set<uint64>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                         ResetPrisoner(prisoner);
             }
 
             void ResetPrisoner(Creature* prisoner)
             {
-                if (!prisoner->isAlive())
+                if (!prisoner->IsAlive())
                     prisoner->Respawn(true);
                 prisoner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -369,33 +376,33 @@ class instance_blood_furnace : public InstanceMapScript
             {
                 switch (id)
                 {
-                case DATA_PRISON_CELL5:
-                    HandleGameObject(PrisonCell5GUID,true);
-                    ActivatePrisoners(PrisonersCell5);
-                    break;
-                case DATA_PRISON_CELL6:
-                    HandleGameObject(PrisonCell6GUID,true);
-                    ActivatePrisoners(PrisonersCell6);
-                    break;
-                case DATA_PRISON_CELL7:
-                    HandleGameObject(PrisonCell7GUID,true);
-                    ActivatePrisoners(PrisonersCell7);
-                    break;
-                case DATA_PRISON_CELL8:
-                    HandleGameObject(PrisonCell8GUID,true);
-                    ActivatePrisoners(PrisonersCell8);
-                    break;
-                case DATA_DOOR5:
-                    HandleGameObject(Door5GUID,true);
-                    if (Creature* broggok = instance->GetCreature(BroggokGUID))
-                        broggok->AI()->DoAction(ACTION_ACTIVATE_BROGGOK);
-                    break;
+                    case DATA_PRISON_CELL5:
+                        HandleGameObject(PrisonCell5GUID, true);
+                        ActivatePrisoners(PrisonersCell5);
+                        break;
+                    case DATA_PRISON_CELL6:
+                        HandleGameObject(PrisonCell6GUID, true);
+                        ActivatePrisoners(PrisonersCell6);
+                        break;
+                    case DATA_PRISON_CELL7:
+                        HandleGameObject(PrisonCell7GUID, true);
+                        ActivatePrisoners(PrisonersCell7);
+                        break;
+                    case DATA_PRISON_CELL8:
+                        HandleGameObject(PrisonCell8GUID, true);
+                        ActivatePrisoners(PrisonersCell8);
+                        break;
+                    case DATA_DOOR5:
+                        HandleGameObject(Door5GUID, true);
+                        if (Creature* broggok = instance->GetCreature(BroggokGUID))
+                            broggok->AI()->DoAction(ACTION_ACTIVATE_BROGGOK);
+                        break;
                 }
             }
 
-            void ActivatePrisoners(std::set<uint64> prisoners)
+            void ActivatePrisoners(const std::set<uint64>& prisoners)
             {
-                for (std::set<uint64>::iterator i = prisoners.begin(); i != prisoners.end(); ++i)
+                for (std::set<uint64>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                     {
                         prisoner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
@@ -404,7 +411,7 @@ class instance_blood_furnace : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_blood_furnace_InstanceMapScript(map);
         }

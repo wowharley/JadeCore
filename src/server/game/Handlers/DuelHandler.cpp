@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -23,139 +23,54 @@
 #include "Opcodes.h"
 #include "UpdateData.h"
 #include "Player.h"
-#include "SocialMgr.h"
-#include "ScriptMgr.h"
-#include "GameObject.h"
-#include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 
-void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
+#define SPELL_DUEL         7266
+#define SPELL_MOUNTED_DUEL 62875
+
+void WorldSession::HandleDuelProposedOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = { 2, 0, 4, 3, 7, 1, 5, 6 };
-    recvPacket.ReadBitInOrder(guid, bitOrder);
+    recvPacket.ReadGuidMask(guid, 1, 5, 4, 6, 3, 2, 7, 0);
 
-    recvPacket.FlushBits();
-    
-    uint8 byteOrder[8] = { 0, 3, 2, 6, 5, 4, 1, 7 };
-    recvPacket.ReadBytesSeq(guid, byteOrder);
+    recvPacket.ReadGuidBytes(guid, 4, 2, 5, 7, 1, 3, 6, 0);
 
-    Player* caster = GetPlayer();
-    Unit* unitTarget = NULL;
-
-    unitTarget = sObjectAccessor->GetUnit(*caster, guid);
-
-    if (!unitTarget || caster->GetTypeId() != TYPEID_PLAYER || unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
-    Player* target = unitTarget->ToPlayer();
-    // caster or target already have requested duel
-    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUIDLow()))
-        return;
-    caster->CastSpell(unitTarget, 7266, false);
-
-    // Players can only fight a duel in zones with this flag
-    /*AreaTableEntry const* casterAreaEntry = GetAreaEntryByAreaID(caster->GetAreaId());
-    if (casterAreaEntry && !(casterAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
+    if (Player* player = sObjectAccessor->FindPlayer(guid))
     {
-        //SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
-        return;
+        if (_player->IsMounted())
+            _player->CastSpell(player, SPELL_MOUNTED_DUEL, false);
+        else
+            _player->CastSpell(player, SPELL_DUEL, false);
     }
-
-    AreaTableEntry const* targetAreaEntry = GetAreaEntryByAreaID(target->GetAreaId());
-    if (targetAreaEntry && !(targetAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
-    {
-        //SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
-        return;
-    }
-
-    //CREATE DUEL FLAG OBJECT
-    GameObject* pGameObj = new GameObject;
-
-    uint32 gameobject_id = 21680;//m_spellInfo->Effects[effIndex].MiscValue;
-
-    Map* map = caster->GetMap();
-    if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id,
-        map, caster->GetPhaseMask(),
-        caster->GetPositionX()+(unitTarget->GetPositionX()-caster->GetPositionX())/2,
-        caster->GetPositionY()+(unitTarget->GetPositionY()-caster->GetPositionY())/2,
-        caster->GetPositionZ(),
-        caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
-    {
-        delete pGameObj;
-        return;
-    }
-
-    pGameObj->SetUInt32Value(GAMEOBJECT_FACTION, caster->getFaction());
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, caster->getLevel()+1);
-    pGameObj->SetRespawnTime(0);
-
-    caster->AddGameObject(pGameObj);
-    map->AddToMap(pGameObj);
-    //END
-
-    // Send request
-    WorldPacket data(SMSG_DUEL_REQUESTED, 8 + 8);
-    data << uint64(pGameObj->GetGUID());
-    data << uint64(caster->GetGUID());
-    caster->GetSession()->SendPacket(&data);
-    target->GetSession()->SendPacket(&data);
-
-    // create duel-info
-    DuelInfo* duel   = new DuelInfo;
-    duel->initiator  = caster;
-    duel->opponent   = target;
-    duel->startTime  = 0;
-    duel->startTimer = 0;
-    duel->isMounted  = 0;//(GetSpellInfo()->Id == 62875); // Mounted Duel
-    caster->duel     = duel;
-
-    DuelInfo* duel2   = new DuelInfo;
-    duel2->initiator  = caster;
-    duel2->opponent   = caster;
-    duel2->startTime  = 0;
-    duel2->startTimer = 0;
-    duel2->isMounted  = 0;//(GetSpellInfo()->Id == 62875); // Mounted Duel
-    target->duel      = duel2;
-
-    caster->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
-    target->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
-
-    sScriptMgr->OnPlayerDuelRequest(target, caster);*/
 }
 
 void WorldSession::HandleDuelResponseOpcode(WorldPacket& recvPacket)
 {
+    bool accepted;
+    ObjectGuid guid;
     Player* player;
     Player* plTarget;
 
-    ObjectGuid guid;
-    uint8 byteOrder[8] = {0, 7, 6, 5, 3, 2, 4, 1};
-    guid[7] = recvPacket.ReadBit();
-    bool accept = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
+    recvPacket.ReadGuidMask(guid, 7, 1, 3, 4, 0, 2, 6);
+    accepted = recvPacket.ReadBit();
     guid[5] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    recvPacket.FlushBits();
-    recvPacket.ReadBitInOrder(guid, byteOrder);
+
+    recvPacket.ReadGuidBytes(guid, 6, 4, 5, 0, 1, 2, 7, 3);
 
     if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
         return;
 
-    if (accept)
+    if (accepted)
     {
-        player       = GetPlayer();
+        player = GetPlayer();
         plTarget = player->duel->opponent;
 
         if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
             return;
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName());
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName());
+        //TC_LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_ACCEPTED");
+        TC_LOG_DEBUG("network", "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName().c_str());
+        TC_LOG_DEBUG("network", "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName().c_str());
 
         time_t now = time(NULL);
         player->duel->startTimer = now;
@@ -177,6 +92,7 @@ void WorldSession::HandleDuelResponseOpcode(WorldPacket& recvPacket)
             GetPlayer()->DuelComplete(DUEL_WON);
             return;
         }
+
         GetPlayer()->DuelComplete(DUEL_INTERRUPTED);
     }
 }

@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -22,8 +22,10 @@
 #include "World.h"
 #include "SharedDefines.h"
 #include "ScriptMgr.h"
+#include "Player.h"
+#include "GameEventMgr.h"
 
-namespace JadeCore
+namespace Trinity
 {
     namespace Honor
     {
@@ -31,14 +33,15 @@ namespace JadeCore
         {
             float honor = multiplier * level * 1.55f;
             sScriptMgr->OnHonorCalculation(honor, level, multiplier);
-            return honor * 2.4; // http://www.wowwiki.com/Honorable_kill#Honorable_kills 1 old points = 0.024 new points
+            return honor;
         }
 
         inline uint32 hk_honor_at_level(uint8 level, float multiplier = 1.0f)
         {
             return uint32(ceil(hk_honor_at_level_f(level, multiplier)));
         }
-    }
+    } // namespace Trinity::Honor
+
     namespace XP
     {
         inline uint8 GetGrayLevel(uint8 pl_level)
@@ -130,10 +133,10 @@ namespace JadeCore
                     nBaseExp = 1878;
                     break;
                 case CONTENT_86_90:
-                    nBaseExp = 7512;
+                    nBaseExp = 7194;
                     break;
                 default:
-                    sLog->outError(LOG_FILTER_GENERAL, "BaseGain: Unsupported content level %u", content);
+                    TC_LOG_ERROR("misc", "BaseGain: Unsupported content level %u", content);
                     nBaseExp = 45;
                     break;
             }
@@ -167,7 +170,7 @@ namespace JadeCore
             uint32 gain;
 
             if (u->GetTypeId() == TYPEID_UNIT &&
-                (((Creature*)u)->isTotem() || ((Creature*)u)->isPet() ||
+                (((Creature*)u)->IsTotem() || ((Creature*)u)->IsPet() ||
                 (((Creature*)u)->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ||
                 ((Creature*)u)->GetCreatureTemplate()->type == CREATURE_TYPE_CRITTER))
                 gain = 0;
@@ -184,35 +187,7 @@ namespace JadeCore
                         gain *= 2;
                 }
 
-                float KillXpRate = 1;
-
-                if (player->GetPersonnalXpRate())
-                    KillXpRate = player->GetPersonnalXpRate();
-                else
-                {
-                    // Create new values if there's no previous ones.
-                    PreparedStatement* stmt = NULL;
-                    stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_RATE_TEMPLATE);
-                    stmt->setUInt32(0, player->GetGUIDLow());
-                    PreparedQueryResult result = WorldDatabase.Query(stmt);
-                    if (result)
-                    {
-                        Field* field = result->Fetch();
-
-                        uint32 l_Guid = field[0].GetInt32();
-                        uint32 l_Xp = field[1].GetInt32();
-
-                        KillXpRate = float(l_Xp);
-                    }
-                    else
-                        KillXpRate = sWorld->getRate(RATE_XP_KILL);
-                }
-            
-
-                gain = uint32(gain * KillXpRate);
-
-                float premium_rate = player->GetSession()->IsPremium() ? sWorld->getRate(RATE_XP_KILL_PREMIUM) : 1.0f;
-                gain *= premium_rate;
+                gain = uint32(gain * sWorld->getRate(RATE_XP_KILL) * (IsEventActive(sWorld->getIntConfig(CONFIG_RATE_XP_WEEKEND_EVID)) ? sWorld->getRate(RATE_XP_WEEKEND) : 1.0f));
             }
 
             sScriptMgr->OnGainCalculation(gain, player, u);
@@ -252,19 +227,19 @@ namespace JadeCore
             sScriptMgr->OnGroupRateCalculation(rate, count, isRaid);
             return rate;
         }
-    }
+    } // namespace Trinity::XP
 
     namespace Currency
     {
         inline uint32 ConquestRatingCalculator(uint32 rate)
         {
             if (rate <= 1500)
-                return 1800; // Default conquest points
+                return 1350; // Default conquest points
             else if (rate > 3000)
-                rate = 3600;
+                rate = 3000;
 
             // http://www.arenajunkies.com/topic/179536-conquest-point-cap-vs-personal-rating-chart/page__st__60#entry3085246
-            return uint32(1.4326 * ((1511.26 / (1 + 1639.28 / exp(0.00412 * rate))) + 1050.15));
+            return uint32(1.4326 * ((1511.26 / (1 + 1639.28 / exp(0.00412 * rate))) + 850.15));
         }
 
         inline uint32 BgConquestRatingCalculator(uint32 rate)
@@ -272,7 +247,7 @@ namespace JadeCore
             // WowWiki: Battleground ratings receive a bonus of 22.2% to the cap they generate
             return uint32((ConquestRatingCalculator(rate) * 1.222f) + 0.5f);
         }
-    }
-}
+    } // namespace Trinity::Currency
+} // namespace Trinity
 
 #endif

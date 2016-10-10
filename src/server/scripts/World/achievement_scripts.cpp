@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -16,32 +17,23 @@
  */
 
 #include "ScriptMgr.h"
-
-#include "BattlegroundAB.h"
-#include "BattlegroundWS.h"
-#include "BattlegroundIC.h"
 #include "BattlegroundSA.h"
-#include "BattlegroundAV.h"
+#include "BattlegroundIC.h"
 #include "Vehicle.h"
+#include "Player.h"
+#include "Creature.h"
 
 class achievement_resilient_victory : public AchievementCriteriaScript
 {
     public:
         achievement_resilient_victory() : AchievementCriteriaScript("achievement_resilient_victory") { }
 
-        bool OnCheck(Player* source, Unit* /*target*/)
+        bool OnCheck(Player* source, Unit* target)
         {
-            Battleground* bg = source->GetBattleground();
-            if (!bg)
-                return false;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_RESILIENT_VICTORY, source, target);
 
-            if (bg->GetTypeID(true) != BATTLEGROUND_AB)
-                return false;
-
-            if (!static_cast<BattlegroundAB*>(bg)->IsTeamScores500Disadvantage(source->GetTeam()))
-                return false;
-
-            return true;
+            return false;
         }
 };
 
@@ -52,14 +44,10 @@ class achievement_bg_control_all_nodes : public AchievementCriteriaScript
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
-            Battleground* bg = source->GetBattleground();
-            if (!bg)
-                return false;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->IsAllNodesControlledByTeam(source->GetTeam());
 
-            if (!bg->IsAllNodesControlledByTeam(source->GetTeam()))
-                return false;
-
-            return true;
+            return false;
         }
 };
 
@@ -70,21 +58,9 @@ class achievement_save_the_day : public AchievementCriteriaScript
 
         bool OnCheck(Player* source, Unit* target)
         {
-            if (!target)
-                return false;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_SAVE_THE_DAY, source, target);
 
-            if (Player const* player = target->ToPlayer())
-            {
-                Battleground* bg = source->GetBattleground();
-                if (!bg)
-                    return false;
-
-                if (bg->GetTypeID(true) != BATTLEGROUND_WS)
-                    return false;
-
-                if (static_cast<BattlegroundWS*>(bg)->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
-                    return true;
-            }
             return false;
         }
 };
@@ -168,7 +144,7 @@ class achievement_arena_kills : public AchievementCriteriaScript
             if (!source->InArena())
                 return false;
 
-            return source->GetBattleground()->GetArenaType() == _arenaType;
+            return source->GetBattleground()->GetRatedType() == _arenaType;
         }
 
     private:
@@ -198,17 +174,10 @@ class achievement_everything_counts : public AchievementCriteriaScript
     public:
         achievement_everything_counts() : AchievementCriteriaScript("achievement_everything_counts") { }
 
-        bool OnCheck(Player* source, Unit* /*target*/)
+        bool OnCheck(Player* source, Unit* target)
         {
-            Battleground* bg = source->GetBattleground();
-            if (!bg)
-                return false;
-
-            if (bg->GetTypeID(true) != BATTLEGROUND_AV)
-                return false;
-
-            if (static_cast<BattlegroundAV*>(bg)->IsBothMinesControlledByTeam(source->GetTeam()))
-                return true;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_EVERYTHING_COUNTS, source, target);
 
             return false;
         }
@@ -219,17 +188,10 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
     public:
         achievement_bg_av_perfection() : AchievementCriteriaScript("achievement_bg_av_perfection") { }
 
-        bool OnCheck(Player* source, Unit* /*target*/)
+        bool OnCheck(Player* source, Unit* target)
         {
-            Battleground* bg = source->GetBattleground();
-            if (!bg)
-                return false;
-
-            if (bg->GetTypeID(true) != BATTLEGROUND_AV)
-                return false;
-
-            if (static_cast<BattlegroundAV*>(bg)->IsAllTowersControlledAndCaptainAlive(source->GetTeam()))
-                return true;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_AV_PERFECTION, source, target);
 
             return false;
         }
@@ -238,24 +200,12 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
 class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
 {
     public:
-        achievement_bg_sa_defense_of_ancients() : AchievementCriteriaScript("achievement_bg_sa_defense_of_ancients")
+        achievement_bg_sa_defense_of_ancients() : AchievementCriteriaScript("achievement_bg_sa_defense_of_ancients") { }
+
+        bool OnCheck(Player* source, Unit* target)
         {
-        }
-
-        bool OnCheck(Player* player, Unit* /*target*/)
-        {
-            if (!player)
-                return false;
-
-            Battleground* battleground = player->GetBattleground();
-            if (!battleground)
-                return false;
-
-            if (player->GetTeamId() == static_cast<BattlegroundSA*>(battleground)->Attackers)
-                return false;
-
-            if (!static_cast<BattlegroundSA*>(battleground)->gateDestroyed)
-                return true;
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_DEFENSE_OF_THE_ANCIENTS, source, target);
 
             return false;
         }
@@ -274,7 +224,7 @@ enum ArgentTournamentAreas
 class achievement_tilted : public AchievementCriteriaScript
 {
     public:
-        achievement_tilted() : AchievementCriteriaScript("achievement_tilted") {}
+        achievement_tilted() : AchievementCriteriaScript("achievement_tilted") { }
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -297,19 +247,47 @@ class achievement_not_even_a_scratch : public AchievementCriteriaScript
     public:
         achievement_not_even_a_scratch() : AchievementCriteriaScript("achievement_not_even_a_scratch") { }
 
-        bool OnCheck(Player* source, Unit* /*target*/)
+        bool OnCheck(Player* source, Unit* target)
         {
-            if (!source)
+            if (Battleground* bg = source->GetBattleground())
+                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH, source, target);
+
+            return false;
+        }
+};
+
+enum FlirtWithDisaster
+{
+    AURA_PERFUME_FOREVER           = 70235,
+    AURA_PERFUME_ENCHANTRESS       = 70234,
+    AURA_PERFUME_VICTORY           = 70233,
+};
+
+class achievement_flirt_with_disaster_perf_check : public AchievementCriteriaScript
+{
+    public:
+        achievement_flirt_with_disaster_perf_check() : AchievementCriteriaScript("achievement_flirt_with_disaster_perf_check") { }
+
+        bool OnCheck(Player* player, Unit* /*target*/)
+        {
+            if (!player)
                 return false;
 
-            Battleground* battleground = source->GetBattleground();
-            if (!battleground)
-                return false;
-
-            if (static_cast<BattlegroundSA*>(battleground)->notEvenAScratch(source->GetTeam()))
+            if (player->HasAura(AURA_PERFUME_FOREVER) || player->HasAura(AURA_PERFUME_ENCHANTRESS) || player->HasAura(AURA_PERFUME_VICTORY))
                 return true;
 
             return false;
+        }
+};
+
+class achievement_killed_exp_or_honor_target : public AchievementCriteriaScript
+{
+    public:
+        achievement_killed_exp_or_honor_target() : AchievementCriteriaScript("achievement_killed_exp_or_honor_target") { }
+
+        bool OnCheck(Player* player, Unit* target)
+        {
+            return target && player->isHonorOrXPTarget(target);
         }
 };
 
@@ -325,10 +303,12 @@ void AddSC_achievement_scripts()
     new achievement_sickly_gazelle();
     new achievement_everything_counts();
     new achievement_bg_av_perfection();
-    new achievement_arena_kills("achievement_arena_2v2_kills", ARENA_TYPE_2v2);
-    new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
-    new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);
+    new achievement_arena_kills("achievement_arena_2v2_kills", RATED_TYPE_2v2);
+    new achievement_arena_kills("achievement_arena_3v3_kills", RATED_TYPE_3v3);
+    new achievement_arena_kills("achievement_arena_5v5_kills", RATED_TYPE_5v5);
     new achievement_bg_sa_defense_of_ancients();
     new achievement_tilted();
     new achievement_not_even_a_scratch();
+    new achievement_flirt_with_disaster_perf_check();
+    new achievement_killed_exp_or_honor_target();
 }

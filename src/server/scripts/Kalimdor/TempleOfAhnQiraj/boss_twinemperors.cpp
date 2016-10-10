@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -27,38 +29,43 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
 #include "WorldPacket.h"
-
 #include "Item.h"
 #include "Spell.h"
 
-#define SPELL_HEAL_BROTHER          7393
-#define SPELL_TWIN_TELEPORT         800                     // CTRA watches for this spell to start its teleport timer
-#define SPELL_TWIN_TELEPORT_VISUAL  26638                   // visual
+enum Spells
+{
+    SPELL_HEAL_BROTHER            = 7393,
+    SPELL_TWIN_TELEPORT           = 800,                     // CTRA watches for this spell to start its teleport timer
+    SPELL_TWIN_TELEPORT_VISUAL    = 26638,                  // visual
+    SPELL_EXPLODEBUG              = 804,
+    SPELL_MUTATE_BUG              = 802,
+    SPELL_BERSERK                 = 26662,
+    SPELL_UPPERCUT                = 26007,
+    SPELL_UNBALANCING_STRIKE      = 26613,
+    SPELL_SHADOWBOLT              = 26006,
+    SPELL_BLIZZARD                = 26607,
+    SPELL_ARCANEBURST             = 568,
+};
 
-#define SPELL_EXPLODEBUG            804
-#define SPELL_MUTATE_BUG            802
+enum Sound
+{
+    SOUND_VL_AGGRO                = 8657,                    //8657 - Aggro - To Late
+    SOUND_VL_KILL                 = 8658,                    //8658 - Kill - You will not
+    SOUND_VL_DEATH                = 8659,                    //8659 - Death
+    SOUND_VN_DEATH                = 8660,                    //8660 - Death - Feel
+    SOUND_VN_AGGRO                = 8661,                    //8661 - Aggro - Let none
+    SOUND_VN_KILL                 = 8662,                    //8661 - Kill - your fate
+};
 
-#define SOUND_VN_DEATH              8660                    //8660 - Death - Feel
-#define SOUND_VN_AGGRO              8661                    //8661 - Aggro - Let none
-#define SOUND_VN_KILL               8662                    //8661 - Kill - your fate
+enum Misc
+{
+    PULL_RANGE                    = 50,
+    ABUSE_BUG_RANGE               = 20,
+    VEKLOR_DIST                   = 20,                      // VL will not come to melee when attacking
+    TELEPORTTIME                  = 30000
+};
 
-#define SOUND_VL_AGGRO              8657                    //8657 - Aggro - To Late
-#define SOUND_VL_KILL               8658                    //8658 - Kill - You will not
-#define SOUND_VL_DEATH              8659                    //8659 - Death
 
-#define PULL_RANGE                  50
-#define ABUSE_BUG_RANGE             20
-#define SPELL_BERSERK               26662
-#define TELEPORTTIME                30000
-
-#define SPELL_UPPERCUT              26007
-#define SPELL_UNBALANCING_STRIKE    26613
-
-#define VEKLOR_DIST                 20                      // VL will not come to melee when attacking
-
-#define SPELL_SHADOWBOLT            26006
-#define SPELL_BLIZZARD              26607
-#define SPELL_ARCANEBURST           568
 
 struct boss_twinemperorsAI : public ScriptedAI
 {
@@ -104,7 +111,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             return NULL;
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
     {
         Unit* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
@@ -121,7 +128,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) override
     {
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
@@ -135,21 +142,21 @@ struct boss_twinemperorsAI : public ScriptedAI
             DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_DEATH : SOUND_VN_DEATH);
     }
 
-    void KilledUnit(Unit* /*victim*/)
+    void KilledUnit(Unit* /*victim*/) override
     {
         DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_KILL : SOUND_VN_KILL);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* who) override
     {
         DoZoneInCombat();
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {
-            // TODO: we should activate the other boss location so he can start attackning even if nobody
+            /// @todo we should activate the other boss location so he can start attackning even if nobody
             // is near I dont know how to do that
             ScriptedAI* otherAI = CAST_AI(ScriptedAI, pOtherBoss->AI());
-            if (!pOtherBoss->isInCombat())
+            if (!pOtherBoss->IsInCombat())
             {
                 DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_AGGRO : SOUND_VN_AGGRO);
                 otherAI->AttackStart(who);
@@ -158,7 +165,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* entry)
+    void SpellHit(Unit* caster, const SpellInfo* entry) override
     {
         if (caster == me)
             return;
@@ -287,12 +294,13 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit* who)
+    void MoveInLineOfSight(Unit* who) override
+
     {
-        if (!who || me->getVictim())
+        if (!who || me->GetVictim())
             return;
 
-        if (me->canCreatureAttack(who))
+        if (me->CanCreatureAttack(who))
         {
             float attackRadius = me->GetAttackDistance(who);
             if (attackRadius < PULL_RANGE)
@@ -386,15 +394,15 @@ class boss_veknilash : public CreatureScript
 public:
     boss_veknilash() : CreatureScript("boss_veknilash") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_veknilashAI (creature);
+        return new boss_veknilashAI(creature);
     }
 
     struct boss_veknilashAI : public boss_twinemperorsAI
     {
         bool IAmVeklor() {return false;}
-        boss_veknilashAI(Creature* creature) : boss_twinemperorsAI(creature) {}
+        boss_veknilashAI(Creature* creature) : boss_twinemperorsAI(creature) { }
 
         uint32 UpperCut_Timer;
         uint32 UnbalancingStrike_Timer;
@@ -405,7 +413,7 @@ public:
 
         Creature* Summoned;
 
-        void Reset()
+        void Reset() override
         {
             TwinReset();
             UpperCut_Timer = urand(14000, 29000);
@@ -424,7 +432,7 @@ public:
             target->SetFullHealth();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -436,7 +444,7 @@ public:
             //UnbalancingStrike_Timer
             if (UnbalancingStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);
+                DoCastVictim(SPELL_UNBALANCING_STRIKE);
                 UnbalancingStrike_Timer = 8000+rand()%12000;
             } else UnbalancingStrike_Timer -= diff;
 
@@ -472,15 +480,15 @@ class boss_veklor : public CreatureScript
 public:
     boss_veklor() : CreatureScript("boss_veklor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_veklorAI (creature);
+        return new boss_veklorAI(creature);
     }
 
     struct boss_veklorAI : public boss_twinemperorsAI
     {
         bool IAmVeklor() {return true;}
-        boss_veklorAI(Creature* creature) : boss_twinemperorsAI(creature) {}
+        boss_veklorAI(Creature* creature) : boss_twinemperorsAI(creature) { }
 
         uint32 ShadowBolt_Timer;
         uint32 Blizzard_Timer;
@@ -492,7 +500,7 @@ public:
 
         Creature* Summoned;
 
-        void Reset()
+        void Reset() override
         {
             TwinReset();
             ShadowBolt_Timer = 0;
@@ -513,7 +521,7 @@ public:
             target->SetFullHealth();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -530,10 +538,10 @@ public:
             //ShadowBolt_Timer
             if (ShadowBolt_Timer <= diff)
             {
-                if (!me->IsWithinDist(me->getVictim(), 45.0f))
-                    me->GetMotionMaster()->MoveChase(me->getVictim(), VEKLOR_DIST, 0);
+                if (!me->IsWithinDist(me->GetVictim(), 45.0f))
+                    me->GetMotionMaster()->MoveChase(me->GetVictim(), VEKLOR_DIST, 0);
                 else
-                    DoCast(me->getVictim(), SPELL_SHADOWBOLT);
+                    DoCastVictim(SPELL_SHADOWBOLT);
                 ShadowBolt_Timer = 2000;
             } else ShadowBolt_Timer -= diff;
 
@@ -574,7 +582,7 @@ public:
             //DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
             if (!who)
                 return;

@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -46,7 +48,7 @@ class instance_the_eye : public InstanceMapScript
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
-            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint64 ThaladredTheDarkener;
             uint64 LordSanguinar;
@@ -60,7 +62,7 @@ class instance_the_eye : public InstanceMapScript
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-            void Initialize()
+            void Initialize() override
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -76,7 +78,7 @@ class instance_the_eye : public InstanceMapScript
                 AlarEventPhase = 0;
             }
 
-            bool IsEncounterInProgress() const
+            bool IsEncounterInProgress() const override
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (m_auiEncounter[i] == IN_PROGRESS)
@@ -85,7 +87,7 @@ class instance_the_eye : public InstanceMapScript
                 return false;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -113,7 +115,7 @@ class instance_the_eye : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier)
+            uint64 GetData64(uint32 identifier) const override
             {
                 switch (identifier)
                 {
@@ -128,7 +130,7 @@ class instance_the_eye : public InstanceMapScript
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -151,7 +153,7 @@ class instance_the_eye : public InstanceMapScript
                     SaveToDB();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -163,7 +165,7 @@ class instance_the_eye : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -174,7 +176,7 @@ class instance_the_eye : public InstanceMapScript
                 return stream.str();
             }
 
-            void Load(const char* in)
+            void Load(const char* in) override
             {
                 if (!in)
                 {
@@ -192,7 +194,7 @@ class instance_the_eye : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_the_eye_InstanceMapScript(map);
         }

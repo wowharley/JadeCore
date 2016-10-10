@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -21,7 +24,7 @@
 
 enum Spells
 {
-    SPELL_NET = 6533
+    SPELL_NET                                              = 6533
 };
 
 class boss_gelihast : public CreatureScript
@@ -29,9 +32,9 @@ class boss_gelihast : public CreatureScript
 public:
     boss_gelihast() : CreatureScript("boss_gelihast") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_gelihastAI (creature);
+        return new boss_gelihastAI(creature);
     }
 
     struct boss_gelihastAI : public ScriptedAI
@@ -45,26 +48,26 @@ public:
 
         InstanceScript* instance;
 
-        void Reset()
+        void Reset() override
         {
             netTimer = urand(2000, 4000);
             if (instance)
                 instance->SetData(TYPE_GELIHAST, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             if (instance)
                 instance->SetData(TYPE_GELIHAST, IN_PROGRESS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance)
                 instance->SetData(TYPE_GELIHAST, DONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

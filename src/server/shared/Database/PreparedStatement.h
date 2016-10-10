@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -21,6 +22,10 @@
 #include "SQLOperation.h"
 #include <ace/Future.h>
 
+#ifdef __APPLE__
+#undef TYPE_BOOL
+#endif
+
 //- Union for data buffer (upper-level bind -> queue -> lower-level bind)
 union PreparedStatementDataUnion
 {
@@ -35,11 +40,6 @@ union PreparedStatementDataUnion
     int64 i64;
     float f;
     double d;
-    struct
-    {
-        char* ptr;
-        uint32 len;
-    } str;
 };
 
 //- This enum helps us differ data held in above union
@@ -64,9 +64,8 @@ struct PreparedStatementData
 {
     PreparedStatementDataUnion data;
     PreparedStatementValueType type;
+    std::string str;
 };
-
-struct nullable_string;
 
 //- Forward declare
 class MySQLPreparedStatement;
@@ -94,9 +93,7 @@ class PreparedStatement
         void setFloat(const uint8 index, const float value);
         void setDouble(const uint8 index, const double value);
         void setString(const uint8 index, const std::string& value);
-        void setString(const uint8 index, const char* value);
-        void setString(const uint8 index, const char* value, uint32 length);
-        void setString(const uint8 index, const nullable_string& value);
+        void setNull(const uint8 index);
 
     protected:
         void BindParameters();
@@ -130,8 +127,7 @@ class MySQLPreparedStatement
         void setInt64(const uint8 index, const int64 value);
         void setFloat(const uint8 index, const float value);
         void setDouble(const uint8 index, const double value);
-        void setString(const uint8 index, char* value);
-        void setString(const uint8 index, char* value, uint32 len);
+        void setString(const uint8 index, const char* value);
         void setNull(const uint8 index);
 
     protected:
@@ -140,7 +136,7 @@ class MySQLPreparedStatement
         PreparedStatement* m_stmt;
         void ClearParameters();
         bool CheckValidIndex(uint8 index);
-        std::string getQueryString(const char *query);
+        std::string getQueryString(std::string const& sqlPattern) const;
 
     private:
         void setValue(MYSQL_BIND* param, enum_field_types type, const void* value, uint32 len, bool isUnsigned);

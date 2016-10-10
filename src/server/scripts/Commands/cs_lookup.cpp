@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -24,12 +23,15 @@ Comment: All lookup related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "Chat.h"
 #include "AccountMgr.h"
+#include "Chat.h"
 #include "GameEventMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
+#include "SpellInfo.h"
 
 class lookup_commandscript : public CommandScript
 {
@@ -40,34 +42,43 @@ public:
     {
         static ChatCommand lookupPlayerCommandTable[] =
         {
-            { "ip",             SEC_GAMEMASTER,     true,  &HandleLookupPlayerIpCommand,        "", NULL },
-            { "account",        SEC_GAMEMASTER,     true,  &HandleLookupPlayerAccountCommand,   "", NULL },
-            { "email",          SEC_GAMEMASTER,     true,  &HandleLookupPlayerEmailCommand,     "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "ip",      rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_IP,      true, &HandleLookupPlayerIpCommand,        "", NULL },
+            { "account", rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_ACCOUNT, true, &HandleLookupPlayerAccountCommand,   "", NULL },
+            { "email",   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_EMAIL,   true, &HandleLookupPlayerEmailCommand,     "", NULL },
+            { NULL,      0,                                      false, NULL,                                "", NULL }
         };
+
+        static ChatCommand lookupSpellCommandTable[] =
+        {
+            { "id", rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL_ID, true, &HandleLookupSpellIdCommand,         "", NULL },
+            { "",   rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, &HandleLookupSpellCommand,           "", NULL },
+            { NULL, 0,                                false, NULL,                                "", NULL }
+        };
+
         static ChatCommand lookupCommandTable[] =
         {
-            { "area",           SEC_MODERATOR,      true,  &HandleLookupAreaCommand,            "", NULL },
-            { "creature",       SEC_ADMINISTRATOR,  true,  &HandleLookupCreatureCommand,        "", NULL },
-            { "event",          SEC_GAMEMASTER,     true,  &HandleLookupEventCommand,           "", NULL },
-            { "faction",        SEC_ADMINISTRATOR,  true,  &HandleLookupFactionCommand,         "", NULL },
-            { "item",           SEC_ADMINISTRATOR,  true,  &HandleLookupItemCommand,            "", NULL },
-            { "itemset",        SEC_ADMINISTRATOR,  true,  &HandleLookupItemSetCommand,         "", NULL },
-            { "object",         SEC_ADMINISTRATOR,  true,  &HandleLookupObjectCommand,          "", NULL },
-            { "quest",          SEC_ADMINISTRATOR,  true,  &HandleLookupQuestCommand,           "", NULL },
-            { "player",         SEC_GAMEMASTER,     true,  NULL,                                "", lookupPlayerCommandTable },
-            { "skill",          SEC_ADMINISTRATOR,  true,  &HandleLookupSkillCommand,           "", NULL },
-            { "spell",          SEC_ADMINISTRATOR,  true,  &HandleLookupSpellCommand,           "", NULL },
-            { "taxinode",       SEC_ADMINISTRATOR,  true,  &HandleLookupTaxiNodeCommand,        "", NULL },
-            { "tele",           SEC_MODERATOR,      true,  &HandleLookupTeleCommand,            "", NULL },
-            { "title",          SEC_GAMEMASTER,     true,  &HandleLookupTitleCommand,           "", NULL },
-            { "map",            SEC_ADMINISTRATOR,  true,  &HandleLookupMapCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "area",     rbac::RBAC_PERM_COMMAND_LOOKUP_AREA,     true, &HandleLookupAreaCommand,     "", NULL },
+            { "creature", rbac::RBAC_PERM_COMMAND_LOOKUP_CREATURE, true, &HandleLookupCreatureCommand, "", NULL },
+            { "event",    rbac::RBAC_PERM_COMMAND_LOOKUP_EVENT,    true, &HandleLookupEventCommand,    "", NULL },
+            { "faction",  rbac::RBAC_PERM_COMMAND_LOOKUP_FACTION,  true, &HandleLookupFactionCommand,  "", NULL },
+            { "item",     rbac::RBAC_PERM_COMMAND_LOOKUP_ITEM,     true, &HandleLookupItemCommand,     "", NULL },
+            { "itemset",  rbac::RBAC_PERM_COMMAND_LOOKUP_ITEMSET,  true, &HandleLookupItemSetCommand,  "", NULL },
+            { "object",   rbac::RBAC_PERM_COMMAND_LOOKUP_OBJECT,   true, &HandleLookupObjectCommand,   "", NULL },
+            { "quest",    rbac::RBAC_PERM_COMMAND_LOOKUP_QUEST,    true, &HandleLookupQuestCommand,    "", NULL },
+            { "player",   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER,   true, NULL,                         "", lookupPlayerCommandTable },
+            { "skill",    rbac::RBAC_PERM_COMMAND_LOOKUP_SKILL,    true, &HandleLookupSkillCommand,    "", NULL },
+            { "spell",    rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, NULL,                         "", lookupSpellCommandTable },
+            { "taxinode", rbac::RBAC_PERM_COMMAND_LOOKUP_TAXINODE, true, &HandleLookupTaxiNodeCommand, "", NULL },
+            { "tele",     rbac::RBAC_PERM_COMMAND_LOOKUP_TELE,     true, &HandleLookupTeleCommand,     "", NULL },
+            { "title",    rbac::RBAC_PERM_COMMAND_LOOKUP_TITLE,    true, &HandleLookupTitleCommand,    "", NULL },
+            { "map",      rbac::RBAC_PERM_COMMAND_LOOKUP_MAP,      true, &HandleLookupMapCommand,      "", NULL },
+            { NULL,       0,                                false, NULL,                         "", NULL }
         };
+
         static ChatCommand commandTable[] =
         {
-            { "lookup",         SEC_ADMINISTRATOR,  true,  NULL,                                "", lookupCommandTable },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "lookup", rbac::RBAC_PERM_COMMAND_LOOKUP,  true, NULL, "", lookupCommandTable },
+            { NULL,     0,                        false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -714,7 +725,7 @@ public:
             SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(id);
             if (skillInfo)
             {
-                std::string name = skillInfo->name;
+				std::string name = skillInfo->DisplayName_lang;
                 if (name.empty())
                     continue;
 
@@ -779,8 +790,7 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in Spell.dbc
-        uint32 StoreSize = sSpellMgr->GetSpellInfoStoreSize();
-        for (uint32 id = 0; id < StoreSize; ++id)
+        for (uint32 id = 0; id < sSpellMgr->GetSpellInfoStoreSize(); id++)
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
             if (spellInfo)
@@ -803,7 +813,7 @@ public:
 
                 SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
 
-                uint32 talentCost =0;// GetTalentSpellCost(id);
+                uint32 talentCost = GetTalentSpellCost(id);
 
                 bool talent = (talentCost > 0);
                 bool passive = spellInfo->IsPassive();
@@ -845,6 +855,76 @@ public:
             }
         }
         if (!found)
+            handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+
+        return true;
+    }
+
+    static bool HandleLookupSpellIdCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        // can be NULL at console call
+        Player* target = handler->getSelectedPlayer();
+
+        uint32 id = atoi((char*)args);
+
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id))
+        {
+            int locale = handler->GetSessionDbcLocale();
+            std::string name = spellInfo->SpellName;
+            if (name.empty())
+            {
+                handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+                return true;
+            }
+
+                bool known = target && target->HasSpell(id);
+                bool learn = (spellInfo->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL);
+
+                SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
+
+                uint32 talentCost = GetTalentSpellCost(id);
+
+                bool talent = (talentCost > 0);
+                bool passive = spellInfo->IsPassive();
+                bool active = target && target->HasAura(id);
+
+                // unit32 used to prevent interpreting uint8 as char at output
+                // find rank of learned spell for learning spell, or talent rank
+                uint32 rank = talentCost ? talentCost : learn && learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
+
+                // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
+                std::ostringstream ss;
+                if (handler->GetSession())
+                    ss << id << " - |cffffffff|Hspell:" << id << "|h[" << name;
+                else
+                    ss << id << " - " << name;
+
+                // include rank in link name
+                if (rank)
+                    ss << handler->GetTrinityString(LANG_SPELL_RANK) << rank;
+
+                if (handler->GetSession())
+                    ss << ' ' << localeNames[locale] << "]|h|r";
+                else
+                    ss << ' ' << localeNames[locale];
+
+                if (talent)
+                    ss << handler->GetTrinityString(LANG_TALENT);
+                if (passive)
+                    ss << handler->GetTrinityString(LANG_PASSIVE);
+                if (learn)
+                    ss << handler->GetTrinityString(LANG_LEARN);
+                if (known)
+                    ss << handler->GetTrinityString(LANG_KNOWN);
+                if (active)
+                    ss << handler->GetTrinityString(LANG_ACTIVE);
+
+                handler->SendSysMessage(ss.str().c_str());
+        }
+        else
             handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
 
         return true;
@@ -973,7 +1053,7 @@ public:
         Player* target = handler->getSelectedPlayer();
 
         // title name have single string arg for player name
-        char const* targetName = target ? target->GetName() : "NAME";
+        char const* targetName = target ? target->GetName().c_str() : "NAME";
 
         std::string namePart = args;
         std::wstring wNamePart;
@@ -1008,7 +1088,7 @@ public:
 
                 char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
 
-                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
+                char const* activeStr = target && target->GetUInt32Value(PLAYER_FIELD_PLAYER_TITLE) == titleInfo->bit_index
                     ? handler->GetTrinityString(LANG_ACTIVE)
                     : "";
 
@@ -1030,119 +1110,75 @@ public:
         return true;
     }
 
-    static bool HandleLookupMapCommand(ChatHandler* /*handler*/, char const* args)
+    static bool HandleLookupMapCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
-        /* @todo FIX ME */
-        /*
+
         std::string namePart = args;
         std::wstring wNamePart;
 
-        // converting string that we try to find to lower case
         if (!Utf8toWStr(namePart, wNamePart))
             return false;
 
         wstrToLower(wNamePart);
 
-        bool found = false;
+        uint32 counter = 0;
+        uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
+        uint8 locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
 
         // search in Map.dbc
         for (uint32 id = 0; id < sMapStore.GetNumRows(); id++)
         {
-            MapEntry const* MapInfo = sMapStore.LookupEntry(id);
-            if (MapInfo)
+            if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
             {
-                uint8 locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
-
-                std::string name = MapInfo->name[locale];
+                std::string name = mapInfo->name;
                 if (name.empty())
                     continue;
 
-                if (!Utf8FitTo(name, wNamePart))
+                if (Utf8FitTo(name, wNamePart) && locale < TOTAL_LOCALES)
                 {
-                    locale = LOCALE_enUS;
-                    for (; locale < TOTAL_LOCALES; locale++)
+                    if (maxResults && counter == maxResults)
                     {
-                        if (handler->GetSession() && locale == handler->GetSession()->GetSessionDbcLocale())
-                            continue;
-
-                        name = MapInfo->name[locale];
-                        if (name.empty())
-                            continue;
-
-                        if (Utf8FitTo(name, wNamePart))
-                            break;
+                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                        return true;
                     }
-                }
 
-                if (locale < TOTAL_LOCALES)
-                {
-                    // send map in "id - [name][Continent][Instance/Battleground/Arena][Raid reset time:][Heroic reset time:][Mountable]" format
                     std::ostringstream ss;
+                    ss << id << " - [" << name << ']';
 
-                    if (handler->GetSession())
-                        ss << id << " - |cffffffff|Hmap:" << id << "|h[" << name << ']';
-                    else // console
-                        ss << id << " - [" << name << ']';
-
-                    if (MapInfo->IsContinent())
+                    if (mapInfo->IsContinent())
                         ss << handler->GetTrinityString(LANG_CONTINENT);
 
-                    switch (MapInfo->map_type)
+                    switch (mapInfo->map_type)
                     {
                         case MAP_INSTANCE:
-                        ss << handler->GetTrinityString(LANG_INSTANCE);
-                        break;
+                            ss << handler->GetTrinityString(LANG_INSTANCE);
+                            break;
+                        case MAP_RAID:
+                            ss << handler->GetTrinityString(LANG_RAID);
+                            break;
                         case MAP_BATTLEGROUND:
-                        ss << handler->GetTrinityString(LANG_BATTLEGROUND);
-                        break;
+                            ss << handler->GetTrinityString(LANG_BATTLEGROUND);
+                            break;
                         case MAP_ARENA:
-                        ss << handler->GetTrinityString(LANG_ARENA);
-                        break;
+                            ss << handler->GetTrinityString(LANG_ARENA);
+                            break;
                         case MAP_SCENARIO:
-                        ss << handler->GetTrinityString(LANG_ARENA);
-                        break;
+                            ss << handler->GetTrinityString(LANG_SCENARIO);
+                            break;
                     }
 
-                    if (MapInfo->IsRaid())
-                        ss << handler->GetTrinityString(LANG_RAID);
+                    handler->SendSysMessage(ss.str().c_str());
 
-                    if (MapInfo->SupportsHeroicMode())
-                        ss << handler->GetTrinityString(LANG_HEROIC);
-
-                    uint32 ResetTimeRaid = MapInfo->resetTimeRaid;
-
-                    std::string ResetTimeRaidStr;
-                    if (ResetTimeRaid)
-                        ResetTimeRaidStr = secsToTimeString(ResetTimeRaid, true, false);
-
-                    uint32 ResetTimeHeroic = MapInfo->resetTimeHeroic;
-                    std::string ResetTimeHeroicStr;
-                    if (ResetTimeHeroic)
-                        ResetTimeHeroicStr = secsToTimeString(ResetTimeHeroic, true, false);
-
-                    if (MapInfo->IsMountAllowed())
-                        ss << handler->GetTrinityString(LANG_MOUNTABLE);
-
-                    if (ResetTimeRaid && !ResetTimeHeroic)
-                        handler->PSendSysMessage(ss.str().c_str(), ResetTimeRaidStr.c_str());
-                    else if (!ResetTimeRaid && ResetTimeHeroic)
-                        handler->PSendSysMessage(ss.str().c_str(), ResetTimeHeroicStr.c_str());
-                    else if (ResetTimeRaid && ResetTimeHeroic)
-                        handler->PSendSysMessage(ss.str().c_str(), ResetTimeRaidStr.c_str(), ResetTimeHeroicStr.c_str());
-                    else
-                        handler->SendSysMessage(ss.str().c_str());
-
-                    if (!found)
-                        found = true;
+                    ++counter;
                 }
             }
         }
 
-        if (!found)
+        if (!counter)
             handler->SendSysMessage(LANG_COMMAND_NOMAPFOUND);
-        */
+
         return true;
     }
 
@@ -1274,4 +1310,3 @@ void AddSC_lookup_commandscript()
 {
     new lookup_commandscript();
 }
- 

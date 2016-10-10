@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -24,11 +23,13 @@ Comment: All guild related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
+#include "AchievementMgr.h"
 #include "Chat.h"
+#include "Language.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
+#include "ScriptMgr.h"
 
 class guild_commandscript : public CommandScript
 {
@@ -39,20 +40,20 @@ public:
     {
         static ChatCommand guildCommandTable[] =
         {
-            { "create",         SEC_GAMEMASTER,     true,  &HandleGuildCreateCommand,           "", NULL },
-            { "delete",         SEC_GAMEMASTER,     true,  &HandleGuildDeleteCommand,           "", NULL },
-            { "invite",         SEC_GAMEMASTER,     true,  &HandleGuildInviteCommand,           "", NULL },
-            { "uninvite",       SEC_GAMEMASTER,     true,  &HandleGuildUninviteCommand,         "", NULL },
-            { "rank",           SEC_GAMEMASTER,     true,  &HandleGuildRankCommand,             "", NULL },
-            { "rename",         SEC_GAMEMASTER,     true,  &HandleGuildRenameCommand,           "", NULL },
-            { "givexp",         SEC_GAMEMASTER,     true,  &HandleGuildXpCommand,               "", NULL },
-            { "levelup",        SEC_GAMEMASTER,     true,  &HandleGuildLevelUpCommand,          "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "create",   rbac::RBAC_PERM_COMMAND_GUILD_CREATE,   true, &HandleGuildCreateCommand,           "", NULL },
+            { "delete",   rbac::RBAC_PERM_COMMAND_GUILD_DELETE,   true, &HandleGuildDeleteCommand,           "", NULL },
+            { "invite",   rbac::RBAC_PERM_COMMAND_GUILD_INVITE,   true, &HandleGuildInviteCommand,           "", NULL },
+            { "uninvite", rbac::RBAC_PERM_COMMAND_GUILD_UNINVITE, true, &HandleGuildUninviteCommand,         "", NULL },
+            { "rank",     rbac::RBAC_PERM_COMMAND_GUILD_RANK,     true, &HandleGuildRankCommand,             "", NULL },
+            { "rename",   rbac::RBAC_PERM_COMMAND_GUILD_RENAME,   true, &HandleGuildRenameCommand,           "", NULL },
+			{ "givexp",   rbac::RBAC_PERM_COMMAND_GUILD_GIVEXP,   true, &HandleGuildXpCommand,               "", NULL },
+            { "levelup",  rbac::RBAC_PERM_COMMAND_GUILD_LEVELUP,  true, &HandleGuildLevelUpCommand,          "", NULL },
+            { NULL,       0,                               false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "guild",          SEC_ADMINISTRATOR,  true, NULL,                                 "", guildCommandTable },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "guild", rbac::RBAC_PERM_COMMAND_GUILD,  true, NULL, "", guildCommandTable },
+            { NULL,    0,                       false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -195,7 +196,7 @@ public:
             return false;
 
         uint8 newRank = uint8(atoi(rankStr));
-       return targetGuild->ChangeMemberRank(targetGuid, newRank);
+        return targetGuild->ChangeMemberRank(targetGuid, newRank);
     }
 
     static bool HandleGuildRenameCommand(ChatHandler* handler, char const* _args)
@@ -247,7 +248,7 @@ public:
         return true;
     }
 
-    static bool HandleGuildXpCommand(ChatHandler* handler, char const* args)
+	static bool HandleGuildXpCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -337,4 +338,3 @@ void AddSC_guild_commandscript()
 {
     new guild_commandscript();
 }
- 

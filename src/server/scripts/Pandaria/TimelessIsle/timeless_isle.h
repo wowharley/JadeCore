@@ -106,8 +106,6 @@ enum SharedSpells
 	SPELL_STEALTH						= 128933,
 	SPELL_TOXIC_SKIN					= 147654,
 	SPELL_GULP_FROG_TOXIN				= 147655,
-
-	
 };
 
 // Scripts information
@@ -210,4 +208,3 @@ enum Evermaw
 {
 	SPELL_DEVOUR						= 147961,
 };
-

@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -16,86 +16,77 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BlackMarketMgr.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "Player.h"
+#include "Unit.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-#include "BlackMarket/BlackMarketMgr.h"
-#include "Log.h"
-#include "Language.h"
-#include "Opcodes.h"
-#include "UpdateMask.h"
-#include "Util.h"
-#include "AccountMgr.h"
-
-void WorldSession::HandleBlackMarketHello(WorldPacket& recvData)
+void WorldSession::HandleBlackMarketHelloOpcode(WorldPacket& recvData)
 {
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_HELLO");
+
     ObjectGuid guid;
 
-    uint8 bits[8] = { 6, 4, 2, 7, 5, 3, 0, 1 };
-    recvData.ReadBitInOrder(guid, bits);
+    recvData.ReadGuidMask(guid, 4, 5, 2, 7, 0, 1, 3, 6);
 
-    recvData.FlushBits();
+    recvData.ReadGuidBytes(guid, 3, 5, 0, 6, 4, 1, 7, 2);
 
-    uint8 bytes[8] = { 3, 2, 1, 6, 0, 5, 7, 4 };
-    recvData.ReadBytesSeq(guid, bytes);
+    uint64 npcGuid = uint64(guid);
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BLACK_MARKET);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_BLACKMARKET);
+
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBlackMarketHello - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_HELLO - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(npcGuid)));
         return;
     }
 
-    // Remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendBlackMarketHello(guid);
+    SendBlackMarketHello(npcGuid);
 }
 
 void WorldSession::SendBlackMarketHello(uint64 npcGuid)
 {
-    WorldPacket data(SMSG_BLACKMARKET_OPEN_RESULT, 9);
+    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACK_MARKET_HELLO");
+
+    WorldPacket data(SMSG_BLACK_MARKET_HELLO, 8);
+
     ObjectGuid guid = npcGuid;
 
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(1);                // unk
-    data.WriteBit(guid[6]);
+    data.WriteGuidMask(guid, 2, 0, 4, 1, 3, 6, 5, 7);
 
-    uint8 bytes[8] = { 7, 1, 4, 3, 2, 6, 0, 5 };
-    data.WriteBytesSeq(guid, bytes);
+    data.WriteBit(1); // Unknow
+
+    data.WriteGuidBytes(guid, 6, 1, 2, 5, 0, 7, 4, 3);
 
     SendPacket(&data);
 }
 
-void WorldSession::HandleBlackMarketRequestItems(WorldPacket& recvData)
+void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPacket& recvData)
 {
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_REQUEST_ITEMS");
+
     ObjectGuid guid;
-    uint32 unk;
+    uint32 Timestamp;
 
-    recvData >> unk;
+    recvData >> Timestamp;
 
-    uint8 bits[8] = { 4, 2, 6, 3, 1, 7, 5, 0 };
-    recvData.ReadBitInOrder(guid, bits);
+    recvData.ReadGuidMask(guid, 2, 6, 0, 3, 4, 5, 1, 7);
 
-    recvData.FlushBits();
+    recvData.ReadGuidBytes(guid, 6, 2, 3, 5, 7, 4, 1, 0);
 
-    uint8 bytes[8] = { 6, 4, 0, 7, 5, 2, 1, 3 };
-    recvData.ReadBytesSeq(guid, bytes);
+    uint64 NpcGuid = uint64(guid);
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BLACK_MARKET);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(NpcGuid, UNIT_NPC_FLAG_BLACKMARKET);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBlackMarketRequestItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_REQUEST_ITEMS - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(NpcGuid)));
         return;
     }
 
@@ -104,42 +95,37 @@ void WorldSession::HandleBlackMarketRequestItems(WorldPacket& recvData)
 
 void WorldSession::SendBlackMarketRequestItemsResult()
 {
-    WorldPacket data(SMSG_BLACKMARKET_ITEM_RESULT, 9);
+    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT");
+
+    WorldPacket data(SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT, 9);
     sBlackMarketMgr->BuildBlackMarketAuctionsPacket(data, GetPlayer()->GetGUIDLow());
     SendPacket(&data);
 }
 
-void WorldSession::HandleBlackMarketBid(WorldPacket& recvData)
+void WorldSession::HandleBlackMarketBidOpcode(WorldPacket& recvData)
 {
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BLACKMARKET_BID");
+
     ObjectGuid guid;
     uint32 itemid, id;
     uint64 price;
 
-    recvData >> price;
-    recvData >> itemid;
-    recvData >> id;
+    recvData >> id >> itemid >> price;
 
-    uint8 bits[8] = { 4, 2, 1, 0, 6, 7, 3, 5 };
-    recvData.ReadBitInOrder(guid, bits);
+    recvData.ReadGuidMask(guid, 0, 5, 4, 3, 7, 6, 1, 2);
 
-    recvData.FlushBits();
+    recvData.ReadGuidBytes(guid, 4, 3, 6, 5, 7, 1, 0, 2);
 
-    uint8 bytes[8] = { 4, 0, 3, 1, 7, 5, 2, 6 };
-    recvData.ReadBytesSeq(guid, bytes);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, ">> HandleBid >> id : %u, price : %u, itemid : %u", id, price, itemid);
+    uint64 npcGuid = uint64(guid);
 
     if (!price)
         return;
 
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BLACK_MARKET);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_BLACKMARKET);
     if (!creature)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBlackMarketBid - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
         return;
-    }
 
-    BMAuctionEntry* auction = sBlackMarketMgr->GetAuction(id);
+    BMAuctionEntry *auction = sBlackMarketMgr->GetAuction(id);
     if (!auction)
         return;
 
@@ -149,20 +135,20 @@ void WorldSession::HandleBlackMarketBid(WorldPacket& recvData)
     if (auction->bid >= price && price != auction->bm_template->startBid) // Trying to cheat
         return;
 
-    GetPlayer()->ModifyMoney(-int64(price));
-
     sBlackMarketMgr->UpdateAuction(auction, price, GetPlayer());
 
-    SendBlackMarketBidResult(itemid, id);
+    SendBlackMarketBidResult();
     SendBlackMarketRequestItemsResult();
 }
 
-void WorldSession::SendBlackMarketBidResult(uint32 itemEntry, uint32 auctionId)
+void WorldSession::SendBlackMarketBidResult()
 {
-    WorldPacket data(SMSG_BLACKMARKET_BID_ON_ITEM_RESULT, 12);
+    TC_LOG_DEBUG("network", "WORLD: Received SMSG_BLACK_MARKET_BID_RESULT");
 
-    data << uint32(auctionId);
-    data << uint32(0);
-    data << uint32(itemEntry);
+    WorldPacket data(SMSG_BLACK_MARKET_BID_RESULT, 5);
+
+    data << uint32(0); //unk
+    data.WriteBits(0, 2);
+
     SendPacket(&data);
 }

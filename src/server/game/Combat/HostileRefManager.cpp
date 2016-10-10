@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -43,8 +43,8 @@ void HostileRefManager::threatAssist(Unit* victim, float baseThreat, SpellInfo c
     threat /= getSize();
     while (ref)
     {
-        if (ThreatCalcHelper::isValidProcess(victim, ref->getSource()->getOwner(), threatSpell))
-            ref->getSource()->doAddThreat(victim, threat);
+        if (ThreatCalcHelper::isValidProcess(victim, ref->GetSource()->GetOwner(), threatSpell))
+            ref->GetSource()->doAddThreat(victim, threat);
 
         ref = ref->next();
     }
@@ -133,7 +133,7 @@ void HostileRefManager::deleteReferencesForFaction(uint32 faction)
     while (ref)
     {
         HostileReference* nextRef = ref->next();
-        if (ref->getSource()->getOwner()->getFactionTemplateEntry()->faction == faction)
+        if (ref->GetSource()->GetOwner()->GetFactionTemplateEntry()->faction == faction)
         {
             ref->removeReference();
             delete ref;
@@ -151,7 +151,7 @@ void HostileRefManager::deleteReference(Unit* creature)
     while (ref)
     {
         HostileReference* nextRef = ref->next();
-        if (ref->getSource()->getOwner() == creature)
+        if (ref->GetSource()->GetOwner() == creature)
         {
             ref->removeReference();
             delete ref;
@@ -170,7 +170,7 @@ void HostileRefManager::setOnlineOfflineState(Unit* creature, bool isOnline)
     while (ref)
     {
         HostileReference* nextRef = ref->next();
-        if (ref->getSource()->getOwner() == creature)
+        if (ref->GetSource()->GetOwner() == creature)
         {
             ref->setOnlineOfflineState(isOnline);
             break;
@@ -187,7 +187,7 @@ void HostileRefManager::UpdateVisibility()
     while (ref)
     {
         HostileReference* nextRef = ref->next();
-        if (!ref->getSource()->getOwner()->canSeeOrDetect(getOwner()))
+        if (!ref->GetSource()->GetOwner()->CanSeeOrDetect(GetOwner()))
         {
             nextRef = ref->next();
             ref->removeReference();

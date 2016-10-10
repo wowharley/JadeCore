@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -18,9 +18,6 @@
 
 /* ContentData
 go_cat_figurine (the "trap" version of GO, two different exist)
-go_northern_crystal_pylon
-go_eastern_crystal_pylon
-go_western_crystal_pylon
 go_barov_journal
 go_ethereum_prison
 go_ethereum_stasis
@@ -55,6 +52,8 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 /*######
 ## go_cat_figurine
@@ -63,8 +62,6 @@ EndContentData */
 enum CatFigurine
 {
     SPELL_SUMMON_GHOST_SABER    = 5968,
-
-    NPC_GHOST_SABER             = 3619,
 };
 
 class go_cat_figurine : public GameObjectScript
@@ -72,75 +69,10 @@ class go_cat_figurine : public GameObjectScript
 public:
     go_cat_figurine() : GameObjectScript("go_cat_figurine") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
-        Creature* ghostSaber = go->FindNearestCreature(NPC_GHOST_SABER, 5.0f, true);
-        if (!ghostSaber)
-            player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
+        player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
         return false;
-    }
-};
-
-/*######
-## go_crystal_pylons (3x)
-######*/
-class go_northern_crystal_pylon : public GameObjectScript
-{
-public:
-    go_northern_crystal_pylon() : GameObjectScript("go_northern_crystal_pylon") { }
-
-    bool OnGossipHello(Player* player, GameObject* go)
-    {
-        if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
-        {
-            player->PrepareQuestMenu(go->GetGUID());
-            player->SendPreparedQuest(go->GetGUID());
-        }
-
-        if (player->GetQuestStatus(4285) == QUEST_STATUS_INCOMPLETE)
-            player->AreaExploredOrEventHappens(4285);
-
-        return true;
-    }
-};
-
-class go_eastern_crystal_pylon : public GameObjectScript
-{
-public:
-    go_eastern_crystal_pylon() : GameObjectScript("go_eastern_crystal_pylon") { }
-
-    bool OnGossipHello(Player* player, GameObject* go)
-    {
-        if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
-        {
-            player->PrepareQuestMenu(go->GetGUID());
-            player->SendPreparedQuest(go->GetGUID());
-        }
-
-        if (player->GetQuestStatus(4287) == QUEST_STATUS_INCOMPLETE)
-            player->AreaExploredOrEventHappens(4287);
-
-        return true;
-    }
-};
-
-class go_western_crystal_pylon : public GameObjectScript
-{
-public:
-    go_western_crystal_pylon() : GameObjectScript("go_western_crystal_pylon") { }
-
-    bool OnGossipHello(Player* player, GameObject* go)
-    {
-        if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
-        {
-            player->PrepareQuestMenu(go->GetGUID());
-            player->SendPreparedQuest(go->GetGUID());
-        }
-
-        if (player->GetQuestStatus(4288) == QUEST_STATUS_INCOMPLETE)
-            player->AreaExploredOrEventHappens(4288);
-
-        return true;
     }
 };
 
@@ -253,7 +185,7 @@ class go_tablet_of_the_seven : public GameObjectScript
 public:
     go_tablet_of_the_seven() : GameObjectScript("go_tablet_of_the_seven") { }
 
-    //TODO: use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
+    /// @todo use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
     bool OnGossipHello(Player* player, GameObject* go)
     {
         if (go->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
@@ -311,6 +243,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         int Random = rand() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
         if (Creature* creature = player->SummonCreature(NpcPrisonEntry[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player),
@@ -318,7 +251,7 @@ public:
         {
             if (!creature->IsHostileTo(player))
             {
-                if (FactionTemplateEntry const* pFaction = creature->getFactionTemplateEntry())
+                if (FactionTemplateEntry const* pFaction = creature->GetFactionTemplateEntry())
                 {
                     uint32 Spell = 0;
 
@@ -335,7 +268,7 @@ public:
                     if (Spell)
                         creature->CastSpell(player, Spell, false);
                     else
-                        sLog->outError(LOG_FILTER_TSCR, "go_ethereum_prison summoned Creature (entry %u) but faction (%u) are not expected by script.", creature->GetEntry(), creature->getFaction());
+                        TC_LOG_ERROR("scripts", "go_ethereum_prison summoned Creature (entry %u) but faction (%u) are not expected by script.", creature->GetEntry(), creature->getFaction());
                 }
             }
         }
@@ -360,6 +293,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         int Random = rand() % (sizeof(NpcStasisEntry) / sizeof(uint32));
 
         player->SummonCreature(NpcStasisEntry[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player),
@@ -396,7 +330,10 @@ public:
 ## go_sacred_fire_of_life
 ######*/
 
-#define NPC_ARIKARA  10882
+enum SacredFireOfLife
+{
+    NPC_ARIKARA     = 10882
+};
 
 class go_sacred_fire_of_life : public GameObjectScript
 {
@@ -731,9 +668,9 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (Creature* pNearestPrisoner = go->FindNearestCreature(NPC_SCOURGE_PRISONER, 5.0f, true))
         {
-            go->SetGoState(GO_STATE_ACTIVE);
             player->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pNearestPrisoner->GetGUID());
             pNearestPrisoner->DisappearAndDie();
         }
@@ -773,7 +710,11 @@ public:
 ## go_blood_filled_orb
 ######*/
 
-#define NPC_ZELEMAR  17830
+enum BloodFilledOrb
+{
+    NPC_ZELEMAR     = 17830
+
+};
 
 class go_blood_filled_orb : public GameObjectScript
 {
@@ -813,6 +754,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         Creature* pPrisoner = go->FindNearestCreature(NPC_EBON_BLADE_PRISONER_HUMAN, 5.0f, true);
         if (!pPrisoner)
         {
@@ -824,7 +766,7 @@ public:
                     pPrisoner = go->FindNearestCreature(NPC_EBON_BLADE_PRISONER_NE, 5.0f, true);
             }
         }
-        if (!pPrisoner || !pPrisoner->isAlive())
+        if (!pPrisoner || !pPrisoner->IsAlive())
             return false;
 
         pPrisoner->DisappearAndDie();
@@ -942,9 +884,9 @@ class go_soulwell : public GameObjectScript
         {
             go_soulwellAI(GameObject* go) : GameObjectAI(go)
             {
-                _stoneId = 0;
+                _stoneId = 5512;
                 _stoneSpell = SPELL_HEALTH_STONE;
-                if (_stoneSpell == 0) // Should never happen
+                if (_stoneSpell == 0)
                     return;
 
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_stoneSpell);
@@ -961,21 +903,19 @@ class go_soulwell : public GameObjectScript
             bool GossipHello(Player* player)
             {
                 Unit* owner = go->GetOwner();
-                if (_stoneSpell == 0 || _stoneId == 0)
-                    return true;
 
                 if (!owner || owner->GetTypeId() != TYPEID_PLAYER || !player->IsInSameRaidWith(owner->ToPlayer()))
                     return true;
 
                 // Don't try to add a stone if we already have one.
-                if (player->HasItemCount(_stoneId, 1))
+                if (player->HasItemCount(5512, 1))
                 {
-                    if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(_stoneSpell))
-                        Spell::SendCastResult(player, spell, NULL, 0, SPELL_FAILED_TOO_MANY_OF_ITEM);
+                    if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(23517))
+                        Spell::SendCastResult(player, spell, 0, SPELL_FAILED_TOO_MANY_OF_ITEM);
                     return true;
                 }
 
-                player->CastSpell(player, _stoneSpell, true);
+                player->CastSpell(player,23517,true);
 
                 return false;
             }
@@ -1012,6 +952,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (player->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) != QUEST_STATUS_INCOMPLETE)
             return true;
 
@@ -1027,14 +968,14 @@ public:
             }
         }
 
-        if (!pPrisoner || !pPrisoner->isAlive())
+        if (!pPrisoner || !pPrisoner->IsAlive())
             return true;
 
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
         if (qInfo)
         {
-            //TODO: prisoner should help player for a short period of time
-            player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
+            /// @todo prisoner should help player for a short period of time
+            player->KilledMonsterCredit(qInfo->GetQuestObjectiveXIndex(0)->ObjectId);
             pPrisoner->DisappearAndDie();
         }
         return true;
@@ -1059,12 +1000,12 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (player->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
         {
             Creature* pTadpole = go->FindNearestCreature(NPC_WINTERFIN_TADPOLE, 1.0f);
             if (pTadpole)
             {
-                go->UseDoorOrButton();
                 pTadpole->DisappearAndDie();
                 player->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE, 0);
                 //FIX: Summon minion tadpole
@@ -1105,11 +1046,11 @@ public:
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             player->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_VACANT, go->GetGUID());
-            return true;
         }
         else
             player->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_INUSE, go->GetGUID());
-            return true;
+
+        return true;
     }
 
     bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 action)
@@ -1125,7 +1066,7 @@ public:
                 go->CastSpell(target, SPELL_INDISPOSED_III);
             }
             go->CastSpell(player, SPELL_INDISPOSED);
-            if (player->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER, 1))
+            if (player->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER))
                 go->CastSpell(player, SPELL_CREATE_AMBERSEEDS);
             return true;
         }
@@ -1194,15 +1135,13 @@ class go_gjalerbron_cage : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
+            go->UseDoorOrButton();
             if ((player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_ALLIANCE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE) ||
                 (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_HORDE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE))
             {
                 if (Creature* prisoner = go->FindNearestCreature(NPC_GJALERBRON_PRISONER, 5.0f))
                 {
-                    go->UseDoorOrButton();
-
-                    if (player)
-                        player->KilledMonsterCredit(NPC_GJALERBRON_PRISONER, 0);
+                    player->KilledMonsterCredit(NPC_GJALERBRON_PRISONER, 0);
 
                     prisoner->AI()->Talk(SAY_FREE);
                     prisoner->DespawnOrUnsummon(6000);
@@ -1223,6 +1162,7 @@ class go_large_gjalerbron_cage : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
+            go->UseDoorOrButton();
             if ((player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_ALLIANCE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE) ||
                 (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_HORDE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE))
             {
@@ -1230,7 +1170,6 @@ class go_large_gjalerbron_cage : public GameObjectScript
                 GetCreatureListWithEntryInGrid(prisonerList, go, NPC_GJALERBRON_PRISONER, INTERACTION_DISTANCE);
                 for (std::list<Creature*>::const_iterator itr = prisonerList.begin(); itr != prisonerList.end(); ++itr)
                 {
-                    go->UseDoorOrButton();
                     player->KilledMonsterCredit(NPC_GJALERBRON_PRISONER, (*itr)->GetGUID());
                     (*itr)->DespawnOrUnsummon(6000);
                     (*itr)->AI()->Talk(SAY_FREE);
@@ -1258,13 +1197,13 @@ class go_veil_skith_cage : public GameObjectScript
 
        bool OnGossipHello(Player* player, GameObject* go)
        {
+           go->UseDoorOrButton();
            if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
            {
                std::list<Creature*> childrenList;
                GetCreatureListWithEntryInGrid(childrenList, go, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
                for (std::list<Creature*>::const_iterator itr = childrenList.begin(); itr != childrenList.end(); ++itr)
                {
-                   go->UseDoorOrButton();
                    player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetGUID());
                    (*itr)->DespawnOrUnsummon(5000);
                    (*itr)->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
@@ -1295,10 +1234,10 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton(10);
         if (!player->HasAura(SPELL_RECENT_MEDITATION))
             if (player->GetQuestStatus(QUEST_THE_CLEANSING_HORDE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_CLEANSING_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
             {
-                go->UseDoorOrButton(10);
                 player->CastSpell(player, SPELL_CLEANSING_SOUL);
                 player->SetStandState(UNIT_STAND_STATE_SIT);
             }
@@ -1328,61 +1267,43 @@ public:
     }
 };
 
-class go_seaforium_charge : public GameObjectScript
-{
-    public:
-        go_seaforium_charge() : GameObjectScript("go_seaforium_charge") { }
-
-        bool OnGossipHello(Player* player, GameObject* go)
-        {
-            if (player->HasAura(52418))
-                return true;
-
-            return false;
-        }
-};
-
 void AddSC_go_scripts()
 {
-    new go_cat_figurine;
-    new go_northern_crystal_pylon;
-    new go_eastern_crystal_pylon;
-    new go_western_crystal_pylon;
-    new go_barov_journal;
-    new go_field_repair_bot_74A;
-    new go_gilded_brazier;
-    new go_orb_of_command;
-    new go_shrine_of_the_birds;
-    new go_southfury_moonstone;
-    new go_tablet_of_madness;
-    new go_tablet_of_the_seven;
-    new go_jump_a_tron;
-    new go_ethereum_prison;
-    new go_ethereum_stasis;
-    new go_resonite_cask;
-    new go_sacred_fire_of_life;
-    new go_tele_to_dalaran_crystal;
-    new go_tele_to_violet_stand;
-    new go_fel_crystalforge;
-    new go_bashir_crystalforge;
-    new go_matrix_punchograph;
-    new go_scourge_cage;
-    new go_arcane_prison;
-    new go_blood_filled_orb;
-    new go_jotunheim_cage;
-    new go_table_theka;
-    new go_inconspicuous_landmark;
-    new go_ethereal_teleport_pad;
-    new go_soulwell;
-    new go_tadpole_cage;
-    new go_dragonflayer_cage;
-    new go_amberpine_outhouse;
-    new go_hive_pod;
-    new go_massive_seaforium_charge;
-    new go_gjalerbron_cage;
-    new go_large_gjalerbron_cage;
-    new go_veil_skith_cage;
-    new go_frostblade_shrine;
-    new go_midsummer_bonfire;
-    new go_seaforium_charge;
+    new go_cat_figurine();
+    new go_barov_journal();
+    new go_field_repair_bot_74A();
+    new go_gilded_brazier();
+    new go_orb_of_command();
+    new go_shrine_of_the_birds();
+    new go_southfury_moonstone();
+    new go_tablet_of_madness();
+    new go_tablet_of_the_seven();
+    new go_jump_a_tron();
+    new go_ethereum_prison();
+    new go_ethereum_stasis();
+    new go_resonite_cask();
+    new go_sacred_fire_of_life();
+    new go_tele_to_dalaran_crystal();
+    new go_tele_to_violet_stand();
+    new go_fel_crystalforge();
+    new go_bashir_crystalforge();
+    new go_matrix_punchograph();
+    new go_scourge_cage();
+    new go_arcane_prison();
+    new go_blood_filled_orb();
+    new go_jotunheim_cage();
+    new go_table_theka();
+    new go_inconspicuous_landmark();
+    new go_ethereal_teleport_pad();
+    new go_soulwell();
+    new go_tadpole_cage();
+    new go_dragonflayer_cage();
+    new go_amberpine_outhouse();
+    new go_hive_pod();
+    new go_massive_seaforium_charge();
+    new go_gjalerbron_cage();
+    new go_large_gjalerbron_cage();
+    new go_veil_skith_cage();
+    new go_frostblade_shrine();
+    new go_midsummer_bonfire();
 }

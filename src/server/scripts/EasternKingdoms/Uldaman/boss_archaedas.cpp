@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -27,22 +28,20 @@ At 33%, he will awaken the Vault Walkers
 On his death the vault door opens.
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "uldaman.h"
+#include "Player.h"
 
-#define SAY_AGGRO           "Who dares awaken Archaedas? Who dares the wrath of the makers!"
-#define SOUND_AGGRO         5855
+enum Says
+{
+    SAY_AGGRO                   = 0,
+    SAY_SUMMON_GUARDIANS        = 1,
+    SAY_SUMMON_VAULT_WALKERS    = 2,
+    SAY_KILL                    = 3
+};
 
-#define SAY_SUMMON          "Awake ye servants, defend the discs!"
-#define SOUND_SUMMON        5856
-
-#define SAY_SUMMON2         "To my side, brothers. For the makers!"
-#define SOUND_SUMMON2       5857
-
-#define SAY_KILL            "Reckless mortal."
-#define SOUND_KILL          5858
-
-enum eSpells
+enum Spells
 {
     SPELL_GROUND_TREMOR              = 6524,
     SPELL_ARCHAEDAS_AWAKEN           = 10347,
@@ -51,6 +50,7 @@ enum eSpells
     SPELL_SUB_BOSS_AGGRO             = 11568,
     SPELL_AWAKEN_VAULT_WALKER        = 10258,
     SPELL_AWAKEN_EARTHEN_GUARDIAN    = 10252,
+    SPELL_SELF_DESTRUCT              = 9874
 };
 
 class boss_archaedas : public CreatureScript
@@ -78,7 +78,7 @@ class boss_archaedas : public CreatureScript
             bool bVaultWalkersAwake;
             InstanceScript* instance;
 
-            void Reset()
+            void Reset() override
             {
                 uiTremorTimer = 60000;
                 iAwakenTimer = 0;
@@ -90,45 +90,49 @@ class boss_archaedas : public CreatureScript
 
                 if (instance)
                     instance->SetData(0, 5);    // respawn any dead minions
+                me->setFaction(35);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void ActivateMinion(uint64 uiGuid, bool bFlag)
+            void ActivateMinion(uint64 uiGuid, bool flag)
             {
-                Unit* pMinion = Unit::GetUnit(*me, uiGuid);
+                Unit* minion = Unit::GetUnit(*me, uiGuid);
 
-                if (pMinion && pMinion->isAlive())
+                if (minion && minion->IsAlive())
                 {
-                    DoCast(pMinion, SPELL_AWAKEN_VAULT_WALKER, bFlag);
-                    pMinion->CastSpell(pMinion, SPELL_ARCHAEDAS_AWAKEN, true);
+                    DoCast(minion, SPELL_AWAKEN_VAULT_WALKER, flag);
+                    minion->CastSpell(minion, SPELL_ARCHAEDAS_AWAKEN, true);
+                    minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    minion->setFaction(14);
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->setFaction(14);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
             {
                 // Being woken up from the altar, start the awaken sequence
                 if (spell == sSpellMgr->GetSpellInfo(SPELL_ARCHAEDAS_AWAKEN))
                 {
-                    me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_AGGRO);
+                    Talk(SAY_AGGRO);
                     iAwakenTimer = 4000;
                     bWakingUp = true;
                 }
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) override
             {
-                me->MonsterYell(SAY_KILL, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_KILL);
+                Talk(SAY_KILL);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff) override
             {
                 if (!instance)
                     return;
@@ -165,8 +169,7 @@ class boss_archaedas : public CreatureScript
                     ActivateMinion(instance->GetData64(8), true);   // EarthenGuardian4
                     ActivateMinion(instance->GetData64(9), true);   // EarthenGuardian5
                     ActivateMinion(instance->GetData64(10), false); // EarthenGuardian6
-                    me->MonsterYell(SAY_SUMMON, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_SUMMON);
+                    Talk(SAY_SUMMON_GUARDIANS);
                     bGuardiansAwake = true;
                 }
 
@@ -177,15 +180,14 @@ class boss_archaedas : public CreatureScript
                     ActivateMinion(instance->GetData64(2), true);    // VaultWalker2
                     ActivateMinion(instance->GetData64(3), true);    // VaultWalker3
                     ActivateMinion(instance->GetData64(4), false);    // VaultWalker4
-                    me->MonsterYell(SAY_SUMMON2, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_SUMMON2);
+                    Talk(SAY_SUMMON_VAULT_WALKERS);
                     bVaultWalkersAwake = true;
                 }
 
                 if (uiTremorTimer <= uiDiff)
                 {
                     //Cast
-                    DoCast(me->getVictim(), SPELL_GROUND_TREMOR);
+                    DoCastVictim(SPELL_GROUND_TREMOR);
 
                     //45 seconds until we should cast this agian
                     uiTremorTimer  = 45000;
@@ -204,33 +206,31 @@ class boss_archaedas : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_archaedasAI(creature);
         }
 };
 
 /* ScriptData
-SDName: mob_archaedas_minions
+SDName: npc_archaedas_minions
 SD%Complete: 100
 SDComment: These mobs are initially frozen until Archaedas awakens them
 one at a time.
 EndScriptData */
 
-#define SPELL_ARCHAEDAS_AWAKEN  10347
-
-class mob_archaedas_minions : public CreatureScript
+class npc_archaedas_minions : public CreatureScript
 {
     public:
 
-        mob_archaedas_minions()
-            : CreatureScript("mob_archaedas_minions")
+        npc_archaedas_minions()
+            : CreatureScript("npc_archaedas_minions")
         {
         }
 
-        struct mob_archaedas_minionsAI : public ScriptedAI
+        struct npc_archaedas_minionsAI : public ScriptedAI
         {
-            mob_archaedas_minionsAI(Creature* creature) : ScriptedAI(creature)
+            npc_archaedas_minionsAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
             }
@@ -242,7 +242,7 @@ class mob_archaedas_minions : public CreatureScript
             bool bAmIAwake;
             InstanceScript* instance;
 
-            void Reset()
+            void Reset() override
             {
                 uiArcing_Timer = 3000;
                 iAwakenTimer = 0;
@@ -250,10 +250,13 @@ class mob_archaedas_minions : public CreatureScript
                 bWakingUp = false;
                 bAmIAwake = false;
 
+                me->setFaction(35);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->setFaction (14);
                 me->RemoveAllAuras();
@@ -262,7 +265,8 @@ class mob_archaedas_minions : public CreatureScript
                 bAmIAwake = true;
             }
 
-            void SpellHit (Unit* /*caster*/, const SpellInfo* spell) {
+            void SpellHit(Unit * /*caster*/, const SpellInfo* spell) override
+            {
                 // time to wake up, start animation
                 if (spell == sSpellMgr->GetSpellInfo(SPELL_ARCHAEDAS_AWAKEN))
                 {
@@ -271,13 +275,14 @@ class mob_archaedas_minions : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (bAmIAwake)
                     ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff) override
             {
                 // we're still in the awaken animation
                 if (bWakingUp && iAwakenTimer >= 0)
@@ -300,52 +305,53 @@ class mob_archaedas_minions : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_archaedas_minionsAI(creature);
+            return new npc_archaedas_minionsAI(creature);
         }
 };
 
 /* ScriptData
-SDName: mob_stonekeepers
+SDName: npc_stonekeepers
 SD%Complete: 100
 SDComment: After activating the altar of the keepers, the stone keepers will
 wake up one by one.
 EndScriptData */
 
-#define SPELL_SELF_DESTRUCT 9874
-
-class mob_stonekeepers : public CreatureScript
+class npc_stonekeepers : public CreatureScript
 {
     public:
 
-        mob_stonekeepers()
-            : CreatureScript("mob_stonekeepers")
+        npc_stonekeepers()
+            : CreatureScript("npc_stonekeepers")
         {
         }
 
-        struct mob_stonekeepersAI : public ScriptedAI
+        struct npc_stonekeepersAI : public ScriptedAI
         {
-            mob_stonekeepersAI(Creature* creature) : ScriptedAI(creature)
+            npc_stonekeepersAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
             }
 
             InstanceScript* instance;
 
-            void Reset()
+            void Reset() override
             {
+                me->setFaction(35);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->setFaction(14);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/) override
             {
                 //Return since we have no target
                 if (!UpdateVictim())
@@ -354,7 +360,7 @@ class mob_stonekeepers : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*attacker*/)
+            void JustDied(Unit* /*attacker*/) override
             {
                 DoCast (me, SPELL_SELF_DESTRUCT, true);
                 if (instance)
@@ -362,9 +368,9 @@ class mob_stonekeepers : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_stonekeepersAI(creature);
+            return new npc_stonekeepersAI(creature);
         }
 };
 
@@ -375,8 +381,6 @@ SDComment: Needs 1 person to activate the Archaedas script
 SDCategory: Uldaman
 EndScriptData */
 
-#define SPELL_BOSS_OBJECT_VISUAL    11206
-
 class go_altar_of_archaedas : public GameObjectScript
 {
     public:
@@ -386,52 +390,15 @@ class go_altar_of_archaedas : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* player, GameObject* /*go*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance)
                 return false;
-
-            go->SetLootState(GO_JUST_DEACTIVATED);
 
             player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
 
             instance->SetData64(0, player->GetGUID());     // activate archaedas
-            return false;
-        }
-};
-
-/* ScriptData
-SDName: go_altar_of_the_keepers
-SD%Complete: 100
-SDComment: Need 1 person to activate to open the altar.  One by one the StoneKeepers will activate.  After all four are dead than the door will open.
-SDCategory: Uldaman
-EndScriptData */
-
-#define SPELL_BOSS_OBJECT_VISUAL    11206
-
-class go_altar_of_the_keepers : public GameObjectScript
-{
-    public:
-
-        go_altar_of_the_keepers()
-            : GameObjectScript("go_altar_of_the_keepers")
-        {
-        }
-
-        bool OnGossipHello(Player* player, GameObject* go)
-        {
-            InstanceScript* instance = player->GetInstanceScript();
-            if (!instance)
-                return false;
-
-            uint8 clickCount = instance->GetData(DATA_ALTAR_OF_KEEPERS);
-            if (clickCount == 5)
-                go->SetLootState(GO_JUST_DEACTIVATED);
-
-            instance->SetData(DATA_ALTAR_OF_KEEPERS, clickCount + 1);
-            player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
-            instance->SetData(DATA_STONE_KEEPERS, IN_PROGRESS); // activate the Stone Keepers
             return false;
         }
 };
@@ -441,8 +408,8 @@ class go_altar_of_the_keepers : public GameObjectScript
 void AddSC_boss_archaedas()
 {
     new boss_archaedas();
-    new mob_archaedas_minions();
-    new mob_stonekeepers();
+    new npc_archaedas_minions();
+    new npc_stonekeepers();
     new go_altar_of_archaedas();
-    new go_altar_of_the_keepers();
 }
+

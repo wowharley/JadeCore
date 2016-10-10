@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,7 +61,7 @@ namespace MMAP
             MMapManager() : loadedTiles(0) { }
             ~MMapManager();
 
-            bool loadMap(uint32 mapId, int32 x, int32 y);
+            bool loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId);
             bool unloadMapInstance(uint32 mapId, uint32 instanceId);

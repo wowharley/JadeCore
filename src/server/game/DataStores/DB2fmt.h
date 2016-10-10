@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -18,13 +19,36 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
-const char Itemfmt[] = "niiiiiii";
-const char ItemCurrencyCostfmt[] = "xn";
-const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii"; // done @author : Izidor
-const char ItemExtendedCostEntryfmt[] = "nxxiiiiiiiiiiiixiiiiiiiiiixxxxx";
-const char BattlePetSpeciesEntryfmt[] = "inxxxxxxx";
-const char SpellReagentsEntryfmt[] = "diiiiiiiiiiiiiiiixx";
-const char ItemUpgradeEntryfmt[] = "niiiii";
-const char RulesetItemUpgradeEntryfmt[] = "niii";
+char const BattlePetAbilityEffectfmt[] = "nxxxxxxxxxxx";
+char const BattlePetAbilityfmt[] = "niiixxss";
+char const BattlePetAbilityStatefmt[] = "niii";
+char const BattlePetAbilityTurnfmt[] = "nxxxxx";
+char const BattlePetBreedQualityfmt[] = "nxx";
+char const BattlePetBreedStatefmt[] = "niii";
+char const BattlePetEffectPropertiesfmt[] = "nxxxxxxxxxxxxx";
+char const BattlePetSpeciesfmt[] = "niiiixiss";
+char const BattlePetSpeciesStatefmt[] = "niii";
+char const BattlePetSpeciesXAbilityfmt[] = "niiii";
+char const BattlePetStatefmt[] = "nxsi";
+char const BattlePetVisualfmt[] = "nxxxxxxx";
+char const BroadcastTextfmt[] ="nxssxxxxxxixx";
+char const CreatureDifficultyfmt[] = "nxxxxxxxxxx";
+char const Creaturefmt[] = "nxxxxxxxxxxxxxxxxx";
+char const GameObjectsfmt[] = "nxxxxxxxxxxxxxxxx";
+char const ItemCurrencyCostfmt[]="xn";
+char const ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiiiiiii";
+char const Itemfmt[] ="niiiiiii";
+char const ItemSparsefmt[]="niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
+char const ItemToBattlePetfmt[] = "ni";
+char const ItemToMountSpellfmt[] = "ni";
+char const ItemUpgradefmt[] = "niiiii";
+char const KeyChainfmt[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+char const QuestPackageItemfmt[] = "niiii";
+char const RulesetItemUpgradefmt[] = "nxii";
+char const RulesetRaidLootUpgradefmt[] = "nxxxx";
+char const SceneScriptfmt[] = "nssii";
+char const SceneScriptPackagefmt[] = "nx";
+char const SceneScriptPackageMemberfmt[] = "nxxxx";
+char const SpellReagentsfmt[] = "diiiiiiiiiiiiiiiiii";
 
 #endif

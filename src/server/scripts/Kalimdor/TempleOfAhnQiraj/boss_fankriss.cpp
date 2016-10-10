@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -32,25 +34,28 @@ EndScriptData */
 #define SOUND_TRESPASS     8591
 #define SOUND_WILL_BE      8592
 
-#define SPELL_MORTAL_WOUND 28467
-#define SPELL_ROOT         28858
+enum Spells
+{
+    SPELL_MORTAL_WOUND      = 28467,
+    SPELL_ROOT              = 28858,
 
-// Enrage for his spawns
-#define SPELL_ENRAGE       28798
+    // Enrage for his spawns
+    SPELL_ENRAGE            = 28798
+};
 
 class boss_fankriss : public CreatureScript
 {
 public:
     boss_fankriss() : CreatureScript("boss_fankriss") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_fankrissAI (creature);
+        return new boss_fankrissAI(creature);
     }
 
     struct boss_fankrissAI : public ScriptedAI
     {
-        boss_fankrissAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_fankrissAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 MortalWound_Timer;
         uint32 SpawnHatchlings_Timer;
@@ -62,7 +67,7 @@ public:
         Creature* Hatchling;
         Creature* Spawn;
 
-        void Reset()
+        void Reset() override
         {
             MortalWound_Timer = urand(10000, 15000);
             SpawnHatchlings_Timer = urand(6000, 12000);
@@ -93,11 +98,11 @@ public:
                 Spawn->AI()->AttackStart(victim);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -106,7 +111,7 @@ public:
             //MortalWound_Timer
             if (MortalWound_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
+                DoCastVictim(SPELL_MORTAL_WOUND);
                 MortalWound_Timer = urand(10000, 20000);
             } else MortalWound_Timer -= diff;
 
@@ -137,9 +142,7 @@ public:
             {
                 if (SpawnHatchlings_Timer <= diff)
                 {
-                    Unit* target = NULL;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target && target->GetTypeId() == TYPEID_PLAYER)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
                         DoCast(target, SPELL_ROOT);
 

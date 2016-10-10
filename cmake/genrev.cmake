@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -12,7 +12,8 @@
 # This is done EACH compile so they can be alerted about the consequences.
 
 if(NOT BUILDDIR)
-  # Workaround for funny MSVC behaviour - this segment is only used when using cmake gui
+  # Workaround for funny MSVC behaviour - this segment only run during compile
+  set(GIT_EXEC ${GIT_EXECUTABLE})
   set(BUILDDIR ${CMAKE_BINARY_DIR})
 endif()
 

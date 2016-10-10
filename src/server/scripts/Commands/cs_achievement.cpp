@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -24,8 +23,12 @@ Comment: All achievement related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
+#include "AchievementMgr.h"
+#include "Guild.h"
 #include "Chat.h"
+#include "Language.h"
+#include "Player.h"
+#include "ScriptMgr.h"
 
 class achievement_commandscript : public CommandScript
 {
@@ -36,13 +39,13 @@ public:
     {
         static ChatCommand achievementCommandTable[] =
         {
-            { "add",            SEC_ADMINISTRATOR,  false,  &HandleAchievementAddCommand,      "", NULL },
-            { NULL,             0,                  false,  NULL,                              "", NULL }
+            { "add", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, false, &HandleAchievementAddCommand, "", NULL },
+            { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "achievement",    SEC_ADMINISTRATOR,  false, NULL,            "", achievementCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "achievement", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT,  false, NULL, "", achievementCommandTable },
+            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -69,8 +72,15 @@ public:
             return false;
         }
 
-        if (AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievementId))
-            target->CompletedAchievement(achievementEntry);
+        if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(achievementId))
+        {
+            if (achievementEntry->flags & ACHIEVEMENT_FLAG_GUILD)
+            {
+                if (Guild* guild = target->GetGuild())
+                    guild->GetAchievementMgr().CompletedAchievement(achievementEntry, target);
+            } else
+                target->CompletedAchievement(achievementEntry);
+        }
 
         return true;
     }
@@ -80,4 +90,3 @@ void AddSC_achievement_commandscript()
 {
     new achievement_commandscript();
 }
- 

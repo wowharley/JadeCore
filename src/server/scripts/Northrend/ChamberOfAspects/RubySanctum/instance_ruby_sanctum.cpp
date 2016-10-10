@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -53,7 +56,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                 FlameWallsGUID           = 0;
                 FlameRingGUID            = 0;
 
-                memset(ShadowOrbsGUIDs, 0, 4 * sizeof(uint64));
                 memset(ZarithrianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
             }
@@ -68,7 +70,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -96,18 +98,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case NPC_ORB_ROTATION_FOCUS:
                         OrbRotationFocusGUID = creature->GetGUID();
                         break;
-                    case NPC_SHADOW_ORB_N:
-                        ShadowOrbsGUIDs[0] = creature->GetGUID();
-                        break;
-                    case NPC_SHADOW_ORB_S:
-                        ShadowOrbsGUIDs[1] = creature->GetGUID();
-                        break;
-                    case NPC_SHADOW_ORB_E:
-                        ShadowOrbsGUIDs[2] = creature->GetGUID();
-                        break;
-                    case NPC_SHADOW_ORB_W:
-                        ShadowOrbsGUIDs[3] = creature->GetGUID();
-                        break;
                     case NPC_BALTHARUS_TARGET:
                         CrystalChannelTargetGUID = creature->GetGUID();
                         break;
@@ -125,7 +115,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -168,7 +158,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go)
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -180,7 +170,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit)
+            void OnUnitDeath(Unit* unit) override
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -194,7 +184,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type)
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -219,14 +209,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return OrbCarrierGUID;
                     case DATA_ORB_ROTATION_FOCUS:
                         return OrbRotationFocusGUID;
-                    case DATA_SHADOW_ORB_N:
-                        return ShadowOrbsGUIDs[0];
-                    case DATA_SHADOW_ORB_S:
-                        return ShadowOrbsGUIDs[1];
-                    case DATA_SHADOW_ORB_E:
-                        return ShadowOrbsGUIDs[2];
-                    case DATA_SHADOW_ORB_W:
-                        return ShadowOrbsGUIDs[3];
                     case DATA_HALION_CONTROLLER:
                         return HalionControllerGUID;
                     case DATA_BURNING_TREE_1:
@@ -245,7 +227,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return 0;
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -299,7 +281,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
                 if (type != DATA_BALTHARUS_SHARED_HEALTH)
                     return;
@@ -307,7 +289,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 BaltharusSharedHealth = data;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const override
             {
                 if (type != DATA_BALTHARUS_SHARED_HEALTH)
                     return 0;
@@ -315,7 +297,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return BaltharusSharedHealth;
             }
 
-            std::string GetSaveData()
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -326,14 +308,14 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(WorldStateBuilder& builder) override
             {
-                data << uint32(WORLDSTATE_CORPOREALITY_MATERIAL) << uint32(50);
-                data << uint32(WORLDSTATE_CORPOREALITY_TWILIGHT) << uint32(50);
-                data << uint32(WORLDSTATE_CORPOREALITY_TOGGLE) << uint32(0);
+                builder.AppendState(WORLDSTATE_CORPOREALITY_MATERIAL, 50);
+                builder.AppendState(WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
+                builder.AppendState(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
             }
 
-            void Load(char const* str)
+            void Load(char const* str) override
             {
                 if (!str)
                 {
@@ -376,7 +358,6 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 OrbCarrierGUID;
             uint64 OrbRotationFocusGUID;
             uint64 CrystalChannelTargetGUID;
-            uint64 ShadowOrbsGUIDs[4];
             uint64 XerestraszaGUID;
             uint64 FlameWallsGUID;
             uint64 ZarithrianSpawnStalkerGUID[2];
@@ -387,7 +368,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint32 BaltharusSharedHealth;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_ruby_sanctum_InstanceMapScript(map);
         }

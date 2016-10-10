@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -29,6 +28,8 @@ EndScriptData */
 #include "MapManager.h"
 #include "TicketMgr.h"
 #include "Chat.h"
+#include "Language.h"
+#include "Player.h"
 
 class go_commandscript : public CommandScript
 {
@@ -39,25 +40,23 @@ public:
     {
         static ChatCommand goCommandTable[] =
         {
-            { "creature",       SEC_MODERATOR,      false, &HandleGoCreatureCommand,          "", NULL },
-            { "graveyard",      SEC_MODERATOR,      false, &HandleGoGraveyardCommand,         "", NULL },
-            { "grid",           SEC_MODERATOR,      false, &HandleGoGridCommand,              "", NULL },
-            { "object",         SEC_MODERATOR,      false, &HandleGoObjectCommand,            "", NULL },
-            { "taxinode",       SEC_MODERATOR,      false, &HandleGoTaxinodeCommand,          "", NULL },
-            { "trigger",        SEC_MODERATOR,      false, &HandleGoTriggerCommand,           "", NULL },
-            { "zonexy",         SEC_MODERATOR,      false, &HandleGoZoneXYCommand,            "", NULL },
-            { "xyz",            SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
-            { "ticket",         SEC_MODERATOR,      false, &HandleGoTicketCommand,            "", NULL },
-            { "z",              SEC_MODERATOR,      false, &HandleGoZCommand,                 "", NULL },
-            { "forward",        SEC_MODERATOR,      false, &HandleGoForwardCommand,           "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { "creature",  rbac::RBAC_PERM_COMMAND_GO_CREATURE,  false, &HandleGoCreatureCommand,  "", NULL },
+            { "graveyard", rbac::RBAC_PERM_COMMAND_GO_GRAVEYARD, false, &HandleGoGraveyardCommand, "", NULL },
+            { "grid",      rbac::RBAC_PERM_COMMAND_GO_GRID,      false, &HandleGoGridCommand,      "", NULL },
+            { "object",    rbac::RBAC_PERM_COMMAND_GO_OBJECT,    false, &HandleGoObjectCommand,    "", NULL },
+            { "taxinode",  rbac::RBAC_PERM_COMMAND_GO_TAXINODE,  false, &HandleGoTaxinodeCommand,  "", NULL },
+            { "trigger",   rbac::RBAC_PERM_COMMAND_GO_TRIGGER,   false, &HandleGoTriggerCommand,   "", NULL },
+            { "zonexy",    rbac::RBAC_PERM_COMMAND_GO_ZONEXY,    false, &HandleGoZoneXYCommand,    "", NULL },
+            { "xyz",       rbac::RBAC_PERM_COMMAND_GO_XYZ,       false, &HandleGoXYZCommand,       "", NULL },
+            { "ticket",    rbac::RBAC_PERM_COMMAND_GO_TICKET,    false, &HandleGoTicketCommand,    "", NULL },
+            { "",          rbac::RBAC_PERM_COMMAND_GO,           false, &HandleGoXYZCommand,       "", NULL },
+            { NULL,        0,                              false, NULL,                      "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "go",             SEC_MODERATOR,      false, NULL,                     "", goCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "go", rbac::RBAC_PERM_COMMAND_GO, false, NULL, "", goCommandTable },
+            { NULL, 0,                    false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -156,7 +155,7 @@ public:
         }
 
         // stop flight if need
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->CleanupAfterTaxiFlight();
@@ -201,7 +200,7 @@ public:
         }
 
         // stop flight if need
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->CleanupAfterTaxiFlight();
@@ -243,7 +242,7 @@ public:
         }
 
         // stop flight if need
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->CleanupAfterTaxiFlight();
@@ -303,7 +302,7 @@ public:
         }
 
         // stop flight if need
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->CleanupAfterTaxiFlight();
@@ -348,7 +347,7 @@ public:
         }
 
         // stop flight if need
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->CleanupAfterTaxiFlight();
@@ -393,7 +392,7 @@ public:
         }
 
         // stop flight if need
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->CleanupAfterTaxiFlight();
@@ -463,7 +462,7 @@ public:
         }
 
         // stop flight if need
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->CleanupAfterTaxiFlight();
@@ -524,7 +523,7 @@ public:
         }
 
         // stop flight if need
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->CleanupAfterTaxiFlight();
@@ -558,7 +557,7 @@ public:
         }
 
         Player* player = handler->GetSession()->GetPlayer();
-        if (player->isInFlight())
+        if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->CleanupAfterTaxiFlight();
@@ -569,119 +568,9 @@ public:
         ticket->TeleportTo(player);
         return true;
     }
-
-    //teleport at coordinates, including Z and orientation
-    static bool HandleGoZCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        Player* player = handler->GetSession()->GetPlayer();
-
-        char* goZ = NULL;
-
-        bool relative = false;
-        bool add = false;
-
-        if (*args == '+' || *args == '-')
-        {
-            relative = true;
-            add = (*args == '+');
-            goZ = strtok((char*)(args + 1), " ");
-        }
-        else
-            goZ = strtok((char*)args, " ");
-
-        if (!goZ)
-            return false;
-
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-        uint32 mapId = player->GetMapId();
-
-        float z = 0.0f;
-        float paramZ = (float)atof(goZ);
-
-        if (relative)
-        {
-            if (add)
-                z = player->GetPositionZ() + paramZ;
-            else
-                z = player->GetPositionZ() - paramZ;
-        }
-        else
-            z = paramZ;
-
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z))
-        {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        // stop flight if need
-        if (player->isInFlight())
-        {
-            player->GetMotionMaster()->MovementExpired();
-            player->CleanupAfterTaxiFlight();
-        }
-        // save only in non-flight case
-        else
-            player->SaveRecallPosition();
-
-        player->TeleportTo(mapId, x, y, z, player->GetOrientation());
-        return true;
-    }
-
-    static bool HandleGoForwardCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        Player* player = handler->GetSession()->GetPlayer();
-
-        char* goDistance = NULL;
-
-        goDistance = strtok((char*)args, " ");
-
-        if (!goDistance)
-            return false;
-
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-        float z = player->GetPositionZ();
-        float o = player->GetOrientation();
-        uint32 mapId = player->GetMapId();
-
-        float dist = (float)atof(goDistance);
-
-        x = x + (dist * cos(o));
-        y = y + (dist * sin(o));
-
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z))
-        {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        // stop flight if need
-        if (player->isInFlight())
-        {
-            player->GetMotionMaster()->MovementExpired();
-            player->CleanupAfterTaxiFlight();
-        }
-        // save only in non-flight case
-        else
-            player->SaveRecallPosition();
-
-        player->TeleportTo(mapId, x, y, z, o);
-        return true;
-    }
 };
 
 void AddSC_go_commandscript()
 {
     new go_commandscript();
 }
- 

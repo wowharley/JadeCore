@@ -58,7 +58,7 @@ public:
         	me->SetFacingToObject(target);
         }
 
-		void UpdateAI(uint32 const diff) override
+		void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -141,7 +141,7 @@ public:
         	InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+		void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -217,7 +217,7 @@ public:
         	InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -281,7 +281,7 @@ public:
         	DoCast(me, SPELL_WINDFEATHER);
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -377,7 +377,7 @@ public:
 //            me->YellToZone(SAY_SPAWN, LANG_UNIVERSAL, 0);
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -482,7 +482,7 @@ public:
         	InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -568,11 +568,11 @@ public:
 
         void SpellHitTarget(Unit* target, SpellInfo const* spell)
         {
-        	if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && spell->Id == SPELL_POUNCE_LEAP)
+        	if (target->GetTypeId() == TYPEID_PLAYER && target->IsAlive() && spell->Id == SPELL_POUNCE_LEAP)
         		StunTimer = 3000;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -615,7 +615,7 @@ public:
 
         	if (StunTimer <= diff)
         	{
-        		if (me->IsWithinMeleeRange(me->getVictim()))
+        		if (me->IsWithinMeleeRange(me->GetVictim()))
         			DoCastVictim(SPELL_POUNCE_STUN, true);
         	}
 
@@ -667,7 +667,7 @@ public:
         	InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -739,7 +739,7 @@ public:
         	InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -801,7 +801,7 @@ public:
         	InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -893,7 +893,7 @@ public:
         	InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -943,7 +943,7 @@ public:
         		if (!Charged)
         			Charged = true;
 
-        		if (me->IsWithinMeleeRange(me->getVictim()))
+        		if (me->IsWithinMeleeRange(me->GetVictim()))
         			DoCastVictim(SPELL_OX_CHARGE);
         	}
 
@@ -1394,7 +1394,7 @@ public:
             InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1430,16 +1430,16 @@ public:
 
             if (FieryChargeTimer <= diff)
             {
-                if (!me->getVictim())
+                if (!me->GetVictim())
                     return;
 
-				if (me->GetDistance(me->getVictim()) < 20.0f)
+                if (me->GetDistance(me->GetVictim()) < 20.0f)
                     return;
 
-				if (me->GetDistance(me->getVictim()) > 60.0f)
+                if (me->GetDistance(me->GetVictim()) > 60.0f)
                     return;
 
-				else if (me->GetDistance(me->getVictim()) >= 20.0f)
+                else if (me->GetDistance(me->GetVictim()) >= 20.0f)
                     DoCastVictim(SPELL_FIERY_CHARGE, false);
 
                 FieryChargeTimer = urand(3000, 6000);
@@ -1487,7 +1487,7 @@ public:
             InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1582,7 +1582,7 @@ public:
             InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1612,13 +1612,13 @@ public:
 
             if (PounceTimer <= diff)
             {
-				if (me->GetDistance(me->getVictim()) < 10.0f)
+                if (me->GetDistance(me->GetVictim()) < 10.0f)
                     return;
 
-				if (me->GetDistance(me->getVictim()) > 40.0f)
+                if (me->GetDistance(me->GetVictim()) > 40.0f)
                     return;
 
-				else if (me->GetDistance(me->getVictim()) >= 10.0f)
+                else if (me->GetDistance(me->GetVictim()) >= 10.0f)
                     DoCastVictim(SPELL_POUNCE);
 
                 PounceTimer = urand(2000, 3500);
@@ -1673,7 +1673,7 @@ public:
         	InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -1759,7 +1759,7 @@ public:
         	InCombat = true;
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (!UpdateVictim())
         		return;
@@ -1775,7 +1775,7 @@ public:
 
         	if (GulpFrogToxinTimer <= diff)
         	{
-				if (me->IsWithinMeleeRange(me->getVictim()))
+        		if (me->IsWithinMeleeRange(me->GetVictim()))
         			DoCastVictim(SPELL_GULP_FROG_TOXIN);
 
         		else
@@ -1817,7 +1817,7 @@ public:
         	me->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
         }
 
-		void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
         	if (DevourTimer <= diff)
         	{
@@ -1844,34 +1844,25 @@ public:
     }
 };
 
-
-	 
-
-
-
-
-
-	void AddSC_timeless_isle()
-	{
-		new npc_cinderfall();
-		new npc_huolon();
-		new npc_imperial_python();
-		new npc_emerald_gander();
-		new npc_golganarr();
-		new npc_watcher_osu();
-		new npc_tsavoka();
-		new npc_spirit_of_jadefire();
-		new npc_monstrous_spineclaw();
-		new npc_great_turtle_furyshell();
-		new npc_ironfur_steelhorn();
-		//	new npc_flintlord_gairan();
-		//    new npc_archiereus_of_flame();
-		new npc_champion_of_the_black_flame();
-		new npc_chelon();
-		new npc_cranegnasher();
-		new npc_jakur_of_ordon();
-		new npc_bufo();
-		new npc_evermaw();
-		
-	}
-
+void AddSC_timeless_isle()
+{
+	new npc_cinderfall();
+	new npc_huolon();
+	new npc_imperial_python();
+	new npc_emerald_gander();
+	new npc_golganarr();
+	new npc_watcher_osu();
+	new npc_tsavoka();
+	new npc_spirit_of_jadefire();
+	new npc_monstrous_spineclaw();
+	new npc_great_turtle_furyshell();
+	new npc_ironfur_steelhorn();
+//	new npc_flintlord_gairan();
+//    new npc_archiereus_of_flame();
+    new npc_champion_of_the_black_flame();
+    new npc_chelon();
+    new npc_cranegnasher();
+    new npc_jakur_of_ordon();
+    new npc_bufo();
+    new npc_evermaw();
+}

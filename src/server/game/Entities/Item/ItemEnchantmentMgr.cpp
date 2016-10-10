@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,6 +25,7 @@
 #include <list>
 #include <vector>
 #include "Util.h"
+#include "DBCStores.h"
 
 struct EnchStoreItem
 {
@@ -32,27 +33,25 @@ struct EnchStoreItem
     float   chance;
 
     EnchStoreItem()
-        : ench(0), chance(0) {}
+        : ench(0), chance(0) { }
 
     EnchStoreItem(uint32 _ench, float _chance)
-        : ench(_ench), chance(_chance) {}
+        : ench(_ench), chance(_chance) { }
 };
 
 typedef std::vector<EnchStoreItem> EnchStoreList;
 typedef UNORDERED_MAP<uint32, EnchStoreList> EnchantmentStore;
 
-static EnchantmentStore RandomPropertyItemEnch;
-static EnchantmentStore RandomSuffixItemEnch;
+static EnchantmentStore RandomItemEnch;
 
 void LoadRandomEnchantmentsTable()
 {
     uint32 oldMSTime = getMSTime();
 
-    RandomPropertyItemEnch.clear();                                 // for reload case
-    RandomSuffixItemEnch.clear();
+    RandomItemEnch.clear();                                 // for reload case
 
     //                                                 0      1      2
-    QueryResult result = WorldDatabase.Query("SELECT entry, ench, chance, type FROM item_enchantment_template");
+    QueryResult result = WorldDatabase.Query("SELECT entry, ench, chance FROM item_enchantment_template");
 
     if (result)
     {
@@ -65,27 +64,20 @@ void LoadRandomEnchantmentsTable()
             uint32 entry = fields[0].GetUInt32();
             uint32 ench = fields[1].GetUInt32();
             float chance = fields[2].GetFloat();
-            uint32 type = fields[3].GetUInt32();
 
             if (chance > 0.000001f && chance <= 100.0f)
-            {
-                if (type == ENCHANTMENT_RANDOM_SUFFIX)
-                    RandomSuffixItemEnch[entry].push_back(EnchStoreItem(ench, chance));
-                else if (type == ENCHANTMENT_RANDOM_PROPERTY)
-                    RandomPropertyItemEnch[entry].push_back(EnchStoreItem(ench, chance));
-            }
+                RandomItemEnch[entry].push_back(EnchStoreItem(ench, chance));
 
             ++count;
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Item Enchantment definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded %u Item Enchantment definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
-        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
 }
 
-uint32 GetItemEnchantMod(int32 entry, uint32 type)
+uint32 GetItemEnchantMod(int32 entry)
 {
     if (!entry)
         return 0;
@@ -93,10 +85,10 @@ uint32 GetItemEnchantMod(int32 entry, uint32 type)
     if (entry == -1)
         return 0;
 
-    EnchantmentStore::const_iterator tab = type == ENCHANTMENT_RANDOM_PROPERTY ? RandomPropertyItemEnch.find(entry) : RandomSuffixItemEnch.find(entry) ;
-    if (tab == (type == ENCHANTMENT_RANDOM_PROPERTY ? RandomPropertyItemEnch.end() : RandomSuffixItemEnch.end()))
+    EnchantmentStore::const_iterator tab = RandomItemEnch.find(entry);
+    if (tab == RandomItemEnch.end())
     {
-        sLog->outError(LOG_FILTER_SQL, "Item RandomProperty / RandomSuffix id #%u used in `item_template` but it does not have records in `item_enchantment_template` table.", entry);
+        TC_LOG_ERROR("sql.sql", "Item RandomProperty / RandomSuffix id #%u used in `item_template` but it does not have records in `item_enchantment_template` table.", entry);
         return 0;
     }
 

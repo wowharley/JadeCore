@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -73,7 +73,7 @@ enum ItemModType
     ITEM_MOD_SHADOW_RESISTANCE        = 54,
     ITEM_MOD_NATURE_RESISTANCE        = 55,
     ITEM_MOD_ARCANE_RESISTANCE        = 56,
-    ITEM_MOD_PVP_POWER                = 57,
+    ITEM_MOD_PVP_POWER                = 57
 };
 
 #define MAX_ITEM_MOD                    58
@@ -108,10 +108,8 @@ enum ItemBondingType
 
 #define MAX_BIND_TYPE                             6
 
-/* TODO
-    // need to know cases when using item is not allowed in shapeshift
-    ITEM_PROTO_FLAG_USABLE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms
-*/
+/* /// @todo: Requiring actual cases in which using (an) item isn't allowed while shapeshifted. Else, this flag would need an implementation.
+    ITEM_PROTO_FLAG_USABLE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms */
 
 enum ItemProtoFlags
 {
@@ -149,9 +147,6 @@ enum ItemProtoFlags
     ITEM_PROTO_FLAG_BOP_TRADEABLE               = 0x80000000  // bound item that can be traded
 };
 
-/* TODO
-*/
-
 enum ItemFieldFlags
 {
     ITEM_FLAG_SOULBOUND     = 0x00000001, // Item is soulbound and cannot be traded <<--
@@ -187,7 +182,7 @@ enum ItemFieldFlags
     ITEM_FLAG_UNK25         = 0x40000000, // ?
     ITEM_FLAG_UNK26         = 0x80000000, // ?
 
-    ITEM_FLAG_MAIL_TEXT_MASK = ITEM_FLAG_READABLE | ITEM_FLAG_UNK13 | ITEM_FLAG_UNK14,
+    ITEM_FLAG_MAIL_TEXT_MASK = ITEM_FLAG_READABLE | ITEM_FLAG_UNK13 | ITEM_FLAG_UNK14
 };
 
 enum ItemFlagsExtra
@@ -208,13 +203,19 @@ enum ItemFlagsCustom
 {
     ITEM_FLAGS_CU_DURATION_REAL_TIME    = 0x0001,   // Item duration will tick even if player is offline
     ITEM_FLAGS_CU_IGNORE_QUEST_STATUS   = 0x0002,   // No quest status will be checked when this item drops
-    ITEM_FLAGS_CU_FOLLOW_LOOT_RULES     = 0x0004,   // Item will always follow group/master/need before greed looting rules
+    ITEM_FLAGS_CU_FOLLOW_LOOT_RULES     = 0x0004    // Item will always follow group/master/need before greed looting rules
+};
+
+enum CurrencyFlags
+{
+    CURRENCY_FLAG_TRADEABLE         = 0x01,
+    CURRENCY_FLAG_HIGH_PRECISION    = 0x08,
+    CURRENCY_FLAG_HAS_SEASON_COUNT  = 0x80, // guessed
 };
 
 enum CurrencyCategory
 {
-    // ..
-    CURRENCY_CATEGORY_ARCHAEOLOGY   = 82,
+    // ...
     CURRENCY_CATEGORY_META_CONQUEST = 89,
     // ...
 };
@@ -227,24 +228,24 @@ enum ItemVendorType
 
 enum BAG_FAMILY_MASK
 {
-    BAG_FAMILY_MASK_NONE                    = 0x00000000,
-    BAG_FAMILY_MASK_ARROWS                  = 0x00000001,
-    BAG_FAMILY_MASK_BULLETS                 = 0x00000002,
-    BAG_FAMILY_MASK_SOUL_SHARDS             = 0x00000004,
-    BAG_FAMILY_MASK_LEATHERWORKING_SUPP     = 0x00000008,
-    BAG_FAMILY_MASK_INSCRIPTION_SUPP        = 0x00000010,
-    BAG_FAMILY_MASK_HERBS                   = 0x00000020,
-    BAG_FAMILY_MASK_ENCHANTING_SUPP         = 0x00000040,
-    BAG_FAMILY_MASK_ENGINEERING_SUPP        = 0x00000080,
-    BAG_FAMILY_MASK_KEYS                    = 0x00000100,
-    BAG_FAMILY_MASK_GEMS                    = 0x00000200,
-    BAG_FAMILY_MASK_MINING_SUPP             = 0x00000400,
-    BAG_FAMILY_MASK_SOULBOUND_EQUIPMENT     = 0x00000800,
-    BAG_FAMILY_MASK_VANITY_PETS             = 0x00001000,
-    BAG_FAMILY_MASK_CURRENCY_TOKENS         = 0x00002000,
-    BAG_FAMILY_MASK_QUEST_ITEMS             = 0x00004000,
-    BAG_FAMILY_MASK_FISHING_SUPP            = 0x00008000,
-    BAG_FAMILY_MASK_COOKING_SUPP            = 0x00010000
+    BAG_FAMILY_MASK_NONE                      = 0x00000000,
+    BAG_FAMILY_MASK_ARROWS                    = 0x00000001,
+    BAG_FAMILY_MASK_BULLETS                   = 0x00000002,
+    BAG_FAMILY_MASK_SOUL_SHARDS               = 0x00000004,
+    BAG_FAMILY_MASK_LEATHERWORKING_SUPP       = 0x00000008,
+    BAG_FAMILY_MASK_INSCRIPTION_SUPP          = 0x00000010,
+    BAG_FAMILY_MASK_HERBS                     = 0x00000020,
+    BAG_FAMILY_MASK_ENCHANTING_SUPP           = 0x00000040,
+    BAG_FAMILY_MASK_ENGINEERING_SUPP          = 0x00000080,
+    BAG_FAMILY_MASK_KEYS                      = 0x00000100,
+    BAG_FAMILY_MASK_GEMS                      = 0x00000200,
+    BAG_FAMILY_MASK_MINING_SUPP               = 0x00000400,
+    BAG_FAMILY_MASK_SOULBOUND_EQUIPMENT       = 0x00000800,
+    BAG_FAMILY_MASK_VANITY_PETS               = 0x00001000,
+    BAG_FAMILY_MASK_CURRENCY_TOKENS           = 0x00002000,
+    BAG_FAMILY_MASK_QUEST_ITEMS               = 0x00004000,
+    BAG_FAMILY_MASK_FISHING_SUPP              = 0x00008000,
+    BAG_FAMILY_MASK_COOKING_SUPP              = 0x00010000,
 };
 
 enum SocketColor
@@ -253,7 +254,7 @@ enum SocketColor
     SOCKET_COLOR_RED                            = 2,
     SOCKET_COLOR_YELLOW                         = 4,
     SOCKET_COLOR_BLUE                           = 8,
-    SOCKET_COLOR_HYDRAULIC                      = 16, // not used
+    SOCKET_COLOR_HYDRAULIC                      = 16, // SHA SOKETS
     SOCKET_COLOR_COGWHEEL                       = 32,
 };
 
@@ -392,7 +393,7 @@ enum ItemSubclassGem
     ITEM_SUBCLASS_GEM_META                      = 6,
     ITEM_SUBCLASS_GEM_SIMPLE                    = 7,
     ITEM_SUBCLASS_GEM_PRISMATIC                 = 8,
-    ITEM_SUBCLASS_GEM_SHA_TOUCHED               = 9,
+    ITEM_SUBCLASS_GEM_HYDRAULIC                 = 9,
     ITEM_SUBCLASS_GEM_COGWHEEL                  = 10
 };
 
@@ -450,7 +451,7 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_TRADE_GOODS_OTHER             = 11,
     ITEM_SUBCLASS_ENCHANTING                    = 12,
     ITEM_SUBCLASS_MATERIAL                      = 13,
-    ITEM_SUBCLASS_ENCHANTMENT                   = 14
+    ITEM_SUBCLASS_ENCHANTMENT                   = 14,
 };
 
 #define MAX_ITEM_SUBCLASS_TRADE_GOODS             15
@@ -566,8 +567,7 @@ enum ItemSubclassBattlePet
     ITEM_SUBCLASS_BATTLE_PET_UNDEAD             = 10
 };
 
-#define MAX_ITEM_SUBCLASS_BATTLE_PET              11
-
+#define MAX_ITEM_SUBCLASS_BATTLE_PET              1
 
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
@@ -631,6 +631,13 @@ struct _Socket
     uint32 Color;
     uint32 Content;
 };
+
+// GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
+#if defined(__GNUC__)
+#pragma pack()
+#else
+#pragma pack(pop)
+#endif
 
 #define MAX_ITEM_PROTO_DAMAGES 2                            // changed in 3.1.0
 #define MAX_ITEM_PROTO_SOCKETS 3
@@ -745,9 +752,9 @@ struct ItemTemplate
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
-    int GetItemLevelIncludingQuality() const
+    float GetItemLevelIncludingQuality() const
     {
-        int itemLevel = (int)ItemLevel;
+        float itemLevel = (float)ItemLevel;
         switch (Quality)
         {
             case ITEM_QUALITY_POOR:
@@ -765,7 +772,7 @@ struct ItemTemplate
             default:
                 break;
         }
-        return itemLevel >= 0 ? itemLevel : 1;
+        return itemLevel;
     }
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
@@ -779,164 +786,6 @@ struct ItemTemplate
                SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
                SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
     }
-
-    static bool CanBeTransmogrified(const ItemTemplate* proto)
-    {
-        if (!proto)
-            return false;
-
-        if (proto->Quality == ITEM_QUALITY_LEGENDARY)
-            return false;
-
-        if (proto->Class != ITEM_CLASS_ARMOR &&
-            proto->Class != ITEM_CLASS_WEAPON)
-            return false;
-
-        if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-            return false;
-
-        if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
-            return false;
-
-        return true;
-    }
-
-    static bool CanTransmogrify(const ItemTemplate* proto)
-    {
-        if (!proto)
-            return false;
-
-        if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
-            return false;
-
-        if (proto->Quality == ITEM_QUALITY_LEGENDARY)
-            return false;
-
-        if (proto->Class != ITEM_CLASS_ARMOR &&
-            proto->Class != ITEM_CLASS_WEAPON)
-            return false;
-
-        if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-            return false;
-
-        if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
-            return true;
-
-        return true;
-    }
-
-
-    static bool CanTransmogrifyItemWithItem(const ItemTemplate* transmogrifier, const ItemTemplate* transmogrified)
-    {
-        if (!transmogrifier || !transmogrified)
-            return false;
-
-        if (transmogrifier->ItemId == transmogrified->ItemId)
-            return false;
-
-        if (!ItemTemplate::CanTransmogrify(transmogrifier) || !ItemTemplate::CanBeTransmogrified(transmogrified))
-            return false;
-
-        if (transmogrifier->InventoryType == INVTYPE_BAG ||
-            transmogrifier->InventoryType == INVTYPE_RELIC ||
-            transmogrifier->InventoryType == INVTYPE_BODY ||
-            transmogrifier->InventoryType == INVTYPE_FINGER ||
-            transmogrifier->InventoryType == INVTYPE_TRINKET ||
-            transmogrifier->InventoryType == INVTYPE_AMMO ||
-            transmogrifier->InventoryType == INVTYPE_QUIVER ||
-            transmogrifier->InventoryType == INVTYPE_NON_EQUIP ||
-            transmogrifier->InventoryType == INVTYPE_TABARD ||
-            transmogrifier->InventoryType == INVTYPE_HOLDABLE)
-            return false;
-
-        if (transmogrified->InventoryType == INVTYPE_BAG ||
-            transmogrified->InventoryType == INVTYPE_RELIC ||
-            transmogrified->InventoryType == INVTYPE_BODY ||
-            transmogrified->InventoryType == INVTYPE_FINGER ||
-            transmogrified->InventoryType == INVTYPE_TRINKET ||
-            transmogrified->InventoryType == INVTYPE_AMMO ||
-            transmogrified->InventoryType == INVTYPE_QUIVER ||
-            transmogrified->InventoryType == INVTYPE_NON_EQUIP ||
-            transmogrified->InventoryType == INVTYPE_TABARD ||
-            transmogrified->InventoryType == INVTYPE_HOLDABLE)
-            return false;
-
-        if (transmogrifier->Class != transmogrified->Class)
-            return false;
-
-        if (transmogrifier->SubClass != transmogrified->SubClass && !transmogrifier->IsRangedWeapon() && !transmogrified->IsRangedWeapon())
-            return false;
-
-        if (transmogrifier->IsRangedWeapon() && transmogrified->IsRangedWeapon())
-            return true;
-
-        if (transmogrifier->InventoryType != transmogrified->InventoryType && !transmogrifier->IsRangedWeapon() && !transmogrified->IsRangedWeapon())
-        {
-            if (transmogrifier->Class == ITEM_CLASS_WEAPON && transmogrified->Class == ITEM_CLASS_WEAPON)
-            {
-                if (!((transmogrifier->InventoryType == INVTYPE_WEAPON || transmogrifier->InventoryType == INVTYPE_WEAPONMAINHAND || transmogrifier->InventoryType == INVTYPE_WEAPONOFFHAND) &&
-                    (transmogrified->InventoryType == INVTYPE_WEAPON || transmogrified->InventoryType == INVTYPE_WEAPONMAINHAND || transmogrified->InventoryType == INVTYPE_WEAPONOFFHAND)))
-                    return false;
-            }
-            else if (transmogrified->Class == ITEM_CLASS_ARMOR && transmogrified->Class == ITEM_CLASS_ARMOR)
-            {
-                if (!((transmogrifier->InventoryType == INVTYPE_CHEST || transmogrifier->InventoryType == INVTYPE_ROBE) &&
-                    (transmogrifier->InventoryType == INVTYPE_CHEST || transmogrifier->InventoryType == INVTYPE_ROBE)))
-                    return false;
-            }
-        }
-
-        // Check armor types
-        if (transmogrifier->Class == ITEM_CLASS_ARMOR || transmogrified->Class == ITEM_CLASS_ARMOR)
-        {
-            uint32 skill1 = transmogrifier->GetSkill();
-            uint32 skill2 = transmogrified->GetSkill();
-
-            if ((skill1 == SKILL_PLATE_MAIL || skill1 == SKILL_LEATHER ||
-                skill1 == SKILL_MAIL || skill1 == SKILL_CLOTH) ||
-                (skill2 == SKILL_PLATE_MAIL || skill2 == SKILL_LEATHER ||
-                skill2 == SKILL_MAIL || skill2 == SKILL_CLOTH))
-            if (skill1 != skill2)
-                return false;
-        }
-
-        return true;
-    }
-
-    uint32 GetSkill() const
-    {
-        const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =
-        {
-            SKILL_AXES,     SKILL_2H_AXES,  SKILL_BOWS,          SKILL_GUNS,      SKILL_MACES,
-            SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,        SKILL_2H_SWORDS, 0,
-            SKILL_STAVES,   0,              0,                   SKILL_FIST_WEAPONS,   0,
-            SKILL_DAGGERS,  SKILL_THROWN,   SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS,
-            SKILL_FISHING
-        };
-
-        const static uint32 item_armor_skills[MAX_ITEM_SUBCLASS_ARMOR] =
-        {
-            0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
-        };
-
-        switch (Class)
-        {
-            case ITEM_CLASS_WEAPON:
-                if (SubClass >= MAX_ITEM_SUBCLASS_WEAPON)
-                    return 0;
-                else
-                    return item_weapon_skills[SubClass];
-
-            case ITEM_CLASS_ARMOR:
-                if (SubClass >= MAX_ITEM_SUBCLASS_ARMOR)
-                    return 0;
-                else
-                    return item_armor_skills[SubClass];
-
-            default:
-                return 0;
-        }
-    }
 };
 
 // Benchmarked: Faster than std::map (insert/find)
@@ -948,10 +797,4 @@ struct ItemLocale
     StringVector Description;
 };
 
-// GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined(__GNUC__)
-#pragma pack()
-#else
-#pragma pack(pop)
-#endif
 #endif

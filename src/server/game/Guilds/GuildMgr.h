@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -23,17 +24,16 @@
 class GuildMgr
 {
     friend class ACE_Singleton<GuildMgr, ACE_Null_Mutex>;
+
 private:
     GuildMgr();
     ~GuildMgr();
 
 public:
-    typedef UNORDERED_MAP<uint32, Guild*> GuildContainer;
-
     Guild* GetGuildByLeader(uint64 guid) const;
     Guild* GetGuildById(uint32 guildId) const;
     Guild* GetGuildByGuid(uint64 guid) const;
-    Guild* GetGuildByName(const std::string& guildName) const;
+    Guild* GetGuildByName(std::string const& guildName) const;
     std::string GetGuildNameById(uint32 guildId) const;
 
     void LoadGuildXpForLevel();
@@ -45,8 +45,7 @@ public:
 
     void SaveGuilds();
 
-    void ResetExperienceCaps();
-     void ResetReputationCaps();
+    void ResetReputationCaps();
 
     uint32 GenerateGuildId();
     void SetNextGuildId(uint32 Id) { NextGuildId = Id; }
@@ -54,7 +53,9 @@ public:
     uint32 GetXPForGuildLevel(uint8 level) const;
     std::vector<GuildReward> const& GetGuildRewards() const { return GuildRewards; }
 
+    void ResetTimes(bool week);
 protected:
+    typedef UNORDERED_MAP<uint32, Guild*> GuildContainer;
     uint32 NextGuildId;
     GuildContainer GuildStore;
     std::vector<uint64> GuildXPperLevel;

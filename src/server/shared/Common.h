@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -16,11 +16,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef TRINITYCORE_COMMON_H
+#define TRINITYCORE_COMMON_H
 
 // config.h needs to be included 1st
-// TODO this thingy looks like hack, but its not, need to
+/// @todo this thingy looks like hack, but its not, need to
 // make separate header however, because It makes mess here.
 #ifdef HAVE_CONFIG_H
 // Remove Some things that we will define
@@ -160,21 +160,22 @@ enum AccountTypes
 
 enum LocaleConstant
 {
-    LOCALE_enUS =  0,
-    LOCALE_koKR =  1,
-    LOCALE_frFR =  2,
-    LOCALE_deDE =  3,
-    LOCALE_zhCN =  4,
-    LOCALE_zhTW =  5,
-    LOCALE_esES =  6,
-    LOCALE_esMX =  7,
-    LOCALE_ruRU =  8,
-    LOCALE_ptPT =  9,
-    LOCALE_itIT = 10,
+    LOCALE_enUS = 0,
+    LOCALE_koKR = 1,
+    LOCALE_frFR = 2,
+    LOCALE_deDE = 3,
+    LOCALE_zhCN = 4,
+    LOCALE_zhTW = 5,
+    LOCALE_esES = 6,
+    LOCALE_esMX = 7,
+    LOCALE_ruRU = 8,
+    LOCALE_itIT = 9,
+    LOCALE_ptBR = 10,
+    LOCALE_ptPT = 11
 };
 
-const uint8 TOTAL_LOCALES = 11;
-const LocaleConstant DEFAULT_LOCALE = LOCALE_enUS;
+const uint8 TOTAL_LOCALES = 12;
+#define DEFAULT_LOCALE LOCALE_enUS
 
 #define MAX_LOCALES 11
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
@@ -185,39 +186,22 @@ LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;
 
-enum GM_COMMAND_TAB
+#if defined(__GNUC__)
+#pragma pack(1)
+#else
+#pragma pack(push, 1)
+#endif
+
+struct LocalizedString
 {
-    GM,
-    PLAYER
+    char const* Str[TOTAL_LOCALES];
 };
 
-struct GmCommand
-{
-	uint32 accountID[2];
-	std::string accountName[2];
-	uint32 characterID[2];
-	std::string characterName[2];
-	std::string command;
-};
-
-struct GmChat
-{
-	uint32 type;
-	uint32 accountID[2];
-	std::string accountName[2];
-	uint32 characterID[2];
-	std::string characterName[2];
-	std::string message;
-};
-
-struct ArenaLog
-{
-    uint32 timestamp;
-    std::string str;
-};
-
-extern ACE_Based::LockedQueue<GmCommand*, ACE_Thread_Mutex> GmLogQueue;
-extern ACE_Based::LockedQueue<GmChat*, ACE_Thread_Mutex> GmChatLogQueue;
+#if defined(__GNUC__)
+#pragma pack()
+#else
+#pragma pack(pop)
+#endif
 
 // we always use stdlibc++ std::max/std::min, undefine some not C++ standard defines (Win API and some other platforms)
 #ifdef max

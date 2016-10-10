@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -28,8 +28,6 @@
 
 #include "GridDefines.h"
 #include "Object.h"
-#include "Player.h"
-#include "Transport.h"
 
 #include <set>
 
@@ -76,12 +74,11 @@ class HashMapHolder
         static LockType* GetLock() { return &i_lock; }
 
     private:
-
         //Non instanceable only static
-        HashMapHolder() {}
+        HashMapHolder() { }
 
         static LockType i_lock;
-        static MapType  m_objectMap;
+        static MapType m_objectMap;
 };
 
 class ObjectAccessor
@@ -94,7 +91,7 @@ class ObjectAccessor
         ObjectAccessor& operator=(const ObjectAccessor&);
 
     public:
-        // TODO: override these template functions for each holder type and add assertions
+        /// @todo: Override these template functions for each holder type and add assertions
 
         template<class T> static T* GetObjectInOrOutOfWorld(uint64 guid, T* /*typeSpecifier*/)
         {
@@ -119,13 +116,7 @@ class ObjectAccessor
         }
 
         // Player may be not in world while in ObjectAccessor
-        static Player* GetObjectInWorld(uint64 guid, Player* /*typeSpecifier*/)
-        {
-            Player* player = HashMapHolder<Player>::Find(guid);
-            if (player && player->IsInWorld())
-                return player;
-            return NULL;
-        }
+        static Player* GetObjectInWorld(uint64 guid, Player* /*typeSpecifier*/);
 
         static Unit* GetObjectInWorld(uint64 guid, Unit* /*typeSpecifier*/)
         {
@@ -148,40 +139,14 @@ class ObjectAccessor
             return NULL;
         }
 
-        template<class T> static T* GetObjectInWorld(uint32 mapid, float x, float y, uint64 guid, T* /*fake*/)
-        {
-            T* obj = HashMapHolder<T>::Find(guid);
-            if (!obj || obj->GetMapId() != mapid)
-                return NULL;
-
-            CellCoord p = JadeCore::ComputeCellCoord(x, y);
-            if (!p.IsCoordValid())
-            {
-                sLog->outError(LOG_FILTER_GENERAL, "ObjectAccessor::GetObjectInWorld: invalid coordinates supplied X:%f Y:%f grid cell [%u:%u]", x, y, p.x_coord, p.y_coord);
-                return NULL;
-            }
-
-            CellCoord q = JadeCore::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
-            if (!q.IsCoordValid())
-            {
-                sLog->outError(LOG_FILTER_GENERAL, "ObjectAccessor::GetObjecInWorld: object (GUID: %u TypeId: %u) has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), q.x_coord, q.y_coord);
-                return NULL;
-            }
-
-            int32 dx = int32(p.x_coord) - int32(q.x_coord);
-            int32 dy = int32(p.y_coord) - int32(q.y_coord);
-
-            if (dx > -2 && dx < 2 && dy > -2 && dy < 2)
-                return obj;
-            else
-                return NULL;
-        }
+        template<class T> static T* GetObjectInWorld(uint32 mapid, float x, float y, uint64 guid, T* /*fake*/);
 
         // these functions return objects only if in map of specified object
         static WorldObject* GetWorldObject(WorldObject const&, uint64);
         static Object* GetObjectByTypeMask(WorldObject const&, uint64, uint32 typemask);
         static Corpse* GetCorpse(WorldObject const& u, uint64 guid);
         static GameObject* GetGameObject(WorldObject const& u, uint64 guid);
+        static Transport* GetTransport(WorldObject const& u, uint64 guid);
         static DynamicObject* GetDynamicObject(WorldObject const& u, uint64 guid);
         static AreaTrigger* GetAreaTrigger(WorldObject const& u, uint64 guid);
         static Unit* GetUnit(WorldObject const&, uint64 guid);
@@ -189,16 +154,15 @@ class ObjectAccessor
         static Pet* GetPet(WorldObject const&, uint64 guid);
         static Player* GetPlayer(WorldObject const&, uint64 guid);
         static Creature* GetCreatureOrPetOrVehicle(WorldObject const&, uint64);
-        static Transport* GetTransport(WorldObject const& u, uint64 guid);
 
         // these functions return objects if found in whole world
         // ACCESS LIKE THAT IS NOT THREAD SAFE
         static Pet* FindPet(uint64);
         static Player* FindPlayer(uint64);
         static Creature* FindCreature(uint64);
-        static Unit* FindUnit(uint64);
         static DynamicObject* FindDynamicObject(uint64);
-        static Player* FindPlayerByName(const char* name);
+        static Unit* FindUnit(uint64);
+        static Player* FindPlayerByName(std::string const& name);
 
         // when using this, you must use the hashmapholder's lock
         static HashMapHolder<Player>::MapType const& GetPlayers()

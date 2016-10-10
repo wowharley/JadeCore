@@ -1,11 +1,9 @@
 /*
- * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -20,14 +18,6 @@
 #ifndef DEF_GILNEAS_H
 #define DEF_GILNEAS_H
 
-enum Data
-{
-};
-
-enum Data64
-{
-};
-
 enum CreatureIds
 {
     NPC_PRINCE_LIAM_GREYMANE                          = 34913,
@@ -36,95 +26,91 @@ enum CreatureIds
     NPC_RAMPAGING_WORGEN_2                            = 35660,
     NPC_BLOODFANG_WORGEN                              = 35118,
     NPC_SERGEANT_CLEESE                               = 35839,
+	NPC_BLOODFANG_RIPPER_P4                           = 35505, // General AI spawns
+	NPC_JOSIAH_AVERY_P4                               = 35370, // NPC for worgen bite
+	NPC_LORNA_CROWLEY_P4                              = 35378, // Quest - From the Shadows
     NPC_MYRIAM_SPELLWALKER                            = 35872,
     NPC_GILNEAN_ROYAL_GUARD                           = 35232,
     NPC_FRIGHTENED_CITIZEN_1                          = 34981,
     NPC_FRIGHTENED_CITIZEN_2                          = 35836,
     NPC_DARIUS_CROWLEY                                = 35230,
-    NPC_NORTHGATE_REBEL_1                             = 36057, // phase 8 outside cathedral
-    NPC_NORTHGATE_REBEL_2                             = 41015, // phase 1024 inside cathedral
-    NPC_BLOODFANG_STALKER_C1                          = 35229, // Main spawns
+    NPC_NORTHGATE_REBEL_1                             = 36057,
+    NPC_NORTHGATE_REBEL_2                             = 41015,
+    NPC_BLOODFANG_STALKER_C1                          = 35229,
     NPC_BLOODFANG_STALKER_C2                          = 51277,
     NPC_BLOODFANG_STALKER_CREDIT                      = 35582,
     NPC_CROWLEY_HORSE                                 = 35231,
-    NPC_LORD_DARIUS_CROWLEY_C1                        = 35077, // Quest - By the skin of his teeth start/stop
+    NPC_NORTHGATE_REBEL                               = 41015,
+    NPC_FRENZIED_STALKER                              = 35627,
+    NPC_PRINCE_LIAM_GREYMANE_BATTLE                   = 38218,
+    NPC_TOBIAS_MISTMANTLE                             = 38507,
+    NPC_LORD_DARIUS_CROWLEY_C1                        = 35077, // Quest - By the skin of his teeth start/stop	
     NPC_WORGEN_ALPHA_C1                               = 35170, // Quest - By the skin of his teeth spawns
     NPC_WORGEN_ALPHA_C2                               = 35167, // Quest - By the skin of his teeth spawns
     NPC_WORGEN_RUNT_C1                                = 35188, // Quest - By the skin of his teeth spawns
     NPC_WORGEN_RUNT_C2                                = 35456, // Quest - By the skin of his teeth spawns
-    NPC_SEAN_DEMPSEY                                  = 35081, // Quest - By the skin of his teeth controller= 35370,
-    NPC_JOSIAH_AVERY_P4                               = 35370, // NPC for worgen bite
-    NPC_JOSIAH_AVERY_TRIGGER                          = 50415, // Controller for Worgen Bite
-    NPC_LORNA_CROWLEY_P4                              = 35378, // Quest - From the Shadows
-    NPC_BLOODFANG_RIPPER_P4                           = 35505, // General AI spawns
-    NPC_GILNEAN_MASTIFF                               = 35631,
-    NPC_GILNEAS_CITY_GUARD_P8                         = 50474,
-    NPC_AFFLICTED_GILNEAN_P8                          = 50471,
-    NPC_COMMANDEERED_CANNON                           = 35914,
-    NPC_KRENNAN_ARANAS_TREE                           = 35753,
-    NPC_GREYMANE_HORSE_P4                             = 35905
-};
-
-enum GameObjectIds
-{
+	NPC_COMMANDEERED_CANNON                           = 35914,
+	NPC_KRENNAN_ARANAS_TREE                           = 35753,
+	NPC_GREYMANE_HORSE_P4                             = 35905
 };
 
 enum QuestIds
 {
     QUEST_LOCKDOWN                                     = 14078,
     QUEST_EVAC_MERC_SQUA                               = 14098,
-    QUEST_SOMETHINGS_AMISS                             = 14091,
-    QUEST_ALL_HELL_BREAKS_LOOSE                        = 14093,
-    QUEST_ROYAL_ORDERS                                 = 14099,
-    QUEST_BY_THE_SKIN_ON_HIS_TEETH                     = 14154,
+	QUEST_THE_REBEL_LORDS_ARSENAL                      = 14159,
+	QUEST_FROM_THE_SHADOWS                             = 14204,
     QUEST_SAVE_KRENNAN_ARANAS                          = 14293,
     QUEST_SACRIFICES                                   = 14212,
-    QUEST_THE_REBEL_LORDS_ARSENAL                      = 14159,
-    QUEST_FROM_THE_SHADOWS                             = 14204
+    QUEST_THE_BATTLE_FOR_GILNEAS_CITY                  = 24904,
+	QUEST_ROYAL_ORDERS                                 = 14099,
+    QUEST_14348_KILL_CREDIT                            = 36233,
+    QUEST_YOU_CANT_TAKE_EM_ALONE                       = 14348
 };
 
 enum SpellIds
 {
+    SPELL_PING_GILNEAN_CROW                            = 93275,
     SPELL_ENRAGE                                       = 8599,
-    SPELL_FROSTBOLT_VISUAL_ONLY                        = 74277, // Dummy spell, visual only
+	SPELL_PHASE_QUEST_2                                = 59073,
+	SPELL_SUMMON_JOSIAH_AVERY                          = 67350,
+	SPELL_SUMMON_GILNEAN_MASTIFF                       = 67807,
+	SPELL_ATTACK_LURKER                                = 67805,
+	SPELL_SHADOWSTALKER_STEALTH                        = 5916,
+	SPELL_GET_SHOT                                     = 67349,
+	SPELL_SHOOT                                        = 6660,
+	SPELL_PHASE_2                                      = 59073,
+	SPELL_PHASE_4                                      = 59074,
+    SPELL_FROSTBOLT_VISUAL_ONLY                        = 74277,
     SPELL_SUMMON_CROWLEY                               = 67004,
     SPELL_RIDE_HORSE                                   = 43671,
     SPELL_THROW_TORCH                                  = 67063,
-    SPELL_RIDE_VEHICLE_HARDCODED                       = 46598,
-    SPELL_LEFT_HOOK                                    = 67825,
+    SPELL_FADE_BACK                                    = 94053,
     SPELL_DEMORALIZING_SHOUT                           = 61044,
+    SPELL_BY_THE_SKIN                                  = 66914,				
+    SPELL_LEFT_HOOK                                    = 67825,
     SPELL_SNAP_KICK                                    = 67827,
-    SPELL_BY_THE_SKIN_ON_HIS_TEETH                     = 66914,
-    SPELL_SHOOT                                        = 6660,
+    SPELL_PHASING_AURA                                 = 59073,
+	SPELL_GILNEAS_CANNON_CAMERA                        = 93555,
+	SPELL_CANNON_FIRE                                  = 68235,
     SPELL_WORGEN_BITE                                  = 72870,
     SPELL_INFECTED_BITE                                = 72872,
-    SPELL_CANNON_FIRE                                  = 68235,
-    SPELL_GILNEAS_CANNON_CAMERA                        = 93555,
-    SPELL_SUMMON_JOSIAH_AVERY                          = 67350,
-    SPELL_GET_SHOT                                     = 67349,
-    SPELL_SUMMON_JOSIAH                                = 67350,
-    SPELL_PULL_TO                                      = 67357,
-    SPELL_PHASE_QUEST_2                                = 59073,
-    SPELL_SUMMON_GILNEAN_MASTIFF                       = 67807,
-    SPELL_DISMISS_GILNEAN_MASTIFF                      = 43511,
-    SPELL_ATTACK_LURKER                                = 67805,
-    SPELL_SHADOWSTALKER_STEALTH                        = 5916,
-    SPELL_PING_GILNEAN_CROW                            = 93275
+    SPELL_QUEST_DETECTION                              = 49416,
+    SPELL_BARREL_KEG                                   = 69094	
 };
 
 enum NpcTextIds
 {
-    SAY_PRINCE_LIAM_GREYMANE_1                         = -1638000,
-    SAY_PRINCE_LIAM_GREYMANE_2                         = -1638001,
-    SAY_PRINCE_LIAM_GREYMANE_3                         = -1638002,
-    DELAY_SAY_PRINCE_LIAM_GREYMANE                     = 20000, // 20 seconds repetition time
-
-    YELL_PRINCE_LIAM_GREYMANE_1                        = -1638025,
-    YELL_PRINCE_LIAM_GREYMANE_2                        = -1638026,
-    YELL_PRINCE_LIAM_GREYMANE_3                        = -1638027,
-    YELL_PRINCE_LIAM_GREYMANE_4                        = -1638028,
-    YELL_PRINCE_LIAM_GREYMANE_5                        = -1638029,
-    DELAY_YELL_PRINCE_LIAM_GREYMANE                    = 2000,
+    SAY_PRINCE_LIAM_GREYMANE_1                        = 0,
+    SAY_PRINCE_LIAM_GREYMANE_2                        = 1,
+    SAY_PRINCE_LIAM_GREYMANE_3                        = 2,
+    SAY_PRINCE_LIAM_GREYMANE_4                        = 0,
+    SAY_PRINCE_LIAM_GREYMANE_5                        = 1,
+    SAY_PRINCE_LIAM_GREYMANE_6                        = 2,
+    SAY_PRINCE_LIAM_GREYMANE_7                        = 3,
+	YELL_PRINCE_LIAM_GREYMANE						  = 1,
+	DELAY_SAY_PRINCE_LIAM_GREYMANE                    = 2000,
+	DELAY_YELL_PRINCE_LIAM_GREYMANE					  = 2000,
 
     SAY_PANICKED_CITIZEN_1                             = -1638016,
     SAY_PANICKED_CITIZEN_2                             = -1638017,
@@ -134,6 +120,21 @@ enum NpcTextIds
     SAY_GILNEAS_CITY_GUARD_GATE_1                      = -1638022,
     SAY_GILNEAS_CITY_GUARD_GATE_2                      = -1638023,
     SAY_GILNEAS_CITY_GUARD_GATE_3                      = -1638024,
+	
+	SAY_JOSIAH_AVERY_1                                = 0,
+	SAY_JOSIAH_AVERY_2                                = 1,
+	SAY_JOSIAH_AVERY_3                                = 2,
+	SAY_JOSIAH_AVERY_4                                = 3,
+	SAY_JOSIAH_AVERY_5                                = 4,
+	DELAY_SAY_JOSIAH_AVERY                            = 20000,
+	
+    SAY_JOSAIH_AVERY_TRIGGER                          = 1,
+	
+	SAY_LORNA_CROWLEY_P4                              = 0,
+	
+	SAY_KING_GENN_GREYMANE                            = 0,
+	
+	SAY_LORD_GODFREY_P4                               = 0,
 
     SAY_CITIZEN_1                                      = -1638003,
     SAY_CITIZEN_2                                      = -1638004,
@@ -149,18 +150,12 @@ enum NpcTextIds
     SAY_CITIZEN_4b                                     = -1638014,
     SAY_CITIZEN_5b                                     = -1638015,
 
-    SAY_KRENNAN_C2                                     = 0,
+    YELL_KRENNAN_C1                                    = 0,
+    SAY_KRENNAN_C2                                     = 1,
     SAY_GREYMANE_HORSE                                 = 0,
-    SAY_CROWLEY_HORSE_1                                = 0,    // Let''s round up as many of them as we can.  Every worgen chasing us is one less worgen chasing the survivors!
-    SAY_CROWLEY_HORSE_2                                = 1,    // You'll never catch us, you blasted mongrels! || Come and get us, you motherless beasts! || Over here, you flea bags!
-    SAY_JOSIAH_AVERY_P2                                = 1,
-    SAY_JOSAIH_AVERY_P4                                = 1,
-    SAY_JOSAIH_AVERY_TRIGGER                           = 1,
-    SAY_LORNA_CROWLEY_P4                               = 0,
-    SAY_KING_GENN_GREYMANE_P4                          = 1,
-    SAY_GILNEAS_CITY_GUARD_P8                          = 1,
-    SAY_LORD_GODFREY_P4                                = 0,
-    SAY_NPC_KRENNAN_ARANAS_TREE                        = 0
+    SAY_CROWLEY_HORSE_1                                = 0,
+    SAY_CROWLEY_HORSE_2                                = 1,
+	SAY_NPC_KRENNAN_ARANAS_TREE                        = 0
 };
 
 enum SoundIds
@@ -169,7 +164,26 @@ enum SoundIds
     SOUND_SWORD_PLATE                                 = 147,
     SOUND_WORGEN_ATTACK                               = 558,
     DELAY_SOUND                                       = 500,
-    DELAY_ANIMATE                                     = 2000
+    DELAY_ANIMATE                                     = 2000,
+};
+
+enum eAction
+{
+    ACTION_START_EVENT,
+    ACTION_END_EVENT
+};
+
+enum eData
+{
+    DATA_GROUP,
+    GROUP_1,
+    GROUP_2,
+};
+
+Position const FrightenedWay[2] =
+{
+    {-1404.01f, 1444.38f, 35.55f, 0.0f},
+    {-1403.31f, 1375.35f, 35.55f, 0.0f}
 };
 
 struct Waypoint
@@ -206,9 +220,9 @@ Waypoint N_WAYPOINT_LOC[1]=
     { -1593.38f, 1408.02f, 72.64f } // Worgen Runt 2 Edge of Roof Waypoint
 };
 
-#define DELAY_EMOTE_PANICKED_CITIZEN                  urand(5000, 15000)   // 5-15 second time
-#define DELAY_SAY_PANICKED_CITIZEN                    urand(30000, 120000) // 30sec - 1.5min
-#define DELAY_SAY_GILNEAS_CITY_GUARD_GATE             urand(30000, 120000) // 30sec - 1.5min
+#define DELAY_EMOTE_PANICKED_CITIZEN                  urand(5000, 15000)
+#define DELAY_SAY_PANICKED_CITIZEN                    urand(30000, 120000)
+#define DELAY_SAY_GILNEAS_CITY_GUARD_GATE             urand(30000, 120000)
 #define PATHS_COUNT_PANICKED_CITIZEN                  8
 #define CD_ENRAGE                                     30000
 #define SUMMON1_TTL                                   300000
@@ -218,7 +232,8 @@ Waypoint N_WAYPOINT_LOC[1]=
 #define KRENNAN_END_Y                                 1430.6125f
 #define KRENNAN_END_Z                                 19.79f
 #define KRENNAN_END_O                                 2.79f
-#define CROWLEY_SPEED                                 1.85f // if set much lower than this, the horse automatically despawns before reaching the end of his waypoints
+#define CROWLEY_SPEED                                 1.85f
+#define MAP_GILNEAS                                   654
 #define AI_MIN_HP                                     85
 #define Event_Time                                    118500
 #define WORGEN_EVENT_SPAWNTIME                        20000 // Default Despawn Timer

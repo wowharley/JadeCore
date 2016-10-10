@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -35,7 +36,7 @@ template <typename Result, typename ParamType, bool chain = false>
 class QueryCallback
 {
     public:
-        QueryCallback() : _param(), _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  {}
+        QueryCallback() : _param(), _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
         void SetFutureResult(ACE_Future<Result> value)
@@ -115,7 +116,7 @@ template <typename Result, typename ParamType1, typename ParamType2, bool chain 
 class QueryCallback_2
 {
     public:
-        QueryCallback_2() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID) {}
+        QueryCallback_2() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID) { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
         void SetFutureResult(ACE_Future<Result> value)

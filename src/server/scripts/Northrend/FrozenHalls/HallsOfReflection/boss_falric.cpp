@@ -1,9 +1,12 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -33,9 +36,8 @@ enum Spells
     SPELL_QUIVERING_STRIKE                        = 72422,
     SPELL_IMPENDING_DESPAIR                       = 72426,
     SPELL_DEFILING_HORROR                         = 72435,
-    SPELL_HOPELESSNESS_66                         = 72395,
-    SPELL_HOPELESSNESS_33                         = 72396,
-    SPELL_HOPELESSNESS_10                         = 72397,
+    SPELL_HOPELESSNESS                            = 72395,
+    H_SPELL_HOPELESSNESS                          = 72390, /// @todo not in dbc. Add in DB.
 };
 
 enum Events
@@ -51,18 +53,18 @@ class boss_falric : public CreatureScript
 public:
     boss_falric() : CreatureScript("boss_falric") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_falricAI(creature);
     }
 
     struct boss_falricAI : public boss_horAI
     {
-        boss_falricAI(Creature* creature) : boss_horAI(creature) {}
+        boss_falricAI(Creature* creature) : boss_horAI(creature) { }
 
         uint8 uiHopelessnessCount;
 
-        void Reset()
+        void Reset() override
         {
             boss_horAI::Reset();
 
@@ -72,7 +74,7 @@ public:
                 instance->SetBossState(DATA_FALRIC_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             if (instance)
@@ -83,28 +85,7 @@ public:
             events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); /// @todo adjust timer.
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
-        {
-            if (uiHopelessnessCount == 0 && !HealthAbovePct(66))
-            {
-                DoCast(SPELL_HOPELESSNESS_66);
-                uiHopelessnessCount++;
-            }
-            else if (uiHopelessnessCount == 1 && !HealthAbovePct(33))
-            {
-                me->RemoveAllAuras();
-                DoCast(SPELL_HOPELESSNESS_33);
-                uiHopelessnessCount++;
-            }
-            else if (uiHopelessnessCount == 2 && !HealthAbovePct(10))
-            {
-                me->RemoveAllAuras();
-                DoCast(SPELL_HOPELESSNESS_10);
-                uiHopelessnessCount++;
-            }
-        }
-
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -112,12 +93,12 @@ public:
                 instance->SetBossState(DATA_FALRIC_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff) override
         {
             // Return since we have no target
             if (!UpdateVictim())
@@ -146,6 +127,14 @@ public:
                     DoCast(SPELL_DEFILING_HORROR);
                     events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); /// @todo adjust timer.
                     break;
+            }
+
+            if ((uiHopelessnessCount < 1 && HealthBelowPct(66))
+                || (uiHopelessnessCount < 2 && HealthBelowPct(33))
+                || (uiHopelessnessCount < 3 && HealthBelowPct(10)))
+            {
+                uiHopelessnessCount++;
+                DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS, H_SPELL_HOPELESSNESS));
             }
 
             DoMeleeAttackIfReady();

@@ -1,10 +1,12 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,8 +27,9 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "the_botanica.h"
 
-enum eSpells
+enum Spells
 {
     SPELL_ALLERGIC_REACTION    = 34697,
     SPELL_TELEPORT_SELF        = 34673,
@@ -38,16 +41,16 @@ enum eSpells
     SPELL_SUMMON_LASHER_3      = 34686,
     SPELL_SUMMON_FLAYER_4      = 34687,
     SPELL_SUMMON_LASHER_4      = 34688,
-    SPELL_SUMMON_FLAYER_3      = 34690,
+    SPELL_SUMMON_FLAYER_3      = 34690
 };
-enum eOthers
+enum Misc
 {
-    EMOTE_SUMMON               = -1553006,
+    EMOTE_SUMMON               = 0,
     MODEL_DEFAULT              = 13109,
     MODEL_ARCANE               = 14213,
     MODEL_FIRE                 = 13110,
     MODEL_FROST                = 14112,
-    MODEL_NATURE               = 14214,
+    MODEL_NATURE               = 14214
 };
 
 class boss_laj : public CreatureScript
@@ -59,9 +62,9 @@ class boss_laj : public CreatureScript
         {
         }
 
-        struct boss_lajAI : public ScriptedAI
+        struct boss_lajAI : public BossAI
         {
-            boss_lajAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_lajAI(Creature* creature) : BossAI(creature, DATA_LAJ) { }
 
             bool CanSummon;
             uint32 Teleport_Timer;
@@ -69,7 +72,7 @@ class boss_laj : public CreatureScript
             uint32 Transform_Timer;
             uint32 Allergic_Timer;
 
-            void Reset()
+            void Reset() override
             {
                 me->SetDisplayId(MODEL_DEFAULT);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
@@ -156,17 +159,17 @@ class boss_laj : public CreatureScript
                 CanSummon = false;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
-                if (summon && me->getVictim())
+                if (summon && me->GetVictim())
                     summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -175,7 +178,7 @@ class boss_laj : public CreatureScript
                 {
                     if (Summon_Timer <= diff)
                     {
-                        DoScriptText(EMOTE_SUMMON, me);
+                        Talk(EMOTE_SUMMON);
                         DoSummons();
                         Summon_Timer = 2500;
                     }
@@ -185,7 +188,7 @@ class boss_laj : public CreatureScript
 
                 if (Allergic_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ALLERGIC_REACTION);
+                    DoCastVictim(SPELL_ALLERGIC_REACTION);
                     Allergic_Timer = 25000+rand()%15000;
                 }
                 else
@@ -212,7 +215,7 @@ class boss_laj : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_lajAI(creature);
         }
