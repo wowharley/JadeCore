@@ -31,8 +31,25 @@ before_install:
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   
+install:
+  - mysql -uroot -e 'create database test_mysql;'
+  - mkdir bin
+  - cd bin
+  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=0 -DSCRIPTS="dynamic" -DSERVERS=1 -DNOJEM=1 -DWITH_DYNAMIC_LINKING=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_INSTALL_PREFIX=check_install
+  - cd ..
+
 script:
-  - mkdir build
-  - cd build
-  - cmake ../ -DSCRIPTS=1 -DTOOLS=1
-  - make -j8
+  - $CXX --version
+  - mysql -uroot < sql/create/create_mysql.sql
+  - mysql -ujadecore -pjadecore auth < sql/base/auth_database.sql
+  - cat sql/updates/auth/5.4.8/*.sql | mysql -ujadecore -pjadecore auth
+  - mysql -ujadecore -pjadecore characters < sql/base/characters_database.sql
+  - cat sql/updates/characters/5.4.8/*.sql | mysql -ujadecore -pjadecore characters
+  - mysql -ujadecore -pjadecore world < sql/base/dev/world_database.sql
+  - cat sql/updates/world/5.4.8/*.sql | mysql -ujadecore -pjadecore world
+  - mysql -uroot < sql/create/drop_mysql.sql
+  - cd bin
+  - make -j 8 -k && make install
+  - cd check_install/bin
+  - ./authserver --version
+  - ./worldserver --version
