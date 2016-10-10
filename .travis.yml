@@ -1,5 +1,5 @@
 # Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
-# Copyright (C) 2008-2016 jadecoreCore <http://www.jadecorecore.org/>
+# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
 # Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
 #
 # This file is free software; as a special exception the author gives
@@ -10,23 +10,27 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-sudo: required
-dist: trusty
-
 language: cpp
-compiler:
-  - gcc
 
 git:
   depth: 1
 
-before_install:
-  - sudo apt-get -qq install build-essential libtool make cmake cmake-data openssl
-  - sudo apt-get -qq install libssl-dev libmysqlclient-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libace-dev
-  - sudo apt-get -qq install mysql-server
-  - git config user.email "travis@build.bot" && git config user.name "Travis CI"
-  - git tag -a -m "Travis build" init
+compiler:
+  - gcc
 
+before_install:
+  - sudo add-apt-repository ppa:kalakris/cmake -y
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo add-apt-repository 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.7 main'
+  - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+  - sudo apt-get update -qq
+  - sudo apt-get install libace-dev
+  - sudo apt-get install libncurses5-dev
+  - sudo apt-get install build-essential autoconf libtool make cmake git-core patch wget links zip unzip unrar
+  - sudo apt-get install openssl libssl-dev mysql-server mysql-client libmysqlclient15-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+  
 install:
   - mysql -uroot -e 'create database test_mysql;'
   - mkdir bin
@@ -47,5 +51,3 @@ script:
   - cd bin
   - make -j 8 -k && make install
   - cd check_install/bin
-  - ./authserver --version
-  - ./worldserver --version
