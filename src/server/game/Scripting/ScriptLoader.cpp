@@ -1633,35 +1633,13 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-/*
-void AddSC_Npc_Beastmaster();
-void AddSC_npc_changer();
-void AddSC_world_chat();
-void AddSC_Duel_Reset();
-void AddSC_Morph_npc();
-void AddSC_Professions_NPC();
-void AddSC_tele();
-void AddSC_npc_global_trainer();
-void AddSC_npc_enchantment();
-void AddSC_player_loginscript();
-*/
+
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
 	/* This is where custom scripts should be added. */
-	/*
-	AddSC_Npc_Beastmaster();
-	AddSC_npc_changer();
-	AddSC_world_chat();
-	AddSC_Duel_Reset();
-	AddSC_Morph_npc();
-	AddSC_Professions_NPC();
-	AddSC_tele();
-	AddSC_npc_global_trainer();
-	AddSC_npc_enchantment();
-	AddSC_player_loginscript();
-	*/
+
 #endif
 }
