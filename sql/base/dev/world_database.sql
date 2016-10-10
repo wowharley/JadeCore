@@ -1,7 +1,7 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : DeathCore
+Source Server         : JadeCore_5.x.x
 Source Server Version : 50624
 Source Host           : 127.0.0.1:3306
 Source Database       : world5481
