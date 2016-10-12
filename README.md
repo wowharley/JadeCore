@@ -1,8 +1,8 @@
 # ![logo](http://image.prntscr.com/image/5204070d9fe44cf2b2960cd66940922a.png)
 
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/JadeCore/JadeCore.svg)](http://isitmaintained.com/project/JadeCore/JadeCore "Average time to resolve an issue")
-| [![Percentage of issues still open](http://isitmaintained.com/badge/open/JadeCore/JadeCore.svg)](http://isitmaintained.com/project/JadeCore/JadeCore "Percentage of issues still open")
-| [![Coverity Scan Build Status](https://scan.coverity.com/projects/10344/badge.svg)]("https://scan.coverity.com/projects/jadecore)
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/JadeCore/JadeCore.svg)](http://isitmaintained.com/project/JadeCore/JadeCore "Percentage of issues still open")
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/10344/badge.svg)]("https://scan.coverity.com/projects/jadecore)
 
 5.4.7 | 5.4.8 
 :------------: | :------------:
