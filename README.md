@@ -1,11 +1,12 @@
 # ![logo](http://image.prntscr.com/image/5204070d9fe44cf2b2960cd66940922a.png)
 
-| JadeCore 5.4.8 |
-:------------: |
-| [![JadeCore_5.4.8](https://travis-ci.org/JadeEmu/JadeCore_547.svg?branch=5.4.8)](https://travis-ci.org/JadeEmu/JadeCore_547/builds)
-| [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/JadeEmu/JadeCore_547.svg)](http://isitmaintained.com/project/JadeEmu/JadeCore_547 "Average time to resolve an issue")
-| [![Percentage of issues still open](http://isitmaintained.com/badge/open/JadeEmu/JadeCore_547.svg)](http://isitmaintained.com/project/JadeEmu/JadeCore_547 "Percentage of issues still open")
-| [![Coverity Scan Build Status](https://scan.coverity.com/projects/10344/badge.svg)]("https://scan.coverity.com/projects/jadecore_547)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/JadeCore/JadeCore.svg)](http://isitmaintained.com/project/JadeCore/JadeCore "Average time to resolve an issue")
+| [![Percentage of issues still open](http://isitmaintained.com/badge/open/JadeCore/JadeCore.svg)](http://isitmaintained.com/project/JadeCore/JadeCore "Percentage of issues still open")
+| [![Coverity Scan Build Status](https://scan.coverity.com/projects/10344/badge.svg)]("https://scan.coverity.com/projects/jadecore)
+
+5.4.7 | 5.4.8 
+:------------: | :------------:
+[![5.4.7 Build Status](https://travis-ci.org/JadeCore/JadeCore.svg?branch=5.4.7)](https://travis-ci.org/JadeCore/JadeCore/builds) | [![5.4.8 Build Status](https://travis-ci.org/JadeCore/JadeCore.svg?branch=5.4.8)](https://travis-ci.org/JadeCore/JadeCore/builds) 
 
 
 ## Introduction
@@ -14,9 +15,9 @@ JadeCore Open Source Emulator™ is a team of programmers without professional p
 
 This source is completely free development of that depends on everyone. I hope the community enough encouragement and help us improve it.
 
-If you wish to contribute ideas or code please visit our website at the link below or to send requests to our [Github repository] (https://github.com/JadeEmu/JadeCore_547).
+If you wish to contribute ideas or code please visit our website at the link below or to send requests to our [Github repository] (https://github.com/JadeCore/JadeCore).
 
-For more information about the project, visit our website at project [JadeCore Open Source Emulator] (#)
+For more information about the project, visit our website at project [JadeCore Open Source Emulator] (https://www.jadecore.tk)
 
 
 ## Requirements
@@ -33,7 +34,7 @@ For more information about the project, visit our website at project [JadeCore O
 
 ## Reporting issues
 
-Issues can be reported via the [Github issue tracker](https://github.com/JadeEmu/JadeCore_547/issues).
+Issues can be reported via the [Github issue tracker](https://github.com/JadeCore/JadeCore/issues).
 
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
@@ -62,7 +63,7 @@ This project is brought to you thanks to:
 
 ![ach_oc0xo42y](https://cloud.githubusercontent.com/assets/812439/19197100/ce6f70d0-8cc0-11e6-9ceb-b0340244cbd7.jpg)
 
-- [JadeCore developers and contributors](https://github.com/JadeEmu/JadeCore_547/graphs/contributors)
+- [JadeCore developers and contributors](https://github.com/JadeEmu/JadeCore/graphs/contributors)
 - [TrinityCore developers and contributors](https://github.com/TrinityCore/TrinityCore/blob/3.3.5/THANKS)
 - [MaNGOS, ScriptDev2 and UDB developers and contributors](https://github.com/cmangos/mangos-wotlk/blob/master/AUTHORS.md)
 - [SkyFire developers and contributors](https://github.com/ProjectSkyfire/SkyFire.548/blob/master/THANKS.md)
@@ -70,4 +71,4 @@ This project is brought to you thanks to:
 
 ## Links
 
-[Forums](https://jadecore.tk)
+[Forums](https://www.jadecore.tk)
