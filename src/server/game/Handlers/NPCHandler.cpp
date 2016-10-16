@@ -50,28 +50,34 @@ enum StableResultCode
     STABLE_ERR_STABLE       = 0x0C,                         // "Internal pet error"
 };
 
+void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket& recvData)
+{
+    uint64 guid;
+    recvData >> guid;
+
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TABARDDESIGNER);
+    if (!unit)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        return;
+    }
+
+    // remove fake death
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    SendTabardVendorActivate(guid);
+}
+
 void WorldSession::SendTabardVendorActivate(uint64 guid)
 {
-    ObjectGuid Guid = guid;
-    WorldPacket data(SMSG_TABARD_VENDOR_ACTIVATE, 8);
+    ObjectGuid sendGuid = guid;
 
-    data.WriteBit(Guid[1]);
-    data.WriteBit(Guid[5]);
-    data.WriteBit(Guid[0]);
-    data.WriteBit(Guid[7]);
-    data.WriteBit(Guid[4]);
-    data.WriteBit(Guid[6]);
-    data.WriteBit(Guid[3]);
-    data.WriteBit(Guid[2]);
+    WorldPacket data(SMSG_TABARDVENDOR_ACTIVATE, 1 + 8);
 
-    data.WriteByteSeq(Guid[5]);
-    data.WriteByteSeq(Guid[4]);
-    data.WriteByteSeq(Guid[2]);
-    data.WriteByteSeq(Guid[3]);
-    data.WriteByteSeq(Guid[6]);
-    data.WriteByteSeq(Guid[0]);
-    data.WriteByteSeq(Guid[1]);
-    data.WriteByteSeq(Guid[7]);
+    data.WriteGuidMask(sendGuid, 1, 5, 0, 7, 4, 6, 3, 2);
+
+    data.WriteGuidBytes(sendGuid, 5, 4, 2, 3, 6, 0, 1, 7);
 
     SendPacket(&data);
 }
