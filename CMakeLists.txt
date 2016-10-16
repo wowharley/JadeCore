@@ -62,6 +62,8 @@ endif()
 
 include(CheckPlatform)
 
+include(GroupSources)
+
 # basic packagesearching and setup (further support will be needed, this is a preliminary release!)
 set(OPENSSL_EXPECTED_VERSION 1.0.0)
 set(ACE_EXPECTED_VERSION 5.8.3)
@@ -70,10 +72,6 @@ find_package(PCHSupport)
 find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
-
-if( NOT USE_MYSQL_SOURCES )
-  find_package(MySQL REQUIRED)
-endif()
 
 if( UNIX )
   find_package(Readline)
