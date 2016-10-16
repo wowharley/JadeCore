@@ -1,10 +1,11 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
+ * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -49,34 +50,28 @@ enum StableResultCode
     STABLE_ERR_STABLE       = 0x0C,                         // "Internal pet error"
 };
 
-void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket& recvData)
-{
-    uint64 guid;
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TABARDDESIGNER);
-    if (!unit)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    SendTabardVendorActivate(guid);
-}
-
 void WorldSession::SendTabardVendorActivate(uint64 guid)
 {
-    ObjectGuid sendGuid = guid;
+    ObjectGuid Guid = guid;
+    WorldPacket data(SMSG_TABARD_VENDOR_ACTIVATE, 8);
 
-    WorldPacket data(SMSG_TABARDVENDOR_ACTIVATE, 1 + 8);
+    data.WriteBit(Guid[1]);
+    data.WriteBit(Guid[5]);
+    data.WriteBit(Guid[0]);
+    data.WriteBit(Guid[7]);
+    data.WriteBit(Guid[4]);
+    data.WriteBit(Guid[6]);
+    data.WriteBit(Guid[3]);
+    data.WriteBit(Guid[2]);
 
-    data.WriteGuidMask(sendGuid, 1, 5, 0, 7, 4, 6, 3, 2);
-
-    data.WriteGuidBytes(sendGuid, 5, 4, 2, 3, 6, 0, 1, 7);
+    data.WriteByteSeq(Guid[5]);
+    data.WriteByteSeq(Guid[4]);
+    data.WriteByteSeq(Guid[2]);
+    data.WriteByteSeq(Guid[3]);
+    data.WriteByteSeq(Guid[6]);
+    data.WriteByteSeq(Guid[0]);
+    data.WriteByteSeq(Guid[1]);
+    data.WriteByteSeq(Guid[7]);
 
     SendPacket(&data);
 }
