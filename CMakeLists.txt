@@ -73,6 +73,8 @@ find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 
+include(ConfigureBoost)
+
 if( UNIX )
   find_package(Readline)
   find_package(ZLIB)
