@@ -44,7 +44,9 @@
 6) Mists of Pandaria dungeons:
 - Need to rewrite all of them
 
-7) Pandaria Zones:
+7) "patch" SmartAI Lab sripts for Mists of Pandaria TODO:
+
+  Pandaria Zones:
 
 - Dread Wastes
 - Isle of Giants
@@ -58,18 +60,11 @@
 - Vale of Eternal Blossoms
 - Valley of the Four Winds
 
-8) Pandaria Dungeons:
+  Pandaria Dungeons:
 
-- Gate of the Setting Sun
-- Mogu'shan Palace
-- Scarlet Monastery
 - Scholomance
-- Shado-Pan Monastery
-- Siege of Niuzao Temple
-- Stormstout Brewery
-- Temple of the Jade Serpent
 
-9) Pandaria Raids:
+  Pandaria Raids:
 
 - Heart of Fear
 - Mogu'shan Vaults
@@ -77,12 +72,11 @@
 - Terrace of Endless Spring
 - Throne of Thunder
 
-10) The Maelstrom Zones:
+  The Maelstrom Zones:
 
-- The Lost Isles
 - The Wandering Isle
 
-11) Mists of Pandaria Start Zones Quests ( 1-5 lvl ) TODO:
+8) Mists of Pandaria Start Zones Quests ( 1-5 lvl ) TODO:
 
 - Dwarf
 - Undead
@@ -95,7 +89,7 @@
 - Goblin
 - Pandaren
 
-12) Mists of Pandaria Misc TODO:
+9) Mists of Pandaria Misc TODO:
 
 - BattlePet
 - BattleShop
