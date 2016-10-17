@@ -690,7 +690,7 @@ void AddSC_boss_GarroshHellscream();
 void AddSC_boss_GeneralNazgrim();
 void AddSC_boss_IronJuggernaut();
 void AddSC_boss_Immerseus();
-void AddSC_boss_KorKron();
+void AddSC_boss_dark_shaman();
 void AddSC_boss_Malkorok();
 void AddSC_boss_Norushen();
 void AddSC_boss_ParagonsOfTheKlaxxi();
@@ -1528,7 +1528,7 @@ void AddPandariaScripts()
 	AddSC_boss_GeneralNazgrim();
 	AddSC_boss_IronJuggernaut();
 	AddSC_boss_Immerseus();
-	AddSC_boss_KorKron();
+	AddSC_boss_dark_shaman();
 	AddSC_boss_Malkorok();
 	AddSC_boss_Norushen();
 	AddSC_boss_ParagonsOfTheKlaxxi();
