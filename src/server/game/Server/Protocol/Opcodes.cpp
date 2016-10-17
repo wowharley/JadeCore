@@ -124,6 +124,18 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_MOUNT_AURA,                         0x10E3, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelMountAuraOpcode        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TRADE,                              0x1941, STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTradeOpcode); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CAST_SPELL,                                0x0206, STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleCastSpellOpcode              ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_ANNOUNCEMENTS,                     0x06AF, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelAnnouncements         ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_BAN,                               0x08BF, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelBan                   ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_INVITE,                            0x10AB, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelInvite                ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_KICK,                              0x0E0B, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelKick                  ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_LIST,                              0x0C1B, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelList                  ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_MODERATOR,                         0x00AE, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelModerator             ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_MUTE,                              0x000A, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelMute                  ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_OWNER,                             0x00AF, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelOwner                 ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_PASSWORD,                          0x0A1E, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelOwner                 ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_UNBAN,                             0x081F, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnban                 ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_UNMODERATOR,                       0x041E, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmoderator           ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_UNMUTE,                            0x022A, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmute                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_CREATE,                               0x0F1D, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharCreateOpcode             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_CUSTOMIZE,                            0x0A13, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharCustomize                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_DELETE,                               0x04E2, STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharDeleteOpcode             ); // 5.4.8 18414
@@ -418,18 +430,6 @@ void OpcodeTable::InitializeClientTable()
 
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_ADD_EVENT,                        0x0A37, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarAddEvent             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_EVENT_INVITE,                     0x1D8E, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarEventInvite          ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_ANNOUNCEMENTS,                     0x06AF, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelAnnouncements         ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_BAN,                               0x08BF, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelBan                   ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_INVITE,                            0x10AB, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelInvite                ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_KICK,                              0x0E0B, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelKick                  ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_LIST,                              0x0C1B, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelList                  ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_MODERATOR,                         0x00AE, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelModerator             ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_MUTE,                              0x000A, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelMute                  ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_OWNER,                             0x00AF, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelOwner                 ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_PASSWORD,                          0x0A1E, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelPassword              ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_UNBAN,                             0x081F, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnban                 ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_UNMODERATOR,                       0x041E, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmoderator           ); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_UNMUTE,                            0x022A, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmute                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_SAVE,                        0x0669, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetSave             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_USE,                         0x036E, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetUse              ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_FORCE_MOVE_ROOT_ACK,                       0x107A, STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveRootAck                  ); // 5.4.8 18414
