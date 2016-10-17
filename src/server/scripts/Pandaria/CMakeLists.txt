@@ -124,7 +124,7 @@ set(scripts_STAT_SRCS
   Pandaria/Raids/SiegeOfOrgrimmar/boss_Thok.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_GarroshHellscream.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/instance_SiegeOfOrgrimmar.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/SiegeOfOrgrimmar.h
+  Pandaria/Raids/SiegeOfOrgrimmar/siege_of_orgrimmar.h
 
   # Timeless Island
   Pandaria/TimelessIsle/zone_timeless_isle.cpp
