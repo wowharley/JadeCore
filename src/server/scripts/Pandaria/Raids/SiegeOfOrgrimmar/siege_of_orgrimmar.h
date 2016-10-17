@@ -37,7 +37,7 @@ enum Data
     DATA_SUN                                = 5,
     
     // Norushen
-    DATA_NORUSHEN                           = 6,
+    DATA_AMALGAM_OF_CORRUPTION              = 6,
 
     // Sha of Pride
     DATA_SHA_OF_PRIDE                       = 7,
@@ -100,13 +100,11 @@ enum eCreaturesLocal
     BOSS_SUN                            = 71480,
 
     /// Norushen
-    CREATURE_ALMAGLEM_OF_CORRUPTION     = 72276,
-    CREATURE_CHO_NORUSHEN               = 72872,
+    BOSS_AMALGAM_OF_CORRUPTION          = 72276,
 
 
     /// Sha of Pride
     BOSS_SHA_OF_PRIDE                   = 71734,
-    CREATURE_NORUSHEN                   = 71967,
 
     // Galakras
 
