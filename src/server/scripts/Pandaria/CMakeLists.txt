@@ -112,7 +112,7 @@ set(scripts_STAT_SRCS
   Pandaria/Raids/SiegeOfOrgrimmar/boss_Immerseus.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_Galakras.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_GeneralNazgrim.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/boss_KorKron.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/boss_dark_shamans.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_IronJuggernaut.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_Norushen.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_Malkorok.cpp

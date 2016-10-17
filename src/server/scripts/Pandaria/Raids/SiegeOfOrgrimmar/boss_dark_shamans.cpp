@@ -70,14 +70,6 @@
     The ability is cast roughly every 30 seconds.
 */
 
-/*
-    10 NM mode == 100%
-    10 HC mode == 100%
-
-    25 NM mode - not tested
-    25 HC mode - not tested
-*/
-
 #include "siege_of_orgrimmar.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -240,17 +232,6 @@ enum Gameobjects
 {
     GOBJECT_IRON_TOMB  = 220864,
 };
-
-#define FLOOR_Z 21.0f
-
-/*
-void FallingAshPosition()
-{
-    InstanceScript* instance;
-
-    if (Creature* kardris = instance->instance->GetCreature(instance->GetData64(DATA_WAVEBINDER_KARDRIS))
-
-}*/
 
 static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
 {
@@ -1057,98 +1038,7 @@ class npc_toxic_tornado : public CreatureScript
             return new npc_toxic_tornadoAI(creature);
         }
 };
-/*
-// 71789 - Falling Ash
-class npc_falling_ash : public CreatureScript
-{
-    public:
-        npc_falling_ash() : CreatureScript("npc_falling_ash") { }
 
-        struct npc_falling_ashAI : public ScriptedAI
-        {
-            npc_falling_ashAI(Creature* creature) : ScriptedAI(creature)
-            {
-                m_Instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* m_Instance;
-
-            void Reset() override
-            {
-                if (Creature* kardris = me->FindNearestCreature(BOSS_WAVEBINDER_KARDRIS, 500.0f, true))
-                {
-                    if (me->GetPositionZ() > kardris->GetPositionZ())
-                    {
-                        float posX = kardris->GetPositionX();
-                        float posY = kardris->GetPositionY();
-                        float O = kardris->GetOrientation();
-                        float posZ = kardris->GetPositionZ();
-                        
-                        Position pos = { urand(posX-15, posX+15), urand(posY-15, posY+15), posZ, O };
-                        me->GetMotionMaster()->MoveLand(1, pos);
-                    }
-                }
-
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetVisible(true);
-                me->SetSpeed(MOVE_FLIGHT, 0.5f, true);
-                DoCast(me, SPELL_FALLING_ASH_VISUAL);
-                events.ScheduleEvent(EVENT_FALLING_ASH_DAMAGE, 10000);
-                events.ScheduleEvent(EVENT_FALLING_CHECK, 1000);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                switch (events.ExecuteEvent())
-                {
-                    events.Update(diff);
-
-                    case EVENT_FALLING_ASH_DAMAGE:
-                    {
-                        if (Creature* kardris = me->FindNearestCreature(BOSS_WAVEBINDER_KARDRIS, 500.0f, true))
-                        {
-                            if (me->GetPositionZ() <= kardris->GetPositionZ())
-                            {
-                                DoCast(me, SPELL_FALLING_ASH_EXPLOSION);
-                                me->DespawnOrUnsummon(1);
-                            }
-                        }
-                        
-                        break;
-                    }
-
-                    case EVENT_FALLING_CHECK:
-                    {
-                        if (Creature* kardris = me->FindNearestCreature(BOSS_WAVEBINDER_KARDRIS, 500.0f, true))
-                        {
-                            if (me->GetPositionZ() > kardris->GetPositionZ())
-                            {
-                                float posX = kardris->GetPositionX();
-                                float posY = kardris->GetPositionY();
-                                float O = kardris->GetOrientation();
-                                float posZ = kardris->GetPositionZ();
-
-                                Position pos = { urand(posX - 15, posX + 15), urand(posY - 15, posY + 15), posZ, O };
-                                me->GetMotionMaster()->MoveLand(1, pos);
-                            }
-                        }
-
-                        events.ScheduleEvent(EVENT_FALLING_CHECK, 1000);
-                        break;
-                    }
-
-                    default:
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_falling_ashAI(creature);
-        }
-};
-*/
 // 71827 - Ash Elemental
 class npc_ash_elemental : public CreatureScript
 {
