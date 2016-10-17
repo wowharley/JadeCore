@@ -123,7 +123,7 @@ set(scripts_STAT_SRCS
   Pandaria/Raids/SiegeOfOrgrimmar/boss_TheFallenProtectors.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_Thok.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_GarroshHellscream.cpp
-  Pandaria/Raids/SiegeOfOrgrimmar/instance_SiegeOfOrgrimmar.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/instance_siege_of_orgrimmar.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/siege_of_orgrimmar.h
 
   # Timeless Island
