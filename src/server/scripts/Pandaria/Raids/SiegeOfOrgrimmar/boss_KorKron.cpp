@@ -434,7 +434,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                     DespawnCreaturesInArea(Creatures[i], me);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -806,7 +806,7 @@ class boss_wavebinder_kardris : public CreatureScript
                     DespawnCreaturesInArea(Creatures[i], me);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -1011,7 +1011,7 @@ class npc_toxic_storm : public CreatureScript
                 me->setFaction(16);
                 me->SetInCombatWithZone();
                 me->SetSpeed(MOVE_RUN, 0.05f, true);
-				me->DespawnOrUnsummon(100000000000);
+				me->DespawnOrUnsummon(1000000000);
                 events.Reset();
                 me->CastSpell(me, SPELL_TOXIC_STORM_VISUAL);
             }
@@ -1046,7 +1046,7 @@ class npc_toxic_tornado : public CreatureScript
                 me->setFaction(16);
                 me->SetInCombatWithZone();
                 me->SetSpeed(MOVE_RUN, 0.05f, true);
-				me->DespawnOrUnsummon(100000000000);
+				me->DespawnOrUnsummon(1000000000);
                 events.Reset();
                 me->CastSpell(me, SPELL_TOXIC_TORNADO_VISUAL);
             }
@@ -1174,7 +1174,7 @@ class npc_ash_elemental : public CreatureScript
                 me->setFaction(16);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
                 DoMeleeAttackIfReady();
@@ -1227,7 +1227,7 @@ class npc_foul_slime : public CreatureScript
                 DoCast(me, SPELL_FOULNESS);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
                 DoMeleeAttackIfReady();
@@ -1280,7 +1280,7 @@ class npc_darkfang_and_bloodclaw : public CreatureScript
                 events.ScheduleEvent(EVENT_REND, urand(5000, 10000));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
