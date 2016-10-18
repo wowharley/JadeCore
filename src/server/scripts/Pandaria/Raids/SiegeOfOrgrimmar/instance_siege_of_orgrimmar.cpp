@@ -212,7 +212,7 @@ class instance_SiegeOfOrgrimmar : public InstanceMapScript
                 }*/
             }
             
-            uint64 GetData64(uint32 type)
+            uint64 GetData64(uint32 type) const
             {
                 switch (type)
                 {
