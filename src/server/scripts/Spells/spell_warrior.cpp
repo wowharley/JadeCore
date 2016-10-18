@@ -591,14 +591,14 @@ class spell_warr_mocking_banner : public SpellScriptLoader
 
 // Called by the proc of Enrage - 12880
 // Raging Blow (allow to use it) - 131116
-class spell_warr_raging_blow : public SpellScriptLoader
+class spell_warr_raging_blow_proc : public SpellScriptLoader
 {
     public:
-        spell_warr_raging_blow() : SpellScriptLoader("spell_warr_raging_blow") { }
+        spell_warr_raging_blow_proc() : SpellScriptLoader("spell_warr_raging_blow_proc") { }
 
-        class spell_warr_raging_blow_SpellScript : public SpellScript
+        class spell_warr_raging_blow_proc_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_raging_blow_SpellScript);
+            PrepareSpellScript(spell_warr_raging_blow_proc_SpellScript);
 
             void HandleOnHit()
             {
@@ -609,14 +609,51 @@ class spell_warr_raging_blow : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_raging_blow_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_warr_raging_blow_proc_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_warr_raging_blow_SpellScript();
+            return new spell_warr_raging_blow_proc_SpellScript();
         }
+};
+
+// Called by Raging Blow - 85288
+class spell_warr_raging_blow : public SpellScriptLoader
+{
+	public:
+		spell_warr_raging_blow() : SpellScriptLoader("spell_warr_raging_blow") { }
+
+		class spell_warr_raging_blow_SpellScript : public SpellScript
+		{
+			PrepareSpellScript(spell_warr_raging_blow_SpellScript);
+
+			void HandleOnHit()
+			{
+				if (Unit* caster = GetCaster())
+					if (caster->HasAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+						if (Aura* ragingBlow = caster->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+						{
+							uint8 stacks = ragingBlow->GetStackAmount();
+
+							if (stacks < 2)
+								caster->RemoveAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW);
+							else
+								ragingBlow->SetStackAmount(stacks - 1);
+						}
+			}
+
+			void Register()
+			{
+				OnHit += SpellHitFn(spell_warr_raging_blow_SpellScript::HandleOnHit);
+			}
+		};
+
+		SpellScript* GetSpellScript() const
+		{
+			return new spell_warr_raging_blow_SpellScript();
+		}
 };
 
 // Called by Devastate - 20243
@@ -1217,7 +1254,8 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sudden_death();
     new spell_warr_berzerker_rage();
     new spell_warr_mocking_banner();
-    new spell_warr_raging_blow();
+    new spell_warr_raging_blow_proc();
+	new spell_warr_raging_blow();
     new spell_warr_sword_and_board();
     new spell_warr_mortal_strike();
     new spell_warr_rallying_cry();
