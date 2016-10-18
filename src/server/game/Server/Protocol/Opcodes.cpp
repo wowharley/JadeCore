@@ -164,6 +164,7 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_GOSSIP_SELECT_OPTION,                      0x0748, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGossipSelectOptionOpcode     ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_GROUP_ASSISTANT_LEADER,                    0x1897, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupAssistantLeaderOpcode   ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_GROUP_DISBAND,                             0x1798, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupDisbandOpcode           ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_GROUP_INITIATE_ROLE_POLL,                  0x1882, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInitiatePollRole        ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_GROUP_INVITE,                              0x072D, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_GROUP_INVITE_RESPONSE,                     0x0D61, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteResponseOpcode    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_GROUP_RAID_CONVERT,                        0x032C, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupRaidConvertOpcode       ); // 5.4.8 18414
@@ -774,6 +775,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_GROUP_DESTROYED,                         0x1B27, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GROUP_INVITE,                            0x0A8F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GROUP_LIST,                              0x0CBB, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_GROUP_ROLE_POLL_INFORM,                  0x1007, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GROUP_SET_LEADER,                        0x18BF, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GROUP_SET_ROLE,                          0x1E1F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_GUILD_ACHIEVEMENT_DATA,                  0x0EF8, STATUS_NEVER    ); // 5.4.8 18414
