@@ -1,3 +1,6 @@
+-- Fix Errors.
+-- By Bodeguero for JadeCore.
+
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN
 (-501992,
  -501991,

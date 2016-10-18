@@ -1,3 +1,6 @@
+-- Fix Errors.
+-- By Bodeguero for JadeCore.
+
 SET @LN_ENTRY = 61837;
 SET @SAR_ENTRY = 42216;
 SET @MMCB_ENTRY = 197;

@@ -1,3 +1,6 @@
+-- Fix Errors.
+-- By Bodeguero for JadeCore.
+
 SET @A_ENTRY = 50372;
 SET @DGT_ENTRY = 50373;
 SET @RD_ENTRY = 50374;

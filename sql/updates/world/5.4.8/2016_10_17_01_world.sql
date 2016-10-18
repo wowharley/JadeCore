@@ -1,3 +1,6 @@
+-- Update Smart Scripts
+-- By Bodeguero for JadeCore.
+
 -- Actionlist SAI
 SET @ENTRY := 2398190;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=9;

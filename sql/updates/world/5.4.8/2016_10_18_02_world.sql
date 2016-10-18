@@ -1,3 +1,6 @@
+-- Fix Errors.
+-- By Bodeguero for JadeCore.
+
 SET @BP_ENTRY = 951;
 SET @SI_ENTRY = 49869;
 

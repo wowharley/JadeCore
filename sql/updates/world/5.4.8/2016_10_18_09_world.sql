@@ -1,3 +1,6 @@
+-- Fix Errors.
+-- By Bodeguero for JadeCore.
+
 SET @UM_ENTRY = 1568;
 SET @RR_ENTRY = 50414;
 SET @D1_ENTRY = 49141;
@@ -11,7 +14,7 @@ SET @C_D_ENTRY = 49128;
 SET @C_D_GUID = 204125;
 
 UPDATE `creature_template` SET `AIName`="", `scriptname`="npc_undertaker_mordo" WHERE `entry`=@UM_ENTRY;
-UPDATE `creature_template` SET `AIName`="",`equipment_id`=@D1_ENTRY,`ScriptName`="npc_darnell_script_1" WHERE `entry`=@D1_ENTRY;
+UPDATE `creature_template` SET `AIName`="", `scriptname`="npc_darnell_script_1" WHERE `entry`=@D1_ENTRY;
 UPDATE `creature_template` SET `AIName`="", `scriptname`="npc_marshal_redpath", `gossip_menu_id`=12485 WHERE `entry`=@MR_ENTRY;
 UPDATE `creature_template` SET `AIName`="", `scriptname`="npc_lilian_voss" WHERE `entry`=@LV_ENTRY;
 UPDATE `creature_template` SET `AIName`="", `scriptname`="npc_valdred_moray", `gossip_menu_id`=12488 WHERE `entry`=@VM_ENTRY;
