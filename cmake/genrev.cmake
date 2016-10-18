@@ -19,19 +19,21 @@
 # This is done EACH compile so they can be alerted about the consequences.
 
 if(NOT BUILDDIR)
-  # Workaround for funny MSVC behaviour - this segment is only used when using cmake gui
+  # Workaround for funny MSVC behaviour - this segment only run during compile
+  set(NO_GIT ${WITHOUT_GIT})
+  set(GIT_EXEC ${GIT_EXECUTABLE})
   set(BUILDDIR ${CMAKE_BINARY_DIR})
 endif()
 
-if(WITHOUT_GIT)
+if(NO_GIT)
   set(rev_date "1970-01-01 00:00:00 +0000")
   set(rev_hash "unknown")
   set(rev_branch "Archived")
 else()
-  if(GIT_EXECUTABLE)
+  if(GIT_EXEC)
     # Create a revision-string that we can use
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" describe --long --match stable --dirty=+ --abbrev=12
+      COMMAND "${GIT_EXEC}" describe --match init --dirty=+ --abbrev=12 --always
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_info
       OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -40,24 +42,24 @@ else()
 
     # And grab the commits timestamp
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
+      COMMAND "${GIT_EXEC}" show -s --format=%ci
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_date
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
-
+    
     # Also retrieve branch name
     execute_process(
-      COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
+      COMMAND "${GIT_EXEC}" rev-parse --abbrev-ref HEAD
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_branch
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
-    endif()
+  endif()
 
-    # Last minute check - ensure that we have a proper revision
+  # Last minute check - ensure that we have a proper revision
   # If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
   if(NOT rev_info)
     # No valid ways available to find/set the revision/hash, so let's force some defaults
@@ -71,11 +73,10 @@ else()
     # Extract information required to build a proper versionstring
     string(REGEX REPLACE init-|[0-9]+-g "" rev_hash ${rev_info})
   endif()
-  endif()
-
+endif()
 
 # Create the actual revision.h file from the above params
-if(NOT "${rev_hash_cached}" MATCHES "${rev_hash}" OR NOT "${rev_branch_cached}" MATCHES "${rev_branch}" OR NOT EXISTS "${BUILDDIR}/revision.h")
+if(NOT "${rev_hash_cached}" MATCHES "${rev_hash}" OR NOT "${rev_branch_cached}" MATCHES "${rev_branch}")
   configure_file(
     "${CMAKE_SOURCE_DIR}/revision.h.in.cmake"
     "${BUILDDIR}/revision.h"
