@@ -39,7 +39,7 @@ install:
   - mysql -uroot -e 'create database test_mysql;'
   - mkdir bin
   - cd bin
-  - cmake ../ -DSCRIPTS=1 -DTOOLS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=check_install
+  - cmake ../ -DSCRIPTS=1 -DTOOLS=1
   - cd ..
 
 script:
@@ -53,5 +53,4 @@ script:
   - cat sql/updates/world/5.4.8/*.sql | mysql -ujadecore -pjadecore world
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
-  - make -j 8 -k && make install
-  - cd check_install/bin
+  - make -j 8
