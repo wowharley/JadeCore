@@ -5,12 +5,13 @@ Source Server         : JadeCore_5.x.x
 Source Server Version : 50624
 Source Host           : 127.0.0.1:3306
 Source Database       : world5481
+Source Database       : world548
 
 Target Server Type    : MYSQL
 Target Server Version : 50624
 File Encoding         : 65001
 
-Date: 2016-10-10 01:13:18
+Date: 2016-10-18 16:17:32
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -324,7 +325,7 @@ PRIMARY KEY (`guid`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Creature System'
-AUTO_INCREMENT=409866
+AUTO_INCREMENT=999486
 
 ;
 
@@ -398,6 +399,40 @@ CREATE TABLE `creature_formations` (
 `point_1`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `point_2`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 PRIMARY KEY (`memberGUID`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `creature_involvedrelation`
+-- ----------------------------
+DROP TABLE IF EXISTS `creature_involvedrelation`;
+CREATE TABLE `creature_involvedrelation` (
+`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Identifier' ,
+`quest`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest Identifier' ,
+PRIMARY KEY (`id`, `quest`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+COMMENT='Creature System'
+
+;
+
+-- ----------------------------
+-- Table structure for `creature_loot_currency`
+-- ----------------------------
+DROP TABLE IF EXISTS `creature_loot_currency`;
+CREATE TABLE `creature_loot_currency` (
+`creature_id`  mediumint(8) UNSIGNED NOT NULL ,
+`CurrencyId1`  smallint(5) UNSIGNED NULL DEFAULT 0 ,
+`CurrencyId2`  smallint(5) UNSIGNED NULL DEFAULT 0 ,
+`CurrencyId3`  smallint(5) UNSIGNED NULL DEFAULT 0 ,
+`CurrencyCount1`  int(10) NULL DEFAULT 0 ,
+`CurrencyCount2`  int(10) NULL DEFAULT 0 ,
+`CurrencyCount3`  int(10) NULL DEFAULT 0 ,
+PRIMARY KEY (`creature_id`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -1092,7 +1127,7 @@ PRIMARY KEY (`id`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Tele Command'
-AUTO_INCREMENT=2022
+AUTO_INCREMENT=2021
 
 ;
 
@@ -1153,7 +1188,7 @@ PRIMARY KEY (`guid`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Gameobject System'
-AUTO_INCREMENT=211617
+AUTO_INCREMENT=215856
 
 ;
 
@@ -1199,6 +1234,27 @@ CREATE TABLE `gameobject_queststarter` (
 `id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
 `quest`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest Identifier' ,
 PRIMARY KEY (`id`, `quest`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `gameobject_scripts`
+-- ----------------------------
+DROP TABLE IF EXISTS `gameobject_scripts`;
+CREATE TABLE `gameobject_scripts` (
+`id`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`delay`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`command`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`datalong`  mediumint(8) UNSIGNED NOT NULL DEFAULT 0 ,
+`datalong2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`dataint`  int(11) NOT NULL DEFAULT 0 ,
+`x`  float NOT NULL DEFAULT 0 ,
+`y`  float NOT NULL DEFAULT 0 ,
+`z`  float NOT NULL DEFAULT 0 ,
+`o`  float NOT NULL DEFAULT 0 
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
@@ -1271,55 +1327,6 @@ COMMENT='Gameobject System'
 ;
 
 -- ----------------------------
--- Table structure for `gmi_logs`
--- ----------------------------
-DROP TABLE IF EXISTS `gmi_logs`;
-CREATE TABLE `gmi_logs` (
-`id`  int(11) NOT NULL AUTO_INCREMENT ,
-`theme_id`  int(11) NOT NULL DEFAULT 0 ,
-`date`  int(11) NOT NULL ,
-PRIMARY KEY (`id`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-AUTO_INCREMENT=57
-
-;
-
--- ----------------------------
--- Table structure for `gmi_templates`
--- ----------------------------
-DROP TABLE IF EXISTS `gmi_templates`;
-CREATE TABLE `gmi_templates` (
-`id`  int(11) NOT NULL ,
-`entry`  int(11) NOT NULL ,
-`pos_x`  double NOT NULL ,
-`pos_y`  double NOT NULL ,
-`pos_z`  double NOT NULL ,
-`pos_o`  double NOT NULL 
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-
-;
-
--- ----------------------------
--- Table structure for `gmi_themes`
--- ----------------------------
-DROP TABLE IF EXISTS `gmi_themes`;
-CREATE TABLE `gmi_themes` (
-`id`  int(11) NOT NULL AUTO_INCREMENT ,
-`name`  varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
-`available`  tinyint(4) NOT NULL DEFAULT 1 ,
-PRIMARY KEY (`id`)
-)
-ENGINE=InnoDB
-DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
-AUTO_INCREMENT=5
-
-;
-
--- ----------------------------
 -- Table structure for `gossip_menu`
 -- ----------------------------
 DROP TABLE IF EXISTS `gossip_menu`;
@@ -1368,6 +1375,59 @@ PRIMARY KEY (`Id`)
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 COMMENT='Orientations used by graveyards'
+
+;
+
+-- ----------------------------
+-- Table structure for `guild_challenge_reward`
+-- ----------------------------
+DROP TABLE IF EXISTS `guild_challenge_reward`;
+CREATE TABLE `guild_challenge_reward` (
+`Type`  int(10) UNSIGNED NULL DEFAULT NULL ,
+`Experience`  int(10) UNSIGNED NULL DEFAULT NULL ,
+`Gold`  int(10) UNSIGNED NULL DEFAULT NULL ,
+`Gold2`  int(10) UNSIGNED NULL DEFAULT NULL ,
+`Count`  int(10) UNSIGNED NULL DEFAULT NULL 
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `guild_finder_applicant`
+-- ----------------------------
+DROP TABLE IF EXISTS `guild_finder_applicant`;
+CREATE TABLE `guild_finder_applicant` (
+`guildId`  int(10) UNSIGNED NULL DEFAULT NULL ,
+`playerGuid`  int(10) UNSIGNED NULL DEFAULT NULL ,
+`availability`  tinyint(3) UNSIGNED NULL DEFAULT 0 ,
+`classRole`  tinyint(3) UNSIGNED NULL DEFAULT 0 ,
+`interests`  tinyint(3) UNSIGNED NULL DEFAULT 0 ,
+`comment`  varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
+`submitTime`  int(10) UNSIGNED NULL DEFAULT NULL 
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
+
+;
+
+-- ----------------------------
+-- Table structure for `guild_finder_guild_settings`
+-- ----------------------------
+DROP TABLE IF EXISTS `guild_finder_guild_settings`;
+CREATE TABLE `guild_finder_guild_settings` (
+`guildId`  int(10) UNSIGNED NOT NULL ,
+`availability`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`classRoles`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`interests`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`level`  tinyint(3) UNSIGNED NOT NULL DEFAULT 1 ,
+`listed`  tinyint(3) UNSIGNED NOT NULL DEFAULT 0 ,
+`comment`  varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
+PRIMARY KEY (`guildId`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=latin1 COLLATE=latin1_swedish_ci
 
 ;
 
@@ -2943,6 +3003,28 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 -- ----------------------------
+-- Table structure for `players_reports_status`
+-- ----------------------------
+DROP TABLE IF EXISTS `players_reports_status`;
+CREATE TABLE `players_reports_status` (
+`guid`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`creation_time`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
+`average`  float NOT NULL DEFAULT 0 ,
+`total_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
+`speed_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
+`fly_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
+`jump_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
+`waterwalk_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
+`teleportplane_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
+`climb_reports`  bigint(20) UNSIGNED NOT NULL DEFAULT 0 ,
+PRIMARY KEY (`guid`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
 -- Table structure for `points_of_interest`
 -- ----------------------------
 DROP TABLE IF EXISTS `points_of_interest`;
@@ -4208,7 +4290,7 @@ CREATE INDEX `idx_id` ON `creature`(`id`) USING BTREE ;
 -- ----------------------------
 -- Auto increment value for `creature`
 -- ----------------------------
-ALTER TABLE `creature` AUTO_INCREMENT=409866;
+ALTER TABLE `creature` AUTO_INCREMENT=999486;
 
 -- ----------------------------
 -- Indexes structure for table creature_template
@@ -4250,12 +4332,12 @@ CREATE INDEX `idx_quest` ON `game_event_seasonal_questrelation`(`questId`) USING
 -- ----------------------------
 -- Auto increment value for `game_tele`
 -- ----------------------------
-ALTER TABLE `game_tele` AUTO_INCREMENT=2022;
+ALTER TABLE `game_tele` AUTO_INCREMENT=2021;
 
 -- ----------------------------
 -- Auto increment value for `gameobject`
 -- ----------------------------
-ALTER TABLE `gameobject` AUTO_INCREMENT=211617;
+ALTER TABLE `gameobject` AUTO_INCREMENT=215856;
 
 -- ----------------------------
 -- Indexes structure for table gameobject_template
@@ -4263,14 +4345,9 @@ ALTER TABLE `gameobject` AUTO_INCREMENT=211617;
 CREATE INDEX `idx_name` ON `gameobject_template`(`name`) USING BTREE ;
 
 -- ----------------------------
--- Auto increment value for `gmi_logs`
+-- Indexes structure for table guild_finder_applicant
 -- ----------------------------
-ALTER TABLE `gmi_logs` AUTO_INCREMENT=57;
-
--- ----------------------------
--- Auto increment value for `gmi_themes`
--- ----------------------------
-ALTER TABLE `gmi_themes` AUTO_INCREMENT=5;
+CREATE UNIQUE INDEX `guildId` ON `guild_finder_applicant`(`guildId`, `playerGuid`) USING BTREE ;
 
 -- ----------------------------
 -- Indexes structure for table item_template
