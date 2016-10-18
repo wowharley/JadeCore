@@ -261,7 +261,7 @@ class spell_warr_storm_bolt : public SpellScriptLoader
 
                             // Make sure storm bolt actually hit first, since this spell is in two parts, one part could miss
                             if (unitTarget->HasAura(WARRIOR_SPELL_STORM_BOLT_STUN))
-                             _player->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_DAMAGE);
+                                _player->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_DAMAGE);
                         }
                     }
                 }
@@ -493,7 +493,7 @@ class spell_warr_sudden_death : public SpellScriptLoader
               if (Player* _player = GetCaster()->ToPlayer())
                 {
 			         	if (_player->HasSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH))
-                                _player->RemoveSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH, true);
+                            _player->RemoveSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH, true);
                 }
             }
 
