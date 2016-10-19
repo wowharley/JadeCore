@@ -1290,6 +1290,54 @@ class spell_warr_single_minded_furry : public SpellScriptLoader
         }
 };
 
+// Wild Strike - 100130
+class spell_warr_wild_strike : public SpellScriptLoader
+{
+    public:
+		spell_warr_wild_strike() : SpellScriptLoader("spell_warr_wild_strike") { }
+
+        class spell_warr_wild_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_wild_strike_SpellScript);
+
+			SpellCastResult CheckCast()
+			{
+				bool check = false;
+
+				if (Player* owner = GetCaster()->ToPlayer())
+				{
+					if (Item *offhand = owner->GetWeaponForAttack(OFF_ATTACK, true)) // if have offhand
+					{
+						uint8 getSubclass = offhand->GetTemplate()->SubClass;
+						if (offhand->GetTemplate() 
+							&& getSubclass == ITEM_SUBCLASS_WEAPON_AXE2 
+							|| getSubclass == ITEM_SUBCLASS_WEAPON_MACE2
+							|| getSubclass == ITEM_SUBCLASS_WEAPON_SWORD2 
+							|| getSubclass == ITEM_SUBCLASS_WEAPON_EXOTIC2) // if offhand is two-handed weapon
+						{
+							check = true;
+						}
+					}
+				}
+
+				if (check == true)
+					return SPELL_CAST_OK;
+				else
+					return SPELL_FAILED_DONT_REPORT;
+			}
+
+            void Register()
+            {
+				OnCheckCast += SpellCheckCastFn(spell_warr_wild_strike_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_wild_strike_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_victorious_state();
