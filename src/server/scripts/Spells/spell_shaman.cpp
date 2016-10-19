@@ -953,6 +953,7 @@ class spell_sha_fire_nova : public SpellScriptLoader
                     }
                 }
             }
+
             SpellCastResult HandleCheckCast()
             {
                 UnitList targets;

@@ -1373,4 +1373,5 @@ void AddSC_warrior_spell_scripts()
 	new spell_warr_safeguard();
     new spell_warr_glyph_of_burning_anger();
 	new spell_warr_single_minded_furry();
+	new spell_warr_wild_strike();
 }
