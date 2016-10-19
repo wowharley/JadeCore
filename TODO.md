@@ -103,6 +103,7 @@ ________________________________________________________________________________
 - Implement Anti-DDOS/Flood System
 - Implement AntiCheat System
 - Implement HOTFIX feature
+- Implement AH-Bot
 - Character Boost 90 lvl
 
 ## Opcodes:
