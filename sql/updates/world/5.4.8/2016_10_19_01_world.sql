@@ -1,4 +1,4 @@
--- Single-Minded Fury
+-- Wild Strike
 DELETE FROM `spell_script_names` WHERE `spell_id` = 100130;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warr_wild_strike';
 
