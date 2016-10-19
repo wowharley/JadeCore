@@ -66,9 +66,9 @@ enum WarriorSpells
     WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED        = 132404,
     WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
     WARRIOR_SPELL_SLUGGISH                      = 129923,
-	WARRIOR_SPELL_SAFEGUARD						= 114029,
-	WARRIOR_SPELL_GLYPH_OF_GAG_ORDER			= 58357,
-	WARRIOR_SPELL_GAG_ORDER						= 18498,
+    WARRIOR_SPELL_SAFEGUARD                     = 114029,
+    WARRIOR_SPELL_GLYPH_OF_GAG_ORDER            = 58357,
+    WARRIOR_SPELL_GAG_ORDER                     = 18498,
     WARRIOR_SPELL_IMPENDING_VICTORY             = 103840,
     WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS         = 133277,
     WARRIOR_SPELL_HEROIC_LEAP_SPEED             = 133278,
@@ -1356,7 +1356,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_berzerker_rage();
     new spell_warr_mocking_banner();
     new spell_warr_raging_blow_proc();
-	new spell_warr_raging_blow();
+    new spell_warr_raging_blow();
     new spell_warr_sword_and_board();
     new spell_warr_mortal_strike();
     new spell_warr_rallying_cry();
@@ -1370,8 +1370,8 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_thunder_clap();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
-	new spell_warr_safeguard();
+    new spell_warr_safeguard();
     new spell_warr_glyph_of_burning_anger();
-	new spell_warr_single_minded_furry();
-	new spell_warr_wild_strike();
+    new spell_warr_single_minded_furry();
+    new spell_warr_wild_strike();
 }
