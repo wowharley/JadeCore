@@ -60,7 +60,7 @@ Read file [COPYING](COPYING)
 
 This project is brought to you thanks to:
 
-![ach_1beegt5k](https://cloud.githubusercontent.com/assets/812439/19450520/7a72241a-94b2-11e6-9aa9-29146cced515.jpg)
+![ach_gtpkuqsv](https://cloud.githubusercontent.com/assets/812439/19532995/a1ceed0a-9646-11e6-9b76-e83e15e9493c.jpg)
 
 - [JadeCore developers and contributors](https://github.com/JadeEmu/JadeCore/graphs/contributors)
 - [TrinityCore developers and contributors](https://github.com/TrinityCore/TrinityCore/blob/3.3.5/THANKS)
