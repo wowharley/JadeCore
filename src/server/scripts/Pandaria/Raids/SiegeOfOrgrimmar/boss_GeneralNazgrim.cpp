@@ -71,7 +71,7 @@ enum eSpells
 
 enum Enum
 {
-    GCD_CAST         = 1,
+    GLOBAL_COOLDOWN = 1,
 };
 
 enum Say
@@ -149,6 +149,7 @@ Position pos[3] =
 	{ 1560, -4634, -67, 0 },
 	{ 1560, -4622, -66, 5 },
 };
+
 void AddRage(Unit* me,uint32 p_BaseValue, uint64 nazgrimGuid)
 {
     if (nazgrimGuid == NULL)
@@ -1289,8 +1290,8 @@ class mob_korkron_warshaman : public CreatureScript
                         if (Unit* target = DoSelectLowestHpFriendly(50.0f))
                             DoCast(target, SPELL_EARTH_SHIELD);
 
-                        events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(10000, 15000), GCD_CAST);
-                        events.DelayEvents(2000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(10000, 15000), GLOBAL_COOLDOWN);
+                        events.DelayEvents(2000, GLOBAL_COOLDOWN);
                         break;
                     }
 
@@ -1299,8 +1300,8 @@ class mob_korkron_warshaman : public CreatureScript
                         if (Unit* target = DoSelectLowestHpFriendly(50.0f))
                             DoCast(target, SPELL_EMPOWERED_CHAIN_HEAL);
 
-                        events.ScheduleEvent(EVENT_CHAIN_HEAL, urand(6000, 9000), GCD_CAST);
-                        events.DelayEvents(2000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_CHAIN_HEAL, urand(6000, 9000), GLOBAL_COOLDOWN);
+                        events.DelayEvents(2000, GLOBAL_COOLDOWN);
                         break;
                     }
 
@@ -1308,8 +1309,8 @@ class mob_korkron_warshaman : public CreatureScript
                     {
                         DoCast(me,SPELL_HEALING_TIDE_TOTEM);
 
-                        events.ScheduleEvent(EVENT_HEALING_TIDE_TOTEM, urand(18500, 20500), GCD_CAST);
-                        events.DelayEvents(2000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_HEALING_TIDE_TOTEM, urand(18500, 20500), GLOBAL_COOLDOWN);
+                        events.DelayEvents(2000, GLOBAL_COOLDOWN);
                         break;
                     }
                 }
