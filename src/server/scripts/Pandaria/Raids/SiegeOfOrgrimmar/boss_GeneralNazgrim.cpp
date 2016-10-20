@@ -87,44 +87,51 @@ enum Say
 enum eEvents
 {
     EVENT_BATTLE_STANCE      = 1,
-    EVENT_BERSERKER_STANCE   = 2,
-    EVENT_DEFFENSIVE_STANCE  = 3,
-    EVENT_DAMAGE_TAKEN       = 4,
+	EVENT_BERSERKER_STANCE   = 2,
+	EVENT_DEFFENSIVE_STANCE  = 3,
+	EVENT_DAMAGE_TAKEN       = 4,
 
-    // Rage Abilities
-    EVENT_HEROIC_SHOCKWAVE   = 5,
-    EVENT_KORKRON_BANNER     = 6,
-    EVENT_WAR_SONG           = 7,
-    EVENT_RAVAGER            = 8,
-    EVENT_AFTERSHOCK         = 9,
+	// Rage Abilities
+	EVENT_HEROIC_SHOCKWAVE   = 5,
+	EVENT_KORKRON_BANNER     = 6,
+	EVENT_WAR_SONG           = 7,
+	EVENT_RAVAGER            = 8,
+	EVENT_AFTERSHOCK         = 9,
 
-    EVENT_SUMMON_ADDS_ONE    = 10,
-    EVENT_SUMMON_ADDS_TWO    = 11,
-    EVENT_SUNDERING_BLOW     = 12,
-    EVENT_BONECRACKER        = 13,
+	EVENT_SUMMON_ADDS_ONE    = 10,
+	EVENT_SUNDERING_BLOW     = 11,
+	EVENT_BONECRACKER        = 12,
 
-    EVENT_BATTLE_STANCE_RAGE = 14,
-    EVENT_HEROIC_SHOCKWAVE_J = 15,
+	EVENT_BATTLE_STANCE_RAGE = 13,
+	EVENT_HEROIC_SHOCKWAVE_J = 14,
 
-    EVENT_IRONSTORM          = 16,
-    EVENT_LAST_STAND         = 17,
+	EVENT_IRONSTORM          = 15,
+	EVENT_LAST_STAND         = 16,
 
-    EVENT_ARCANE_SHOCK       = 18,
-    EVENT_MAGISTRIKE         = 19,
-    EVENT_UNSTABLE_BLINK     = 20,
-    
-    EVENT_BACKSTAB           = 21,
-    EVENT_ASSASSINS_MARK     = 22,
+	EVENT_ARCANE_SHOCK       = 17,
+	EVENT_MAGISTRIKE         = 18,
+	EVENT_UNSTABLE_BLINK     = 19,
+	
+	EVENT_BACKSTAB           = 20,
+	EVENT_ASSASSINS_MARK     = 21,
 
-    EVENT_EARTH_SHIELD       = 23,
-    EVENT_CHAIN_HEAL         = 24,
-    EVENT_HEALING_TIDE_TOTEM = 25,
+	EVENT_EARTH_SHIELD       = 22,
+	EVENT_CHAIN_HEAL         = 23,
+	EVENT_HEALING_TIDE_TOTEM = 24,
 
-    EVENT_EXECUTE            = 26,
+	EVENT_EXECUTE            = 25,
 
-    EVENT_HUNTERS_MARK       = 27,
-    EVENT_SHOOT              = 28,
-    EVENT_MULTI_SHOT         = 29,
+	EVENT_HUNTERS_MARK       = 26,
+	EVENT_SHOOT              = 27,
+	EVENT_MULTI_SHOT         = 28,
+
+	EVENT_CREATURE_CHECK     = 29,
+	EVENT_SUMMON_ADD_IRO_ASS = 30, // Summon Ironblade and Assassins
+	EVENT_SUMMON_ADD_ASS_WAR = 31, // Summon Assassins and Warshaman
+	EVENT_SUMMON_ADD_IRO_ARC = 32, // Summon Ironblade and Arcweaver
+	EVENT_SUMMON_ADD_ARC_ASS = 33, // Summon Arcweaver and Assassins
+	EVENT_SUMMON_ADD_IRO_WAR = 34, // Summon Ironblade and Warshaman
+	EVENT_SUMMON_ADD_ARC_WAR = 35, // Summon Arcweaver and Warshaman
 };
 
 enum eCreatures
@@ -136,10 +143,12 @@ enum eCreatures
     CREATURE_KORKRON_SNIPERS    = 71656,
 };
 
-enum eSays
+Position pos[3] =
 {
+	{ 1568, -4646, -66, 0 },
+	{ 1560, -4634, -67, 0 },
+	{ 1560, -4622, -66, 5 },
 };
-
 void AddRage(Unit* me,uint32 p_BaseValue, uint64 nazgrimGuid)
 {
     if (nazgrimGuid == NULL)
@@ -169,90 +178,90 @@ void RemoveRage(Unit* me, uint32 p_BaseValue, uint64 nazgrimGuid)
 // 71515 - General Nazgrim
 class boss_general_nazgrim : public CreatureScript
 {
-    public:
-        boss_general_nazgrim() : CreatureScript("boss_general_nazgrim") { }
+	public:
+		boss_general_nazgrim() : CreatureScript("boss_general_nazgrim") { }
 
-        struct boss_general_nazgrimAI : public BossAI
-        {
-            boss_general_nazgrimAI(Creature* creature) : BossAI(creature, DATA_GENERAL_NAZGRIM)
-            {
-                pInstance = creature->GetInstanceScript();
-            }
-            
-            InstanceScript* pInstance;
-            TeamId TeamIdInInstance;
-            
-            void Reset() override
-            {
-                _Reset();
-                
-                events.Reset();
-                
-                summons.DespawnAll();
-                
-                if (pInstance)
+		struct boss_general_nazgrimAI : public BossAI
+		{
+			boss_general_nazgrimAI(Creature* creature) : BossAI(creature, DATA_GENERAL_NAZGRIM)
+			{
+				pInstance = creature->GetInstanceScript();
+			}
+			
+			InstanceScript* pInstance;
+			TeamId TeamIdInInstance;
+			
+			void Reset() override
+			{
+				_Reset();
+				
+				events.Reset();
+				
+				summons.DespawnAll();
+				
+				if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                me->setFaction(16);
-                
-                //damage
-                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+				me->setFaction(16);
+				
+				//damage
+				const CreatureTemplate* cinfo = me->GetCreatureTemplate();
 
-                switch (me->GetMap()->GetDifficulty())
-                {
-                    case RAID_DIFFICULTY_10MAN_NORMAL:
-                        me->SetMaxHealth(349523325);
-                        me->SetHealth(349523325);
-                        break;
-                    case RAID_DIFFICULTY_10MAN_HEROIC:
-                        me->SetMaxHealth(523325523);
-                        me->SetHealth(523325523);
-                        if (cinfo)
-                        {
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.8 * cinfo->mindmg);
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.8 * cinfo->maxdmg);
-                            me->UpdateDamagePhysical(BASE_ATTACK);
-                        }
-                        break;
-                    case RAID_DIFFICULTY_25MAN_NORMAL:
-                        me->SetMaxHealth(976523325);
-                        me->SetHealth(976523325);
-                        if (cinfo)
-                        {
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * cinfo->mindmg);
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * cinfo->maxdmg);
-                            me->UpdateDamagePhysical(BASE_ATTACK);
-                        }
-                        break;
-                    case RAID_DIFFICULTY_25MAN_HEROIC:
-                        me->SetMaxHealth(1523325523);
-                        me->SetHealth(1523325523);
-                        if (cinfo)
-                        {
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2.5 * cinfo->mindmg);
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2.5 * cinfo->maxdmg);
-                            me->UpdateDamagePhysical(BASE_ATTACK);
-                        }
-                        break;
-                }
+				switch (me->GetMap()->GetDifficulty())
+				{
+					case RAID_DIFFICULTY_10MAN_NORMAL:
+						me->SetMaxHealth(349523325);
+						me->SetHealth(349523325);
+						break;
+					case RAID_DIFFICULTY_10MAN_HEROIC:
+						me->SetMaxHealth(523325523);
+						me->SetHealth(523325523);
+						if (cinfo)
+						{
+							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1.8 * cinfo->mindmg);
+							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1.8 * cinfo->maxdmg);
+							me->UpdateDamagePhysical(BASE_ATTACK);
+						}
+						break;
+					case RAID_DIFFICULTY_25MAN_NORMAL:
+						me->SetMaxHealth(976523325);
+						me->SetHealth(976523325);
+						if (cinfo)
+						{
+							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * cinfo->mindmg);
+							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * cinfo->maxdmg);
+							me->UpdateDamagePhysical(BASE_ATTACK);
+						}
+						break;
+					case RAID_DIFFICULTY_25MAN_HEROIC:
+						me->SetMaxHealth(1523325523);
+						me->SetHealth(1523325523);
+						if (cinfo)
+						{
+							me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2.5 * cinfo->mindmg);
+							me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2.5 * cinfo->maxdmg);
+							me->UpdateDamagePhysical(BASE_ATTACK);
+						}
+						break;
+				}
 
-                me->SetPower(POWER_RAGE, 0);
-                me->SetInt32Value(UNIT_FIELD_POWER, 0);
-                me->SetMaxPower(POWER_RAGE, 1000);
-                me->SetInt32Value(UNIT_FIELD_MAX_POWER, 1000);
-            }
-            
-            void JustReachedHome()
+				me->SetPower(POWER_RAGE, 0);
+				me->SetInt32Value(UNIT_FIELD_POWER, 0);
+				me->SetMaxPower(POWER_RAGE, 1000);
+				me->SetInt32Value(UNIT_FIELD_MAX_POWER, 1000);
+			}
+			
+			void JustReachedHome()
             {
                 _JustReachedHome();
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_GENERAL_NAZGRIM, FAIL);
             }
-            
-            void EnterCombat(Unit* attacker)
+			
+			void EnterCombat(Unit* attacker)
             {
-                _EnterCombat();
+				_EnterCombat();
 
                 if (pInstance)
                 {
@@ -260,24 +269,25 @@ class boss_general_nazgrim : public CreatureScript
                     pInstance->SetBossState(DATA_GENERAL_NAZGRIM, IN_PROGRESS);
                 }
 
-                events.ScheduleEvent(EVENT_BATTLE_STANCE, 0);
-                events.ScheduleEvent(EVENT_SUMMON_ADDS_ONE, 45000);
-                events.ScheduleEvent(EVENT_SUNDERING_BLOW, 10000);
-                events.ScheduleEvent(EVENT_BONECRACKER, 30000);
+				events.ScheduleEvent(EVENT_BATTLE_STANCE, 0);
+				events.ScheduleEvent(EVENT_SUMMON_ADDS_ONE, 45000);
+				events.ScheduleEvent(EVENT_SUNDERING_BLOW, 10000);
+				events.ScheduleEvent(EVENT_BONECRACKER, 30000);
 
-                if (me->GetMap()->IsHeroic())
-                    events.ScheduleEvent(EVENT_EXECUTE, 15000);
-                if (TeamIdInInstance == TEAM_ALLIANCE)
-                {
-                    Talk(SAY_AGGRO);
-                }
-                else
-                {
-                    Talk(SAY_AGGRO_HORDE);
-                }
+				if (me->GetMap()->IsHeroic())
+					events.ScheduleEvent(EVENT_EXECUTE, 15000);
+
+				if (TeamIdInInstance == TEAM_ALLIANCE)
+				{
+					Talk(SAY_AGGRO);
+				}
+				else
+				{
+					Talk(SAY_AGGRO_HORDE);
+				}
             }
-            
-            void JustSummoned(Creature* summon)
+			
+			void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
@@ -286,13 +296,13 @@ class boss_general_nazgrim : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-            
-            void KilledUnit(Unit* who)
+			
+			void KilledUnit(Unit* who)
             {
-                Talk(SAY_KILL);
+				Talk(SAY_KILL);
             }
-            
-            void JustDied(Unit* killer)
+			
+			void JustDied(Unit* killer)
             {
                 _JustDied();
 
@@ -302,25 +312,25 @@ class boss_general_nazgrim : public CreatureScript
                     pInstance->SetBossState(DATA_GENERAL_NAZGRIM, DONE);
                 }
 
-                if (TeamIdInInstance == TEAM_ALLIANCE)
-                {
-                    Talk(SAY_DEATH);
-                }
-                else
-                {
-                    Talk(SAY_DEATH_HORDE);
-                }
+				if (TeamIdInInstance == TEAM_ALLIANCE)
+				{
+					Talk(SAY_DEATH);
+				}
+				else
+				{
+					Talk(SAY_DEATH_HORDE);
+				}
             }
-            
-            void DamageTaken(Unit* attacker, uint32& damage)
-            {
-                if (me->HasAura(SPELL_DEFENSIVE_STANCE) && attacker->HasAura(SPELL_SUNDERING_BLOW))
-                    return;
-                else if (me->HasAura(SPELL_DEFENSIVE_STANCE) && !attacker->HasAura(SPELL_SUNDERING_BLOW))
-                    events.ScheduleEvent(EVENT_DAMAGE_TAKEN, 1000); // Made it as event because rage gain can occur only once per second
-            }
+			
+			void DamageTaken(Unit* attacker, uint32& damage)
+			{
+				if (me->HasAura(SPELL_DEFENSIVE_STANCE) && attacker->HasAura(SPELL_SUNDERING_BLOW))
+					return;
+				else if (me->HasAura(SPELL_DEFENSIVE_STANCE) && !attacker->HasAura(SPELL_SUNDERING_BLOW))
+					events.ScheduleEvent(EVENT_DAMAGE_TAKEN, 1000); // Made it as event because rage gain can occur only once per second
+			}
 
-            void UpdateAI(uint32 diff) override
+			void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -329,280 +339,401 @@ class boss_general_nazgrim : public CreatureScript
                     return;
 
                 events.Update(diff);
-                uint32 RageAmount = me->GetPower(Powers(POWER_RAGE));
+				uint32 RageAmount = me->GetPower(Powers(POWER_RAGE));
 
-                if (RageAmount <= 490 && RageAmount >= 300)
-                {
-                    if (me->HasAura(SPELL_COOLING_OFF))
-                    {
+				if (RageAmount <= 490 && RageAmount >= 300)
+				{
+					if (me->HasAura(SPELL_COOLING_OFF))
+					{
 
-                    }
-                    else
-                    {
-                        events.ScheduleEvent(EVENT_HEROIC_SHOCKWAVE_J, 0);
-                    }
-                }
+					}
+					else
+					{
+						events.ScheduleEvent(EVENT_HEROIC_SHOCKWAVE_J, 0);
+					}
+				}
 
-                if (RageAmount <= 690 && RageAmount >= 500)
-                {
-                    if (me->HasAura(SPELL_COOLING_OFF))
-                    {
+				if (RageAmount <= 690 && RageAmount >= 500)
+				{
+					if (me->HasAura(SPELL_COOLING_OFF))
+					{
 
-                    }
-                    else
-                    {
-                        events.ScheduleEvent(EVENT_KORKRON_BANNER, 0);
-                    }
-                }
+					}
+					else
+					{
+						events.ScheduleEvent(EVENT_KORKRON_BANNER, 0);
+					}
+				}
 
-                if (RageAmount <= 990 && RageAmount >= 700)
-                {
-                    if (me->HasAura(SPELL_COOLING_OFF))
-                    {
+				if (RageAmount <= 990 && RageAmount >= 700)
+				{
+					if (me->HasAura(SPELL_COOLING_OFF))
+					{
 
-                    }
-                    else
-                    {
-                        events.ScheduleEvent(EVENT_WAR_SONG, 0);
-                    }
-                }
+					}
+					else
+					{
+						events.ScheduleEvent(EVENT_WAR_SONG, 0);
+					}
+				}
 
-                if (RageAmount == 1000)
-                {
-                    if (me->HasAura(SPELL_COOLING_OFF))
-                    {
+				if (RageAmount == 1000)
+				{
+					if (me->HasAura(SPELL_COOLING_OFF))
+					{
 
-                    }
-                    else
-                    {
-                        events.ScheduleEvent(EVENT_RAVAGER, 0);
-                    }
-                }
+					}
+					else
+					{
+						events.ScheduleEvent(EVENT_RAVAGER, 0);
+					}
+				}
 
-                switch (events.ExecuteEvent())
-                {
-                    case EVENT_BATTLE_STANCE:
-                    {
-                        if (me->HasAura(SPELL_DEFENSIVE_STANCE))
-                            me->RemoveAura(SPELL_DEFENSIVE_STANCE);
+				switch (events.ExecuteEvent())
+				{
+					case EVENT_BATTLE_STANCE:
+					{
+						if (me->HasAura(SPELL_DEFENSIVE_STANCE))
+							me->RemoveAura(SPELL_DEFENSIVE_STANCE);
 
-                        DoCast(me, SPELL_BATTLE_STANCE);
-                        events.ScheduleEvent(EVENT_BATTLE_STANCE_RAGE, 1000);
-                        events.ScheduleEvent(EVENT_BERSERKER_STANCE, 60000);
-                        break;
-                    }
+						DoCast(me, SPELL_BATTLE_STANCE);
+						events.ScheduleEvent(EVENT_BATTLE_STANCE_RAGE, 1000);
+						events.ScheduleEvent(EVENT_BERSERKER_STANCE, 60000);
+						break;
+					}
 
-                    case EVENT_BATTLE_STANCE_RAGE:
-                    {
-                        if (me->HasAura(SPELL_BATTLE_STANCE))
-                        {
-                            AddRage(me, 10, me->GetGUID());
-                            events.ScheduleEvent(EVENT_BATTLE_STANCE_RAGE, 1000);
-                        }
+					case EVENT_BATTLE_STANCE_RAGE:
+					{
+						if (me->HasAura(SPELL_BATTLE_STANCE))
+						{
+							AddRage(me, 10, me->GetGUID());
+							events.ScheduleEvent(EVENT_BATTLE_STANCE_RAGE, 1000);
+						}
 
-                        break;
-                    }
+						break;
+					}
 
-                    case EVENT_BERSERKER_STANCE:
-                    {
-                        DoCast(me, SPELL_BERSERKER_STANCE);
-                        events.ScheduleEvent(EVENT_DEFFENSIVE_STANCE, 60000);
-                        break;
-                    }
+					case EVENT_BERSERKER_STANCE:
+					{
+						DoCast(me, SPELL_BERSERKER_STANCE);
+						events.ScheduleEvent(EVENT_DEFFENSIVE_STANCE, 60000);
+						break;
+					}
 
-                    case EVENT_DEFFENSIVE_STANCE:
-                    {
-                        DoCast(me, SPELL_DEFENSIVE_STANCE);
-                        events.ScheduleEvent(EVENT_BATTLE_STANCE, 60000);
-                        break;
-                    }
+					case EVENT_DEFFENSIVE_STANCE:
+					{
+						DoCast(me, SPELL_DEFENSIVE_STANCE);
+						events.ScheduleEvent(EVENT_BATTLE_STANCE, 60000);
+						break;
+					}
 
-                    case EVENT_DAMAGE_TAKEN:
-                    {
-                        if (me->HasAura(SPELL_DEFENSIVE_STANCE))
-                            AddRage(me, 50, me->GetGUID());
+					case EVENT_DAMAGE_TAKEN:
+					{
+						if (me->HasAura(SPELL_DEFENSIVE_STANCE))
+							AddRage(me, 50, me->GetGUID());
 
-                        break;
-                    }
+						break;
+					}
 
-                    case EVENT_HEROIC_SHOCKWAVE_J: // Hackfix for jump...
-                    {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
-                        {
-                            float posX = target->GetPositionX();
-                            float posY = target->GetPositionY();
-                            float posZ = target->GetPositionZ();
-                            float posO = target->GetOrientation();
-                            me->GetMotionMaster()->MoveJump(posX, posY, posZ, 30.0f, 15.0f);
-                        }
+					case EVENT_HEROIC_SHOCKWAVE_J: // Hackfix for jump...
+					{
+						if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+						{
+							float posX = target->GetPositionX();
+							float posY = target->GetPositionY();
+							float posZ = target->GetPositionZ();
+							float posO = target->GetOrientation();
+							me->GetMotionMaster()->MoveJump(posX, posY, posZ, 30.0f, 15.0f);
+						}
 
-                        events.ScheduleEvent(EVENT_HEROIC_SHOCKWAVE, 1000);
-                        RemoveRage(me, 300, me->GetGUID());
-                        break;
-                    }
+						events.ScheduleEvent(EVENT_HEROIC_SHOCKWAVE, 1000);
+						RemoveRage(me, 300, me->GetGUID());
+						break;
+					}
 
-                    case EVENT_HEROIC_SHOCKWAVE:
-                    {
-                        if (me->HasAura(SPELL_COOLING_OFF))
-                            return;
+					case EVENT_HEROIC_SHOCKWAVE:
+					{
+						if (me->HasAura(SPELL_COOLING_OFF))
+							return;
 
-                        DoCast(me, SPELL_HEROIC_SHOCKWAVE);
-                        DoCast(me, SPELL_COOLING_OFF);
+						DoCast(me, SPELL_HEROIC_SHOCKWAVE);
+						DoCast(me, SPELL_COOLING_OFF);
 
-                        break;
-                    }
+						break;
+					}
 
-                    case EVENT_KORKRON_BANNER:
-                    {
-                        if (me->HasAura(SPELL_COOLING_OFF))
-                            return;
+					case EVENT_KORKRON_BANNER:
+					{
+						if (me->HasAura(SPELL_COOLING_OFF))
+							return;
 
-                        DoCast(SPELL_KORKRON_BANNER);
-                        DoCast(me, SPELL_COOLING_OFF);
-                        RemoveRage(me, 500, me->GetGUID());
-                        
-                        break;
-                    }
+						DoCast(SPELL_KORKRON_BANNER);
+						DoCast(me, SPELL_COOLING_OFF);
+						RemoveRage(me, 500, me->GetGUID());
+						
+						break;
+					}
 
-                    case EVENT_WAR_SONG:
-                    {
-                        if (me->HasAura(SPELL_COOLING_OFF))
-                            return;
+					case EVENT_WAR_SONG:
+					{
+						if (me->HasAura(SPELL_COOLING_OFF))
+							return;
 
-                        DoCast(SPELL_WAR_SONG);
-                        me->AddAura(SPELL_COOLING_OFF, me);
-                        RemoveRage(me, 700, me->GetGUID());
+						DoCast(SPELL_WAR_SONG);
+						me->AddAura(SPELL_COOLING_OFF, me);
+						RemoveRage(me, 700, me->GetGUID());
 
-                        break;
-                    }
+						break;
+					}
 
-                    case EVENT_RAVAGER:
-                    {
-                        if (me->HasAura(SPELL_COOLING_OFF))
-                            return;
+					case EVENT_RAVAGER:
+					{
+						if (me->HasAura(SPELL_COOLING_OFF))
+							return;
 
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
-                        {
-                            DoCast(target, SPELL_RAVAGER);
-                        }
+						if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+						{
+							DoCast(target, SPELL_RAVAGER);
+						}
 
-                        me->AddAura(SPELL_COOLING_OFF, me);
-                        RemoveRage(me, 1000, me->GetGUID());
-                        break;
-                    }
+						me->AddAura(SPELL_COOLING_OFF, me);
+						RemoveRage(me, 1000, me->GetGUID());
+						break;
+					}
 
-                    case EVENT_SUMMON_ADDS_ONE:
-                    {
-                        float posX = me->GetPositionX();
-                        float posY = me->GetPositionY();
-                        float posZ = me->GetPositionZ();
-                        float posO = me->GetOrientation();
+					case EVENT_SUMMON_ADDS_ONE:
+					{
+						int randomCreature = urand(1, 6);
 
-                        if (!me->GetMap()->IsHeroic())
-                        {
-                            Position pos[2] =
-                            {
-                                { 1568, -4646, -66, 0},
-                                { 1560, -4634, -67, 0},
-                            };
+						switch (randomCreature)
+						{
+							case 1: // Ironblade and Assassins - Done
+							{
+								me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+								me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+							}
 
-                            me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
-                            me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
-                        }
+							case 2: // Ironblade and Arcweaver - Done
+							{
+								me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+								me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+							}
 
-                        if (me->GetMap()->IsHeroic())
-                        {
-                            Position pos[3] =
-                            {
-                                { 1568, -4646, -66, 0 },
-                                { 1560, -4634, -67, 0 },
-                                { 1560, -4622, -66, 5},
-                            };
+							case 3: // Ironblade and Warshaman - Done
+							{
+								me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+								me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+							}
 
-                            me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
-                            me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
-                            me->SummonCreature(CREATURE_KORKRON_SNIPERS  , pos[2], TEMPSUMMON_MANUAL_DESPAWN);
-                        }
+							case 4: // Assassis and Arcweaver - Done
+							{
+								me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+								me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+							}
 
-                        Talk(SAY_SUMMON);
-                        events.ScheduleEvent(EVENT_SUMMON_ADDS_TWO, 45000);
-                        break;
-                    }
+							case 5: // Assassin and Warshaman - Done
+							{
+								me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+								me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+							}
 
-                    case EVENT_SUMMON_ADDS_TWO:
-                    {
-                        float posX = me->GetPositionX();
-                        float posY = me->GetPositionY();
-                        float posZ = me->GetPositionZ();
-                        float posO = me->GetOrientation();
+							case 6: // Arcweaver and Warshaman - Done
+							{
+								me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+								me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+							}
+						}
 
-                        if (!me->GetMap()->IsHeroic())
-                        {
-                            Position pos[2] =
-                            {
-                                { 1568, -4646, -66, 0 },
-                                { 1560, -4634, -67, 0 },
-                            };
+						if (me->GetMap()->IsHeroic())
+							me->SummonCreature(CREATURE_KORKRON_SNIPERS, pos[2], TEMPSUMMON_MANUAL_DESPAWN);
 
-                            me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
-                            me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
-                        }
+						Talk(SAY_SUMMON);
+						events.ScheduleEvent(EVENT_CREATURE_CHECK, 5000);
+						break;
+					}
 
-                        if (me->GetMap()->IsHeroic())
-                        {
-                            Position pos[3] =
-                            {
-                                { 1568, -4646, -66, 0 },
-                                { 1560, -4634, -67, 0 },
-                                { 1560, -4622, -66, 5 },
-                            };
+					case EVENT_CREATURE_CHECK:
+					{
+						// Check for Kor'kron Ironblade
+						std::list<Creature*> summonList;
+						me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_IRONBLADE, 50.0f);
+						if (!summonList.empty())
+						{
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_ASSASSINS, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_ARC_WAR, 40000);
+							}
 
-                            me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
-                            me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
-                            me->SummonCreature(CREATURE_KORKRON_SNIPERS  , pos[2], TEMPSUMMON_MANUAL_DESPAWN);
-                        }
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_ARCWEAVER, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_ASS_WAR, 40000);
+							}
 
-                        Talk(SAY_SUMMON);
-                        events.ScheduleEvent(EVENT_SUMMON_ADDS_ONE, 45000);
-                        break;
-                    }
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_WARSHAMAN, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_ARC_ASS, 40000);
+							}
+						}
 
-                    case EVENT_SUNDERING_BLOW:
-                    {
-                        DoCastVictim(SPELL_SUNDERING_BLOW);
+						// Check for Kor'kron Assassin
+						me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_ASSASSINS, 50.0f);
+						if (!summonList.empty())
+						{
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_IRONBLADE, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_IRO_ASS, 40000);
+							}
 
-                        events.ScheduleEvent(EVENT_SUNDERING_BLOW, urand(5000, 10000));
-                        break;
-                    }
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_ARCWEAVER, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_ARC_ASS, 40000);
+							}
 
-                    case EVENT_BONECRACKER:
-                    {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
-                        {
-                            DoCast(target, SPELL_BONECRACKER);
-                        }
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_WARSHAMAN, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_ASS_WAR, 40000);
+							}
+						}
 
-                        events.ScheduleEvent(EVENT_BONECRACKER, 30000);
-                        break;
-                    }
+						// Check for Kor'kron Arcweaver
+						me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_ARCWEAVER, 50.0f);
+						if (!summonList.empty())
+						{
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_IRONBLADE, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_IRO_ARC, 40000);
+							}
 
-                    case EVENT_EXECUTE:
-                    {
-                        DoCastVictim(SPELL_EXECUTE);
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_ASSASSINS, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_ARC_ASS, 40000);
+							}
 
-                        events.ScheduleEvent(EVENT_EXECUTE, 15000);
-                        break;
-                    }
-                }
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_WARSHAMAN, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_ARC_WAR, 40000);
+							}
+						}
 
-                DoMeleeAttackIfReady();
-            }
-        };
+						// Check for Kor'kron Warshaman
+						me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_WARSHAMAN, 50.0f);
+						if (!summonList.empty())
+						{
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_IRONBLADE, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_IRO_WAR, 40000);
+							}
+
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_ASSASSINS, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_ASS_WAR, 40000);
+							}
+
+							me->GetCreatureListWithEntryInGrid(summonList, CREATURE_KORKRON_ARCWEAVER, 50.0f);
+							if (!summonList.empty())
+							{
+								events.ScheduleEvent(EVENT_SUMMON_ADD_ARC_WAR, 40000);
+							}
+						}
+					}
+
+					case EVENT_SUMMON_ADD_ARC_WAR:
+					{
+						me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+						me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+
+						Talk(SAY_SUMMON);
+						events.ScheduleEvent(EVENT_SUMMON_ADD_IRO_ASS, 45000);
+						break;
+					}
+
+					case EVENT_SUMMON_ADD_IRO_ASS:
+					{
+						me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+						me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+
+						Talk(SAY_SUMMON);
+						events.ScheduleEvent(EVENT_SUMMON_ADD_ARC_WAR, 45000);
+						break;
+					}
+
+					case EVENT_SUMMON_ADD_ASS_WAR:
+					{
+						me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+						me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+
+						Talk(SAY_SUMMON);
+						events.ScheduleEvent(EVENT_SUMMON_ADD_IRO_ARC, 45000);
+						break;
+					}
+
+					case EVENT_SUMMON_ADD_IRO_ARC:
+					{
+						me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+						me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+
+						Talk(SAY_SUMMON);
+						events.ScheduleEvent(EVENT_SUMMON_ADD_ASS_WAR, 45000);
+						break;
+					}
+
+					case EVENT_SUMMON_ADD_ARC_ASS:
+					{
+						me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
+						me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+
+						Talk(SAY_SUMMON);
+						events.ScheduleEvent(EVENT_SUMMON_ADD_IRO_WAR, 45000);
+						break;
+					}
+
+					case EVENT_SUNDERING_BLOW:
+					{
+						DoCastVictim(SPELL_SUNDERING_BLOW);
+
+						events.ScheduleEvent(EVENT_SUNDERING_BLOW, urand(5000, 10000));
+						break;
+					}
+
+					case EVENT_BONECRACKER:
+					{
+						if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+						{
+							DoCast(target, SPELL_BONECRACKER);
+						}
+
+						events.ScheduleEvent(EVENT_BONECRACKER, 30000);
+						break;
+					}
+
+					case EVENT_EXECUTE:
+					{
+						DoCastVictim(SPELL_EXECUTE);
+
+						events.ScheduleEvent(EVENT_EXECUTE, 15000);
+						break;
+					}
+				}
+
+				DoMeleeAttackIfReady();
+			}
+		};
 
         CreatureAI* GetAI(Creature* pCreature) const
-        {
-            return new boss_general_nazgrimAI(pCreature);
-        }
+		{
+			return new boss_general_nazgrimAI(pCreature);
+		}
 };
 
 // Done
