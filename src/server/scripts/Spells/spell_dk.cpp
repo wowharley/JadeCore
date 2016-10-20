@@ -84,10 +84,10 @@ enum DeathKnightSpells
     DK_SPELL_GEIST_FORM                         = 121916,
     DK_SPELL_SOUL_REAPER_BUFF                   = 114868,
     DK_SPELL_ANTIMAGIC_SHELL_SELF               = 48707,
-	DK_GLYPH_OF_REGENERATIVE_MAGIC              = 146648,
-	SPELL_DK_DANCING_RUNE_WEAPON                = 49028,
-	SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
-	SPELL_DK_DEATH_COIL_HEAL                    = 47633,
+    DK_GLYPH_OF_REGENERATIVE_MAGIC              = 146648,
+    SPELL_DK_DANCING_RUNE_WEAPON                = 49028,
+    SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
+    SPELL_DK_DEATH_COIL_HEAL                    = 47633,
 
 };
 
@@ -2420,7 +2420,7 @@ void AddSC_deathknight_spell_scripts()
 //  new spell_dk_glyph_of_the_geist();
     new spell_dk_presences();
     new spell_dk_conversion_heal_aura();
-	new spell_dk_dancing_rune_weapon();
-	new spell_dk_dancing_rune_weapon_visual();
+    new spell_dk_dancing_rune_weapon();
+    new spell_dk_dancing_rune_weapon_visual();
     new spell_dk_shadow_infusion();
 }
