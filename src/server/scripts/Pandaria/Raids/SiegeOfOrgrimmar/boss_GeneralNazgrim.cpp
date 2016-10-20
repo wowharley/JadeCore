@@ -511,36 +511,42 @@ class boss_general_nazgrim : public CreatureScript
 							{
 								me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
 								me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+								break;
 							}
 
 							case 2: // Ironblade and Arcweaver - Done
 							{
 								me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
 								me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+								break;
 							}
 
 							case 3: // Ironblade and Warshaman - Done
 							{
 								me->SummonCreature(CREATURE_KORKRON_IRONBLADE, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
 								me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+								break;
 							}
 
 							case 4: // Assassis and Arcweaver - Done
 							{
 								me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
 								me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+								break;
 							}
 
 							case 5: // Assassin and Warshaman - Done
 							{
 								me->SummonCreature(CREATURE_KORKRON_ASSASSINS, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
 								me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+								break;
 							}
 
 							case 6: // Arcweaver and Warshaman - Done
 							{
 								me->SummonCreature(CREATURE_KORKRON_ARCWEAVER, pos[0], TEMPSUMMON_MANUAL_DESPAWN);
 								me->SummonCreature(CREATURE_KORKRON_WARSHAMAN, pos[1], TEMPSUMMON_MANUAL_DESPAWN);
+								break;
 							}
 						}
 
@@ -646,6 +652,8 @@ class boss_general_nazgrim : public CreatureScript
 								events.ScheduleEvent(EVENT_SUMMON_ADD_ARC_WAR, 40000);
 							}
 						}
+
+						break;
 					}
 
 					case EVENT_SUMMON_ADD_ARC_WAR:
