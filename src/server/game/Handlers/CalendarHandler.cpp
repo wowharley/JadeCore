@@ -215,20 +215,55 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     std::string title;
     std::string description;
     uint8 type;
-    uint8 repeatable;
-    uint32 maxInvites;
     int32 dungeonId;
     uint32 eventPackedTime;
-    uint32 unkPackedTime;
+    uint32 maxInvites;  // always 100, necesary? Not find the way how to change it
     uint32 flags;
+    uint32 inviteeCount;
+    uint16 descriptionLength, titleLength;
 
-    recvData >> title >> description >> type >> repeatable >> maxInvites >> dungeonId;
+    recvData >> maxInvites >> flags >> dungeonId;
     recvData.ReadPackedTime(eventPackedTime);
-    recvData.ReadPackedTime(unkPackedTime);
-    recvData >> flags;
+    recvData >> type;
+    inviteeCount = recvData.ReadBits(22);
+    descriptionLength = recvData.ReadBits(11);
+
+    std::list<CalendarInvitePacketInfo> calendarInviteList;
+    for (uint32 i = 0; i < inviteeCount; i++)
+    {
+        CalendarInvitePacketInfo info;
+        info.Guid[7] = recvData.ReadBit();
+        info.Guid[2] = recvData.ReadBit();
+        info.Guid[6] = recvData.ReadBit();
+        info.Guid[3] = recvData.ReadBit();
+        info.Guid[5] = recvData.ReadBit();
+        info.Guid[1] = recvData.ReadBit();
+        info.Guid[0] = recvData.ReadBit();
+        info.Guid[4] = recvData.ReadBit();
+        calendarInviteList.push_back(info);
+    }
+
+    titleLength = recvData.ReadBits(8);
+
+    for (std::list<CalendarInvitePacketInfo>::iterator iter = calendarInviteList.begin(); iter != calendarInviteList.end(); ++iter)
+    {
+        recvData.ReadByteSeq(iter->Guid[4]);
+        recvData.ReadByteSeq(iter->Guid[2]);
+        recvData.ReadByteSeq(iter->Guid[3]);
+        recvData.ReadByteSeq(iter->Guid[1]);
+        recvData.ReadByteSeq(iter->Guid[0]);
+        recvData.ReadByteSeq(iter->Guid[6]);
+        recvData.ReadByteSeq(iter->Guid[7]);
+        recvData >> iter->Status;
+        recvData.ReadByteSeq(iter->Guid[5]);
+        recvData >> iter->ModerationRank;
+    }
+
+    title = recvData.ReadString(titleLength);
+    description = recvData.ReadString(descriptionLength);
 
     CalendarEvent* calendarEvent = new CalendarEvent(sCalendarMgr->GetFreeEventId(), guid, 0, CalendarEventType(type), dungeonId,
-        time_t(eventPackedTime), flags, time_t(unkPackedTime), title, description);
+         time_t(eventPackedTime), flags, title, description);
 
     if (calendarEvent->IsGuildEvent() || calendarEvent->IsGuildAnnouncement())
         if (Player* creator = ObjectAccessor::FindPlayer(guid))
@@ -236,9 +271,8 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 
     if (calendarEvent->IsGuildAnnouncement())
     {
-        // 946684800 is 01/01/2000 00:00:00 - default response time
-        CalendarInvite* invite = new CalendarInvite(0, calendarEvent->GetEventId(), 0, guid, 946684800, CALENDAR_STATUS_NOT_SIGNED_UP, CALENDAR_RANK_PLAYER, "");
-        sCalendarMgr->AddInvite(calendarEvent, invite);
+         CalendarInvite* invite = new CalendarInvite(0, calendarEvent->GetEventId(), 0, guid, 946684800, CALENDAR_STATUS_NOT_SIGNED_UP, CALENDAR_RANK_PLAYER, "");
+         sCalendarMgr->AddInvite(calendarEvent, invite);
     }
     else
     {
@@ -253,7 +287,6 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
             recvData.readPackGUID(invitee);
             recvData >> status >> rank;
 
-            // 946684800 is 01/01/2000 00:00:00 - default response time
             CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent->GetEventId(), invitee, guid, 946684800, CalendarInviteStatus(status), CalendarModerationRank(rank), "");
             sCalendarMgr->AddInvite(calendarEvent, invite);
         }
@@ -298,7 +331,6 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
         calendarEvent->SetType(CalendarEventType(type));
         calendarEvent->SetFlags(flags);
         calendarEvent->SetEventTime(time_t(eventPackedTime));
-        calendarEvent->SetTimeZoneTime(time_t(timeZoneTime)); // Not sure, seems constant from the little sniffs we have
         calendarEvent->SetDungeonId(dungeonId);
         calendarEvent->SetTitle(title);
         calendarEvent->SetDescription(description);

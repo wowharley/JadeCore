@@ -115,7 +115,9 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_BUY_BANK_SLOT,                             0x12F2, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBuyBankSlotOpcode            ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_BUY_ITEM,                                  0x02E2, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBuyItemOpcode                ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_BUYBACK_ITEM,                              0x0661, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBuybackItem                  ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_ADD_EVENT,                        0x0A37, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarAddEvent             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_COMPLAIN,                         0x1F8F, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarComplain             ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GET_CALENDAR,                     0x1F9F, STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGetCalendar           );
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_AURA,                               0x1861, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelAuraOpcode             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_AUTO_REPEAT_SPELL,                  0x1272, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelAutoRepeatSpellOpcode  ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TEMP_ENCHANTMENT,                   0x024B, STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTempEnchantmentOpcode  ); // 5.4.8 18414
@@ -429,7 +431,6 @@ void OpcodeTable::InitializeClientTable()
 
     // Most not completed
 
-    DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_ADD_EVENT,                        0x0A37, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarAddEvent             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_EVENT_INVITE,                     0x1D8E, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarEventInvite          ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_SAVE,                        0x0669, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetSave             ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(CMSG_EQUIPMENT_SET_USE,                         0x036E, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetUse              ); // 5.4.8 18414
@@ -491,7 +492,6 @@ void OpcodeTable::InitializeClientTable()
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_EVENT_RSVP,                       0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarEventRsvp            );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_EVENT_SIGNUP,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarEventSignup          );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_EVENT_STATUS,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarEventStatus          );
-    DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GET_CALENDAR,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGetCalendar          );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GET_EVENT,                        0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGetEvent             );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GET_NUM_PENDING,                  0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGetNumPending        );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GUILD_FILTER,                     0x0000, STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGuildFilter          );
@@ -716,6 +716,7 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_BREAK_TARGET,                            0x021A, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_BUY_FAILED,                              0x1563, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_BUY_ITEM,                                0x101A, STATUS_NEVER    ); // 5.4.8 18414
+    DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_SEND_EVENT,                     0x12AE, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_SEND_NUM_PENDING,               0x0A3F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CANCEL_AUTO_REPEAT,                      0x1E0F, STATUS_NEVER    ); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CANCEL_COMBAT,                           0x0534, STATUS_NEVER    ); // 5.4.8 18414
@@ -1139,7 +1140,6 @@ void OpcodeTable::InitializeServerTable()
     DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_RAID_LOCKOUT_REMOVED,           0x11E0, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_RAID_LOCKOUT_UPDATED,           0x0E1F, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_SEND_CALENDAR,                  0x1A0A, STATUS_UNHANDLED); // 5.4.8 18414
-    DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_SEND_EVENT,                     0x12AE, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CAMERA_SHAKE,                            0x0C3A, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CAN_DUEL_RESULT,                         0x083F, STATUS_UNHANDLED); // 5.4.8 18414
     DEFINE_OPCODE_HANDLER(SMSG_CANCEL_ORPHAN_SPELL_VISUAL,              0x1412, STATUS_UNHANDLED); // 5.4.8 18414
