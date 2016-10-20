@@ -271,7 +271,6 @@ CREATE TABLE `calendar_events` (
 `dungeon`  int(10) NOT NULL DEFAULT '-1' ,
 `eventtime`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 `flags`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
-`time2`  int(10) UNSIGNED NOT NULL DEFAULT 0 ,
 PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB
