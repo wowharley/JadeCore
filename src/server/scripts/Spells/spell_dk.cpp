@@ -409,6 +409,41 @@ class spell_dk_dark_transformation_form : public SpellScriptLoader
         }
 };
 
+// Shadow Infusion - 91342
+class spell_dk_shadow_infusion : public SpellScriptLoader
+{
+    public:
+        spell_dk_shadow_infusion() : SpellScriptLoader("spell_dk_shadow_infusion") { }
+
+        class spell_dk_shadow_infusion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_shadow_infusion_AuraScript);
+
+            enum
+            {
+                SPELL_DK_DARK_TRANS_DRIVER = 93426
+            };
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
+                    return;
+
+                GetCaster()->GetCharmerOrOwnerOrSelf()->RemoveAurasDueToSpell(SPELL_DK_DARK_TRANS_DRIVER);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_shadow_infusion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_shadow_infusion_AuraScript();
+        }
+};
+
 // Desecrated ground - 118009
 class spell_dk_desecrated_ground : public SpellScriptLoader
 {
@@ -2387,4 +2422,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_conversion_heal_aura();
 	new spell_dk_dancing_rune_weapon();
 	new spell_dk_dancing_rune_weapon_visual();
+    new spell_dk_shadow_infusion();
 }
