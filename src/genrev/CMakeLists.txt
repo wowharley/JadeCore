@@ -20,3 +20,8 @@ add_custom_target(revision.h ALL
   COMMAND ${CMAKE_COMMAND} -DNO_GIT=${WITHOUT_GIT} -DGIT_EXEC=${GIT_EXECUTABLE} -DBUILDDIR=${CMAKE_BINARY_DIR} -P ${CMAKE_SOURCE_DIR}/cmake/genrev.cmake
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
+
+set_target_properties(revision.h
+    PROPERTIES
+      FOLDER
+"server")
