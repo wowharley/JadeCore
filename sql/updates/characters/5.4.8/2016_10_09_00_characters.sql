@@ -1,21 +1,6 @@
 -- Fix Table Channels
 -- By Bodeguero for JadeCore.
 
-/*
-Navicat MySQL Data Transfer
-
-Source Server         : DeathCore
-Source Server Version : 50624
-Source Host           : 127.0.0.1:3306
-Source Database       : characters548
-
-Target Server Type    : MYSQL
-Target Server Version : 50624
-File Encoding         : 65001
-
-Date: 2016-10-10 00:03:13
-*/
-
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
