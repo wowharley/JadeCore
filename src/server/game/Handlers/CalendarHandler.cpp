@@ -526,10 +526,9 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     {
         if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
         {
-            if (calendarEvent->IsGuildEvent() && calendarEvent->GetGuildId() == inviteeGuildId)
-            {
-                // we can't invite guild members to guild events
-                sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_NO_GUILD_INVITES);
+            if (calendarEvent->GetEventTime() < time(nullptr))
+			{
+                sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_EVENT_PASSED);
                 return;
             }
 
