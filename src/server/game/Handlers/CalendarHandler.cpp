@@ -526,8 +526,8 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     {
         if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
         {
-            if (calendarEvent->GetEventTime() < time(nullptr))
-			{
+			if (calendarEvent->GetEventTime() < time(NULL))
+            {
                 sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_EVENT_PASSED);
                 return;
             }
@@ -750,7 +750,13 @@ void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recvData)
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
-        if (CalendarInvite* invite = sCalendarMgr->GetInvite(inviteId))
+        if (calendarEvent->IsGuildEvent())
+        {
+            sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_NO_MODERATOR);
+            return;
+        }
+		
+		if (CalendarInvite* invite = sCalendarMgr->GetInvite(inviteId))
         {
             invite->SetRank(CalendarModerationRank(rank));
             sCalendarMgr->UpdateInvite(invite);
