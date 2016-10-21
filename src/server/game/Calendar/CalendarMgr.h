@@ -144,7 +144,7 @@ struct CalendarInvite
             _eventId = eventId;
             _invitee = calendarInvite.GetInviteeGUID();
             _senderGUID = creatorGuid;
-			_statusTime = 946684800;
+            _statusTime = 946684800;
             _status = creatorGuid == calendarInvite.GetInviteeGUID() ? CALENDAR_STATUS_CONFIRMED : CALENDAR_STATUS_INVITED;
             _rank = creatorGuid == calendarInvite.GetInviteeGUID() ? CALENDAR_RANK_OWNER : (calendarInvite.GetRank() == CALENDAR_RANK_OWNER ? CALENDAR_RANK_MODERATOR : calendarInvite.GetRank());
             _text = calendarInvite.GetText();

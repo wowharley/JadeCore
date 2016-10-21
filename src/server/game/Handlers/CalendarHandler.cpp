@@ -448,7 +448,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
 		CalendarInviteStore invites = sCalendarMgr->GetEventInvites(eventId);
 
 		for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
-             sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId(), guid));
+                sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId(), guid));
 
 		sCalendarMgr->AddEvent(newEvent, CALENDAR_SENDTYPE_COPY);
 	}
