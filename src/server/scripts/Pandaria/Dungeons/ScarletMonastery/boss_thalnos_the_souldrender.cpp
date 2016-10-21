@@ -23,12 +23,13 @@
 
 enum Texts
 {
-	TALK_AGGRO             = 0, // My endless agony shall be yours, as well!   27832
+	TALK_AGGRO             = 0, // We hunger for vengeance!                    27829
 	TALK_DEATH             = 1, // Can this be... the end, at last...?         27830
 	TALK_KILL_PLAYER       = 2, // More... More souls!                         27833
 	TALK_FALLEN_CRUSADER   = 3, // No rest...for the angry dead!               27831
 	TALK_EVICTED_SOUL      = 4, // Seek out a vessel...and return!             27834
 	TALK_EMPOWERING_SPIRIT = 5, // Claim a body, and wreak terrible vengeance! 27835
+	TALK_INTRO             = 6, // My endless agony shall be yours, as well!   27832
 };
 
 enum Spells
@@ -74,6 +75,18 @@ class boss_thalnos_the_soulrender : public CreatureScript
             }
 
 			InstanceScript* pInstance;
+			bool intro = false;
+
+			void MoveInLineOfSight(Unit* who)
+			{
+				if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsValidAttackTarget(who))
+					if (intro == false && me->IsWithinDistInMap(who, 30.0f))
+					{
+						intro = true;
+						Talk(TALK_INTRO);
+						ScriptedAI::MoveInLineOfSight(who);
+					}
+			}
 
             void Reset() override
             {
