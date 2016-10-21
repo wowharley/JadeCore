@@ -526,7 +526,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     {
         if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
         {
-			if (calendarEvent->GetEventTime() < time(NULL))
+	    if (calendarEvent->GetEventTime() < time(NULL))
             {
                 sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_EVENT_PASSED);
                 return;
