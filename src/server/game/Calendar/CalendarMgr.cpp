@@ -127,9 +127,9 @@ void CalendarMgr::AddEvent(CalendarEvent* calendarEvent, CalendarSendEventType s
     SendCalendarEvent(calendarEvent->GetCreatorGUID(), *calendarEvent, sendType);
 }
 
-void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite)
+void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, bool sendEventInvitePacket = true)
 {
-    if (!calendarEvent->IsGuildAnnouncement())
+    if (sendEventInvitePacket)
         SendCalendarEventInvite(*invite);
 
     if (!calendarEvent->IsGuildEvent() || invite->GetInviteeGUID() == calendarEvent->GetCreatorGUID())
