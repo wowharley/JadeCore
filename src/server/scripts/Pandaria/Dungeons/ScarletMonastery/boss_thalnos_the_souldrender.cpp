@@ -20,7 +20,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "scarlet_monastery.h"
-/*
+
 enum Texts
 {
 	TALK_AGGRO             = 0, // My endless agony shall be yours, as well!   27832
@@ -52,7 +52,7 @@ enum Events
 	EVENT_SUMMON_EMPOWERING_SPIRIT = 4,
 };
 
-enum Creatures
+enum eCreatures
 {
 	CREATURE_EVICTED_SOUL     = 59974,
 	CREATURE_FALLEN_CRUSADER  = 59884,
@@ -133,7 +133,10 @@ class boss_thalnos_the_soulrender : public CreatureScript
 						case EVENT_EVICT_SOUL:
 						{
 							Talk(TALK_EVICTED_SOUL);
-							DoCast(SPELL_EVICT_SOUL);
+							if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+							{
+								DoCast(target, SPELL_EVICT_SOUL);
+							}
 							events.ScheduleEvent(EVENT_EVICT_SOUL, 10000);
 							break;
 						}
@@ -148,7 +151,10 @@ class boss_thalnos_the_soulrender : public CreatureScript
 
 						case EVENT_SPIRIT_GALE:
 						{
-							DoCast(SPELL_SPIRIT_GALE);
+							if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 40.0f, true))
+							{
+								DoCast(SPELL_SPIRIT_GALE);
+							}
 							events.ScheduleEvent(EVENT_SPIRIT_GALE, 10000);
 							break;
 						}
@@ -388,7 +394,7 @@ class spell_spirit_gale : public SpellScriptLoader
 						caster->CastSpell(target, SPELL_SPIRIT_GALE_DOT);
 			}
 
-			void HandleDamage(SpellEffIndex /*effIndex)
+			void HandleDamage(SpellEffIndex /*effIndex*/)
 			{
 				if (Unit* target = GetHitUnit())
 				{
@@ -403,7 +409,7 @@ class spell_spirit_gale : public SpellScriptLoader
 
 			void Register() override
 			{
-				AfterHit += SpellHitFn(spell_spirit_gale_SpellScript::HandleAfterHit);
+				// AfterHit += SpellHitFn(spell_spirit_gale_SpellScript::HandleAfterHit);
 				OnEffectHitTarget += SpellEffectFn(spell_spirit_gale_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
 			}
 		};
@@ -424,7 +430,7 @@ class spell_spirit_gale_dot_damage : public SpellScriptLoader
 		{
 			PrepareSpellScript(spell_spirit_gale_dot_damage_SpellScript);
 
-			void HandleDamage(SpellEffIndex /*effIndex)
+			void HandleDamage(SpellEffIndex /*effIndex*/)
 			{
 				if (Unit* target = GetHitUnit())
 				{
@@ -459,7 +465,7 @@ class spell_evict_soul : public SpellScriptLoader
 		{
 			PrepareSpellScript(spell_evict_soul_SpellScript);
 
-			void HandleDamage(SpellEffIndex /*effIndex)
+			void HandleDamage(SpellEffIndex /*effIndex*/)
 			{
 				if (Unit* target = GetHitUnit())
 				{
@@ -487,7 +493,7 @@ class spell_evict_soul : public SpellScriptLoader
 		{
 			PrepareAuraScript(spell_evict_soul_AuraScript);
 
-			void OnTick(AuraEffect const* /*aurEff*)
+			void OnTick(AuraEffect const* /*aurEff*/)
 			{
 				if (Unit* caster = GetCaster())
 					if (Unit* target = GetTarget())
@@ -516,15 +522,17 @@ class spell_evict_soul : public SpellScriptLoader
 
 void AddSC_boss_thalnos_the_soulrender()
 {
+	// Boss
     new boss_thalnos_the_soulrender();
 
+	// Mobs
 	new mob_evicted_soul();
 	new mob_fallen_crusader();
 	new mob_empowered_spirit();
 	new mob_empowered_zombie();
 
+	// Spells
 	new spell_spirit_gale();
 	new spell_spirit_gale_dot_damage();
 	new spell_evict_soul();
 }
-*/
