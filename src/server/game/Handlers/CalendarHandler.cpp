@@ -443,12 +443,12 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
 
 	if (CalendarEvent* oldEvent = sCalendarMgr->GetEvent(eventId))
 	{
-		CalendarEvent* newEvent = new CalendarEvent(*oldEvent, sCalendarMgr->GetFreeEventId()), guid; // FIX ME
+		CalendarEvent* newEvent = new CalendarEvent(*oldEvent, sCalendarMgr->GetFreeEventId(), guid);
 		newEvent->SetEventTime(time_t(time));
 		CalendarInviteStore invites = sCalendarMgr->GetEventInvites(eventId);
 
 		for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
-			sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId())); // FIX ME
+             sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId(), guid));
 
 		sCalendarMgr->AddEvent(newEvent, CALENDAR_SENDTYPE_COPY);
 	}
