@@ -3780,9 +3780,9 @@ void Spell::SendSpellCooldown()
 
     // Heroic Strike and Cleave share cooldowns, prevent cheat by using macro for bypass cooldown
     if (m_spellInfo->Id == 78)
-        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(845), NULL, this);
+        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(845), 0, this);
     else if (m_spellInfo->Id == 845)
-        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(78), NULL, this);
+        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(78), 0, this);
 
     _player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : 0, this);
 }
@@ -6566,19 +6566,13 @@ SpellCastResult Spell::CheckCasterAuras() const
                                 break;
                             case SPELL_AURA_MOD_FEAR:
                             case SPELL_AURA_MOD_FEAR_2:
-                                if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_FEARED) || m_spellInfo->Id != 8143 || m_spellInfo->Id != 7744 || m_spellInfo->Id != 18499)
+                                if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_FEARED))
                                     return SPELL_FAILED_FLEEING;
                                 break;
                             case SPELL_AURA_MOD_SILENCE:
                             case SPELL_AURA_MOD_PACIFY:
                             case SPELL_AURA_MOD_PACIFY_SILENCE:
-                            // Exceptions is Berserking Rage, Tremor Totem, and Will of the Forsaken
-                            // Fist of Fury, Rising Sun Kick, Jab, Black Out Kick, Chi wave, Expel Harm
-                                if (m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY || 
-                                m_spellInfo->Id != 8143 ||   // Tremor Totem
-                                m_spellInfo->Id != 18499 ||  // Berserker Rage
-                                m_spellInfo->Id != 7744 ||   // Will of the Forsaken
-                                m_spellInfo->Id != 113656)   // Fist of Fury
+                                if (m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY) 
                                     return SPELL_FAILED_PACIFIED;
                                 else if (m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
                                     return SPELL_FAILED_SILENCED;
