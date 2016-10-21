@@ -298,9 +298,9 @@ class CalendarMgr
         CalendarInviteStore const& GetEventInvites(uint64 eventId);
         CalendarInviteStore GetPlayerInvites(uint64 guid);
 
-        void FreeEventId(uint64 id);
+        void FreeEventId(uint64);
         uint64 GetFreeEventId();
-        void FreeInviteId(uint64 id);
+        void FreeInviteId(uint64);
         uint64 GetFreeInviteId();
 
         uint32 GetPlayerNumPending(uint64 guid);
