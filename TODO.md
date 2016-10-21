@@ -1,48 +1,24 @@
-## Mists of Pandaria Instance Scripts TODO:
+﻿## Mists of Pandaria Instance Scripts TODO:
 
 1) Mogu'shan Vaults:
-- Need to rewrite instance script
+   - Need to rewrite instance
 
 2) Heart of Fear:
-- Need to rewrite instance script
-- Need to rewrite Imperial Vizier Zor'lok
-- Need to rewire Blade Lord Ta'yak
-- Need to rewrite Garalon
-- Need to rewrite Wind Lord Mel'jarak
-- Need to add script for Amber-Shaper Un'sok
-- Need to rewrite Grand Empress Shek'zeer
+   - Need to script whole instance
 
 3) Terrace of Endless Spring:
-- Need to rewrite instance script
-- Need to fix some achievements
-- Need to fix Sha of Fear heroic mode
+   - Need to script whole instance
 
 4) Throne of Thunder:
-- Need to rewrite instance script
-- Need to rewrite Council of Elders
-- Need to rewrite Tortos
-- Need to rewrite Megaera
-- Need to rewrite Durumu the Forgotten
-- Need to rewrite Primordius
-- Need to rewrite Dark Animus
-- Need to add script for Iron Qon
-- Need to add script for Twin Consorts
-- Need to add script for Lei Shen the Thunder King
-- Need to add script for Ra-den
+   - Need to script whole instance
 
 5) Siege of Orgrimmar:
-- Need to rewrite Immerseus
-- Need to rewrite Norushen
-- Need to finish Galakras script
-- Need to finish Iron Juggernaut script
-- Need to finish Malkorok script
-- Need to finish Spoils of Pandaria script
-- Need to add script for Thok the Bloodthirsty
-- Need to add script for Siegecrafter Blakcfuse
-- Need to add script for Paragons of the Klaxxi 
+   - Need to script whole instance except:
+     1. Kor'kron Dark Shamans,
+     2. General Nazgrim
 
 6) Mists of Pandaria dungeons:
-- Need to rewrite all of them
+   - Need to rewrite all of them
 
 7) "patch" SmartAI Lab sripts for Mists of Pandaria TODO:
 
