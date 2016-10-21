@@ -557,9 +557,9 @@ void CalendarMgr::SendCalendarEventInviteAlert(CalendarEvent const& calendarEven
     WorldPacket data(SMSG_CALENDAR_EVENT_INVITE_ALERT);
     data << uint64(calendarEvent.GetEventId());
     data << int32(calendarEvent.GetDungeonId());
-	data << uint8(calendarEvent.GetType());
+    data << uint8(calendarEvent.GetType());
     data << uint64(invite.GetInviteId());
-	data << uint32(calendarEvent.GetFlags());
+    data << uint32(calendarEvent.GetFlags());
     data << uint8(invite.GetStatus());
     data.AppendPackedTime(calendarEvent.GetEventTime());
     data << uint8(invite.GetRank());
@@ -636,7 +636,7 @@ void CalendarMgr::SendCalendarEvent(uint64 guid, CalendarEvent const& calendarEv
     CalendarInviteStore const& eventInviteeList = _invites[calendarEvent.GetEventId()];
 
     Guild* guild = sGuildMgr->GetGuildById(calendarEvent.GetGuildId());
-    ObjectGuid creatorGuid = guid;
+	ObjectGuid creatorGuid = calendarEvent.GetCreatorGUID();
     ObjectGuid guildGuid = guild ? guild->GetGUID() : 0;
     ByteBuffer inviteeData;
     WorldPacket data(SMSG_CALENDAR_SEND_EVENT, 60 + eventInviteeList.size() * 32);
