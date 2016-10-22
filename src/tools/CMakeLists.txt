@@ -1,6 +1,8 @@
 # Copyright (C) 2013-2016 JadeCore <https://www.jadecore.tk/>
 # Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
 # Copyright (C) 2011-2016 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+# Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -14,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
-
 
 add_subdirectory(map_extractor)
 add_subdirectory(mmaps_generator)
