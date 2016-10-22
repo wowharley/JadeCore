@@ -120,7 +120,7 @@ public:
             HasATarget = false;
         }
 		
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if(tYell <= diff)
             {
@@ -163,7 +163,7 @@ public:
             if (who->GetEntry() == NPC_STORMWIND_INFANTRY && damage >= me->GetHealth())
                 me->SetHealth(me->GetMaxHealth());
 
-            if (who->GetTypeId() == TYPEID_PLAYER || who->isPet())
+            if (who->GetTypeId() == TYPEID_PLAYER || who->IsPet())
             {
                 if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 6.0f, true))
                 {
@@ -177,7 +177,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 if (Creature* guard = me->FindNearestCreature(NPC_STORMWIND_INFANTRY, 6.0f, true))
@@ -206,7 +206,6 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_14);
-            me->SetFlag(UNIT_FIELD_BYTES_1, 7);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -216,14 +215,13 @@ public:
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_14);
-                me->RemoveFlag(UNIT_FIELD_BYTES_1, 7);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 DoAction(ACTION_HEAL);
                 owner = me->FindNearestPlayer(8.0f, true);
             }
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 action)
         {
             switch (action)
             {
@@ -233,7 +231,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -256,7 +254,7 @@ public:
                             me->MonsterSay("Bless you, hero!", 0, NULL);
                             break;
                         case 3:
-                            me->MonsterSay("You are $p! The hero that everyone has been talking about! Thank you!", 0, owner->GetGUID());
+                            me->MonsterSay("You are $p! The hero that everyone has been talking about! Thank you!", 0, owner);
                             break;
                         case 4:
                             me->MonsterSay("Thank the Light!", 0, NULL);
@@ -307,7 +305,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_REPORT_TO_GOLDSHIRE)
         {
-            creature->AI()->Talk(SAY_DISMISSED, player->GetGUID());
+            creature->AI()->Talk(SAY_DISMISSED, player);
         }
         return true;
     }
@@ -400,7 +398,7 @@ public:
 
         void AttackedBy(Unit* pAttacker)
         {
-            if (me->getVictim() || me->IsFriendlyTo(pAttacker))
+            if (me->GetVictim() || me->IsFriendlyTo(pAttacker))
                 return;
 
             AttackStart(pAttacker);
@@ -414,7 +412,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             ScriptedAI::UpdateAI(diff);
 
@@ -422,7 +420,7 @@ public:
 
             if (m_uiViciousSliceTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VICIOUS_SLICE);
+                DoCast(me->GetVictim(), SPELL_VICIOUS_SLICE);
                 m_uiViciousSliceTimer = 10000;
             } else
             m_uiViciousSliceTimer -= diff;
@@ -431,7 +429,7 @@ public:
             {
                 if(!bSummoned)
                 {
-                    DoCast(me->getVictim(), SPELL_SUMMON_MINIONS);
+                    DoCast(me->GetVictim(), SPELL_SUMMON_MINIONS);
                     bSummoned = true;
                 }
                 if(!bSay)
@@ -572,8 +570,8 @@ public:
 
                             std::list<Player*> players;
 
-                            JadeCore::AnyPlayerInObjectRangeCheck checker(me, 35.0f);
-                            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+                            Trinity::AnyPlayerInObjectRangeCheck checker(me, 35.0f);
+                            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
                             me->VisitNearbyWorldObject(35.0f, searcher);
 
                             for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -658,8 +656,8 @@ public:
 
         void Reset()
         {
-            me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
+            me->SetControlled(true, UNIT_STATE_STUNNED); // Disable rotate
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true); // Immune to knock always like blast wave
 
             resetTimer = 5000;
         }
@@ -709,13 +707,13 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
 
             if (!me->HasUnitState(UNIT_STATE_STUNNED))
-                me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
+                me->SetControlled(true, UNIT_STATE_STUNNED); // Disable rotate
 
             if (resetTimer <= diff)
             {
@@ -781,13 +779,13 @@ class spell_quest_extincteur : public SpellScriptLoader
         {
             PrepareAuraScript(spell_quest_extincteur_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->AddAura(SPELL_VISUAL_EXTINGUISHER, GetCaster());
             }
 
-            void OnPeriodic(constAuraEffectPtr /*aurEff*/)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -797,11 +795,11 @@ class spell_quest_extincteur : public SpellScriptLoader
                     if (Player* player = GetCaster()->ToPlayer())
                         player->KilledMonsterCredit(42940, 0);
 
-                    fire->ForcedDespawn();
+                    fire->DespawnOrUnsummon();
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->RemoveAurasDueToSpell(SPELL_VISUAL_EXTINGUISHER);
@@ -821,7 +819,7 @@ class spell_quest_extincteur : public SpellScriptLoader
         }
 };
 
-void AddSC_elwyn_forest()
+void AddSC_elwynn_forest()
 {
     new npc_stormwind_infantry();
     new npc_blackrock_battle_worg();
