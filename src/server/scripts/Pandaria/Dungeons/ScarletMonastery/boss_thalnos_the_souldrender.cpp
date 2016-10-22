@@ -506,7 +506,7 @@ class spell_evict_soul : public SpellScriptLoader
 		{
 			PrepareAuraScript(spell_evict_soul_AuraScript);
 
-			void OnTick(AuraEffect const* /*aurEff*/)
+			void OnApplyAndRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
 			{
 				if (Unit* caster = GetCaster())
 					if (Unit* target = GetTarget())
@@ -523,7 +523,8 @@ class spell_evict_soul : public SpellScriptLoader
 
 			void Register() override
 			{
-				OnEffectPeriodic += AuraEffectPeriodicFn(spell_evict_soul_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+				OnEffectApply += AuraEffectApplyFn(spell_evict_soul_AuraScript::OnApplyAndRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+				OnEffectRemove += AuraEffectRemoveFn(spell_evict_soul_AuraScript::OnApplyAndRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
 			}
 		};
 
