@@ -61,6 +61,11 @@ enum eCreatures
 	CREATURE_EMPOWERED_ZOMBIE = 59930,
 };
 
+enum Achievement
+{
+	ACHIEVEMENT_EMPOWERED_SPIRITUALIST = 6946,
+};
+
 // Thalnos the Soulrender - 59789
 class boss_thalnos_the_soulrender : public CreatureScript
 {
@@ -534,6 +539,20 @@ class spell_evict_soul : public SpellScriptLoader
 		}
 };
 
+// Empowered Spiritualist - 6946
+class achievement_empowered_spiritualist : public AchievementCriteriaScript
+{
+	public:
+		achievement_empowered_spiritualist() : AchievementCriteriaScript("achievement_empowered_spiritualist") { }
+
+		bool OnCheck(Player* source, Unit* target)
+		{
+			if (target && target->GetAI()->GetData(ACHIEVEMENT_EMPOWERED_SPIRITUALIST))
+				return true;
+			return false;
+		}
+};
+
 void AddSC_boss_thalnos_the_soulrender()
 {
 	// Boss
@@ -549,4 +568,7 @@ void AddSC_boss_thalnos_the_soulrender()
 	new spell_spirit_gale();
 	new spell_spirit_gale_dot_damage();
 	new spell_evict_soul();
+
+	// Achievements
+	new achievement_empowered_spiritualist();
 }
