@@ -545,7 +545,7 @@ class achievement_empowered_spiritualist : public AchievementCriteriaScript
 	public:
 		achievement_empowered_spiritualist() : AchievementCriteriaScript("achievement_empowered_spiritualist") { }
 
-		bool OnCheck(Player* source, Unit* target)
+		bool OnCheck(Player* /*source*/, Unit* target)
 		{
 			if (target && target->GetAI()->GetData(ACHIEVEMENT_EMPOWERED_SPIRITUALIST))
 				return true;
