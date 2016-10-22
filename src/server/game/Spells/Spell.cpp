@@ -4997,7 +4997,7 @@ void Spell::SendResurrectRequest(Player* target)
     data.WriteBit(Guid[0]);
     data.WriteBit(Guid[4]);
     data.WriteBit(Guid[7]);
-	data.WriteBits(sentName.size(), 6);
+    data.WriteBits(sentName.size(), 6);
 
     data.WriteByteSeq(Guid[7]);
     data.WriteByteSeq(Guid[3]);

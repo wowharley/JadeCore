@@ -311,7 +311,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     if (calendarEvent->IsGuildAnnouncement())
     {
          CalendarInvite* invite = new CalendarInvite(0, calendarEvent->GetEventId(), 0, guid, 946684800, CALENDAR_STATUS_NOT_SIGNED_UP, CALENDAR_RANK_PLAYER, "");
-         sCalendarMgr->AddInvite(calendarEvent, invite, false);
+         sCalendarMgr->AddInvite(calendarEvent, invite);
     }
     else
     {
@@ -327,7 +327,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
             recvData >> status >> rank;
 
             CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent->GetEventId(), invitee, guid, 946684800, CalendarInviteStatus(status), CalendarModerationRank(rank), "");
-            sCalendarMgr->AddInvite(calendarEvent, invite, false);
+            sCalendarMgr->AddInvite(calendarEvent, invite);
         }
     }
 
