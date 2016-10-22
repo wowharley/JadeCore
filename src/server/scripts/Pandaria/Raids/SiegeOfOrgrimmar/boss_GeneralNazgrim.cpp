@@ -150,12 +150,12 @@ Position pos[3] =
 	{ 1560, -4622, -66, 5 },
 };
 
-void AddRage(Unit* me,uint32 p_BaseValue, uint64 nazgrimGuid)
+void AddRage(Creature* me,uint32 p_BaseValue, uint64 nazgrimGuid)
 {
     if (nazgrimGuid == NULL)
         return;
 
-    if (Unit* generalNazgrim = sObjectAccessor->GetCreature(*me, nazgrimGuid))
+    if (Creature* generalNazgrim = sObjectAccessor->GetCreature(*me, nazgrimGuid))
     {
         uint32 power = generalNazgrim->GetPower(Powers(POWER_RAGE));
 
@@ -163,12 +163,12 @@ void AddRage(Unit* me,uint32 p_BaseValue, uint64 nazgrimGuid)
     }
 }
 
-void RemoveRage(Unit* me, uint32 p_BaseValue, uint64 nazgrimGuid)
+void RemoveRage(Creature* me, uint32 p_BaseValue, uint64 nazgrimGuid)
 {
     if (nazgrimGuid == NULL)
         return;
 
-    if (Unit* generalNazgrim = sObjectAccessor->GetCreature(*me, nazgrimGuid))
+    if (Creature* generalNazgrim = sObjectAccessor->GetCreature(*me, nazgrimGuid))
     {
         uint32 power = generalNazgrim->GetPower(Powers(POWER_RAGE));
 
