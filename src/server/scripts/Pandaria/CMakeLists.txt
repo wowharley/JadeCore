@@ -15,7 +15,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  
+
   # Dungeons
   Pandaria/Dungeons/MoguShanPalace/instance_mogushan_palace.cpp
   Pandaria/Dungeons/MoguShanPalace/mogushan_palace.h
