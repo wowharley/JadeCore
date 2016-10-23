@@ -109,6 +109,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
   ${CMAKE_SOURCE_DIR}/src/common/Debugging
   ${CMAKE_SOURCE_DIR}/src/common/Utilities
+  ${CMAKE_SOURCE_DIR}/src/common/Logging
   ${CMAKE_SOURCE_DIR}/src/common/Threading
   ${CMAKE_SOURCE_DIR}/src/common/Configuration
   ${CMAKE_SOURCE_DIR}/src/common/
