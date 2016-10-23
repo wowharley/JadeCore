@@ -34,9 +34,7 @@ class instance_SiegeOfOrgrimmar : public InstanceMapScript
 			InstanceScript* Pinstance = this;
 
             // Immerseus
-            uint64 ImmersusGuid;
-            uint64 ImmersusBackDoorGuid;
-            uint64 ImmersusFrontDoorGuid;
+            uint64 ImmerseusGuid;
 
             // Fallen Protectors
             uint64 StoneGuid;
@@ -78,35 +76,33 @@ class instance_SiegeOfOrgrimmar : public InstanceMapScript
             void Initialize()
             {
                 // Immerseus
-                ImmersusGuid                        = 0;
-                ImmersusBackDoorGuid                = 0;
-                ImmersusFrontDoorGuid               = 0;
+                ImmerseusGuid  = 0;
 
                 // Fallen Protectors
-                StoneGuid                           = 0;
-                HuGuid                              = 0;
-                SunGuid                             = 0;
+                StoneGuid      = 0;
+                HuGuid         = 0;
+                SunGuid        = 0;
 
                 // Norushen
-                amalgamGuid                         = 0;
+                amalgamGuid    = 0;
 
                 // Sha of Pride
-                ShaOfPrideGuid                      = 0;
+                ShaOfPrideGuid = 0;
 
                 // Galakras
 
                 // Iron Juggernaut
-                JuggernautGuid                      = 0;
+                JuggernautGuid = 0;
 
                 // Kor'kron Dark Shamans
-                HarommGuid                          = 0;
-                KardrisGuid                         = 0;
+                HarommGuid     = 0;
+                KardrisGuid    = 0;
 
                 // General Nazgrim
-                NazgrimGuid	                        = 0;
+                NazgrimGuid	   = 0;
 
                 // Malkorok
-                MalkorokGuid                        = 0;
+                MalkorokGuid   = 0;
 
                 // Spoils of Pandaria
 
@@ -117,7 +113,7 @@ class instance_SiegeOfOrgrimmar : public InstanceMapScript
                 // Paragons of the Klaxxi
 
                 // Garrosh Hellscream
-                GarroshGuid                         = 0;
+                GarroshGuid    = 0;
 
                 SetBossNumber(14);
             }
@@ -127,8 +123,8 @@ class instance_SiegeOfOrgrimmar : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                     // Immerseus
-                    case BOSS_IMMERSUS:
-                        ImmersusGuid = creature->GetGUID();
+                    case BOSS_IMMERSEUS:
+                        ImmerseusGuid = creature->GetGUID();
                         break;
 
                     // Fallen Protectors
@@ -215,8 +211,8 @@ class instance_SiegeOfOrgrimmar : public InstanceMapScript
                 switch (type)
                 {
                     // Immerseus
-                    case DATA_IMMERSUS:
-                        return ImmersusGuid;
+                    case DATA_IMMERSEUS:
+                        return ImmerseusGuid;
                         break;
 
 

@@ -26,7 +26,7 @@
 enum Data
 {
     // Immerseus
-    DATA_IMMERSUS                           = 1,
+    DATA_IMMERSEUS                          = 1,
 
     // Fallen Protectors
     DATA_FALLEN_PROTECTORS                  = 2,
@@ -85,12 +85,10 @@ enum Data
 enum eCreaturesLocal
 {
     // Immerseus
-    BOSS_IMMERSUS                       = 72436,
+    BOSS_IMMERSEUS                      = 72436,
     CREATURE_TORMENTED_INITATE          = 73349,
     CREATURE_FALLEN_POOL_TENDER         = 73342,
     CREATURE_AQUEOUS_DEFENDER           = 73191,
-    CREATURE_LESSER_SHA_PUDDLE          = 71604,
-    CREATURE_CONTAMINATED_PUDDLE        = 73226,
 
     // Fallen Protectors
     BOSS_STONE                          = 71475,
