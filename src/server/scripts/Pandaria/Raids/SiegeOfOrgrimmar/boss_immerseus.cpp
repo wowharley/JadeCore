@@ -22,60 +22,24 @@
 
 enum eSpells
 {
-    // 1ST phase 
-    SPELL_SHA_BOLT_COSMETIC          = 129067,
-    SPELL_SHA_BOLT_DUMMY             = 143290,
-    SPELL_SHA_BOLT_MISSILE           = 143293,
-    SPELL_SHA_BOLT_POOL              = 143295,
+	// Split
+	SPELL_SPLIT_DUMMY               = 143020,
+	SPELL_SPLIT_SHA_PUDDLE          = 143022,
+	SPELL_SPLIT_CONTAMINATED_PUDDLE = 143024,
 
-    SPELL_SWIRL_DUMMY                = 143309,
-    SPELL_SWIRL_DAMAGE               = 143412,
-    SPELL_CORROSIVE_BLAST            = 143436,
-
-    SPELL_SEEPING_SHA_CIRCLE         = 143281,
-
-    // 2ND PHASE
-    SPELL_SHA_RESIUDE                = 143459,
-    SPELL_CONGEALING                 = 143540,
-    SPELL_PURIFIED_RESIDUE           = 143524,
-
-    SPELL_SEEPING_SHA_VISUAL         = 143281,
-    SPELL_SEEPING_SHA_DAMAGE         = 143286,
-
-    SPELL_ERUPTING_SHA               = 143498,
-
-    SPELL_SWIRL_CIRCLE_DUMMY         = 143410,
-    SPELL_SWIRL_CIRCLE_DAMAGE        = 143413,
-
-    SPELL_SPLIT_DUMMY                = 143020,
-    SPELL_SPLIT_SHA_PUDDLE_THROW     = 143022,
-    SPELL_SPLIT_CONTEMPLATED_THROW   = 143024,
-
-    // HEROIC
-    SPELL_SWELLING_CORRUPTION_AURA   = 143574,
-    SPELL_SWELLING_CORRUPTION_SCRIPT = 143578,
-    SPELL_SWELLING_CORRUPTION_SUMMON = 143581,
-    
-    SPELL_CORRUPTION_DOT             = 143579,
-
-    // 2ND PHASE HC
-    SPELL_SHA_POOL_EFFECT            = 143462,
-    SPELL_SHA_POOL_AURA              = 143462,
-    SPELL_SHA_POOL_PERIODIC_DAMAGE   = 143460,
+	// Seeping Sha
+	SPELL_SEEPING_SHA_VISUAL        = 143281,
+	SPELL_SEEPING_SHA_DAMAGE        = 143286,
 };
 
 enum eEvents
 {
-    EVENT_SHA_BOLT       = 1,
-    EVENT_SWIRL          = 2,
-    EVENT_CORRSIVE_BLAST = 3,
-    EVENT_SPLIT_PHASE    = 4,
+	EVENT_SPLIT = 1,
 };
 
 enum eActions
 {
-    ACTION_COUNT_SPLIT_PHASE = 1,
-    ACTION_REMOVE_ENERGY     = 2,
+
 };
 
 enum ePhase
@@ -97,6 +61,8 @@ Position circleposition[6] =
 
 Position immersusfrontdoor = { 1442.74f, 861.203f, 248.994f, 3.519956f };
 Position immersusbackdoor2 = { 1442.74f, 861.203f, 248.994f, 3.519956f };
+
+#define MAX_PUDDLES 12
 
 void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
 {
@@ -193,6 +159,8 @@ public:
             me->SetInt32Value(UNIT_FIELD_MAX_POWER, 100);
             me->SetPower(POWER_ENERGY, 100);
             me->SetInt32Value(UNIT_FIELD_POWER, 100);
+
+			DoCast(me, SPELL_SEEPING_SHA_VISUAL);
         }
 
         void JustSummoned(Creature* summon)
@@ -231,7 +199,17 @@ public:
 
             events.Update(diff);
             
-
+			while (uint32 eventId = events.ExecuteEvent())
+			{
+				switch (eventId)
+				{
+					case EVENT_SPLIT:
+					{
+						DoCast(me, SPELL_SPLIT_DUMMY);
+						break;
+					}
+				}
+			}
 
             DoMeleeAttackIfReady();
         }
@@ -243,8 +221,94 @@ public:
     }
 };
 
+// Seeping Sha - 143281
+class spell_seeping_sha_damage : public SpellScriptLoader
+{
+	public:
+		spell_seeping_sha_damage() : SpellScriptLoader("spell_seeping_sha_damage") { }
+
+		class spell_seeping_sha_damage_AuraScript : public AuraScript
+		{
+			PrepareAuraScript(spell_seeping_sha_damage_AuraScript);
+
+			void OnUpdate(uint32 diff, AuraEffect* aurEff)
+			{
+				if (Unit* caster = GetCaster())
+				{
+					std::list<Player*> pl_list;
+					caster->GetPlayerListInGrid(pl_list, 15.0f);
+					if (pl_list.empty())
+						return;
+
+					for (auto itr : pl_list)
+						caster->CastSpell(itr, SPELL_SEEPING_SHA_DAMAGE);
+				}
+			}
+
+			void Register() override
+			{
+				OnEffectUpdate += AuraEffectUpdateFn(spell_seeping_sha_damage_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_DUMMY);
+			}
+		};
+
+		AuraScript* GetAuraScript() const override
+		{
+			return new spell_seeping_sha_damage_AuraScript();
+		}
+};
+
+// Split - 143020
+class spell_split : public SpellScriptLoader
+{
+	public:
+		spell_split() : SpellScriptLoader("spell_split") { }
+
+		class spell_split_SpellScript : public SpellScript
+		{
+			PrepareSpellScript(spell_split_SpellScript);
+
+			void HandleOnCast()
+			{
+				SpellEffIndex effIndex;
+				PreventHitDefaultEffect(effIndex);
+
+				if (Unit* caster = GetCaster())
+				{
+					for (int i = 0; i <= MAX_PUDDLES; i++)
+					{
+						caster->CastSpell(caster, SPELL_SPLIT_SHA_PUDDLE);
+						caster->CastSpell(caster, SPELL_SPLIT_CONTAMINATED_PUDDLE);
+					}
+				}
+			}
+
+			void HandleScript(SpellEffIndex effIndex)
+			{
+				PreventHitDefaultEffect(effIndex);
+
+				if (!GetCaster())
+					return;
+			}
+
+			void Register() override
+			{
+				OnCast += SpellCastFn(spell_split_SpellScript::HandleOnCast);
+				OnEffectHitTarget += SpellEffectFn(spell_split_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+			}
+		};
+
+		SpellScript* GetSpellScript() const override
+		{
+			return new spell_split_SpellScript();
+		}
+};
+
 void AddSC_boss_Immerseus()
 {
-	// boss
+	// Boss
 	new boss_immerseus();
+
+	// Spells
+	new spell_seeping_sha_damage();
+	new spell_split();
 }
