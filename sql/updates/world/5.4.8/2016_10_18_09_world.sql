@@ -9,10 +9,11 @@ SET @LV_ENTRY = 38895;
 SET @VM_ENTRY = 49231;
 SET @MZ_ENTRY = 1501;
 SET @C_A_ENTRY = 49129;
-SET @C_A_GUID = 988269;
+SET @C_A_GUID = 259076;
 SET @C_D_ENTRY = 49128;
 SET @C_D_GUID = 204125;
 
+DELETE FROM `creature` WHERE `guid`=203896;
 UPDATE `creature_template` SET `AIName`="", `scriptname`="npc_undertaker_mordo" WHERE `entry`=@UM_ENTRY;
 UPDATE `creature_template` SET `AIName`="", `scriptname`="npc_darnell_script_1" WHERE `entry`=@D1_ENTRY;
 UPDATE `creature_template` SET `AIName`="", `scriptname`="npc_marshal_redpath", `gossip_menu_id`=12485 WHERE `entry`=@MR_ENTRY;
