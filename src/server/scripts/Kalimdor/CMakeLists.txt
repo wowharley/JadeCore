@@ -105,7 +105,7 @@ set(scripts_STAT_SRCS
   Kalimdor/Firelands/instance_firelands.cpp
   Kalimdor/Firelands/firelands.h
   Kalimdor/Firelands/boss_alysrazor.cpp
-  Kalimdor/Zones/WorldBosses/boss_azuregos.cpp
+  Kalimdor/WorldBosses/boss_azuregos.cpp
   Kalimdor/Zones/zone_ashenvale.cpp
   Kalimdor/Zones/zone_azshara.cpp
   Kalimdor/Zones/zone_azuremyst_isle.cpp
