@@ -23,79 +23,74 @@
 enum eImmersiusSpells
 {
     // 1ST phase 
-    SPELL_SHA_BOLT_COSMETIC = 129067,
-    SPELL_SHA_BOLT_DUMMY = 143290,
-    SPELL_SHA_BOLT_MISSILE = 143293,
-    SPELL_SHA_BOLT_POOL = 143295, // unused
-    // DAFUQ IS WRONG WITH INNTELLISESE
-    SPELL_SWIRL_DUMMY = 143309,
-    SPELL_SWIRL_DAMAGE = 143412,
-    SPELL_CORROSIVE_BLAST = 143436,
+    SPELL_SHA_BOLT_COSMETIC          = 129067,
+    SPELL_SHA_BOLT_DUMMY             = 143290,
+    SPELL_SHA_BOLT_MISSILE           = 143293,
+    SPELL_SHA_BOLT_POOL              = 143295,
 
-    SPELL_SEEPING_SHA_CIRCLE = 143281,
+    SPELL_SWIRL_DUMMY                = 143309,
+    SPELL_SWIRL_DAMAGE               = 143412,
+    SPELL_CORROSIVE_BLAST            = 143436,
+
+    SPELL_SEEPING_SHA_CIRCLE         = 143281,
 
     // 2ND PHASE
-    SPELL_SHA_RESIUDE = 143459,
-    SPELL_CONGEALING = 143540,
-    SPELL_PURIFIED_RESIDUE = 143524,
+    SPELL_SHA_RESIUDE                = 143459,
+    SPELL_CONGEALING                 = 143540,
+    SPELL_PURIFIED_RESIDUE           = 143524,
 
-    SPELL_SEEPING_SHA_VISUAL = 143281,
-    SPELL_SEEPING_SHA_DAMAGE = 143286,
+    SPELL_SEEPING_SHA_VISUAL         = 143281,
+    SPELL_SEEPING_SHA_DAMAGE         = 143286,
 
-    SPELL_ERUPTING_SHA = 143498,
+    SPELL_ERUPTING_SHA               = 143498,
 
-    SPELL_SWIRL_CIRCLE_DUMMY = 143410,
-    SPELL_SWIRL_CIRCLE_DAMAGE = 143413,
+    SPELL_SWIRL_CIRCLE_DUMMY         = 143410,
+    SPELL_SWIRL_CIRCLE_DAMAGE        = 143413,
 
-    SPELL_SPLIT_DUMMY = 143020,
-    SPELL_SPLIT_SHA_PUDDLE_THROW = 143022,
-    SPELL_SPLIT_CONTEMPLATED_THROW = 143024,
+    SPELL_SPLIT_DUMMY                = 143020,
+    SPELL_SPLIT_SHA_PUDDLE_THROW     = 143022,
+    SPELL_SPLIT_CONTEMPLATED_THROW   = 143024,
 
     // HEROIC
-    SPELL_SWELLING_CORRUPTION_AURA = 143574,
+    SPELL_SWELLING_CORRUPTION_AURA   = 143574,
     SPELL_SWELLING_CORRUPTION_SCRIPT = 143578,
     SPELL_SWELLING_CORRUPTION_SUMMON = 143581,
     
-    SPELL_CORRUPTION_DOT = 143579,
+    SPELL_CORRUPTION_DOT             = 143579,
 
     // 2ND PHASE HC
-    SPELL_SHA_POOL_EFFECT = 143462,
-    SPELL_SHA_POOL_AURA = 143462,
-    SPELL_SHA_POOL_PERIODIC_DAMAGE = 143460,
+    SPELL_SHA_POOL_EFFECT            = 143462,
+    SPELL_SHA_POOL_AURA              = 143462,
+    SPELL_SHA_POOL_PERIODIC_DAMAGE   = 143460,
 };
 
 enum eImmersiusTriggers
 {
-    TRIGGER_SHA_POOL = 71611,
-    TRIGGER_SHA_BOLT = 71544,
-    TRIGGER_SEEPING_SHA = 324252, // custom made
-    TRIGGER_SHA_SPAWNS = 324296,// custom made cuz bravery
-    TRIGGER_SHA_SWIRL = 435321,
-    TRIGGER_SHA_SWIRL_CIRCLE = 254235,
-    CREATURE_SHA_POOL_HC = 716112,
+    TRIGGER_SHA_POOL     = 71611,
+    TRIGGER_SHA_BOLT     = 71544,
+    CREATURE_SHA_POOL_HC = 71611,
 };
 
 enum eImmersiusEvents
 {
-    EVENT_SHA_BOLT = 100,
-    EVENT_SWIRL = 101,
+    EVENT_SHA_BOLT       = 100,
+    EVENT_SWIRL          = 101,
     EVENT_CORRSIVE_BLAST = 102,
-    EVENT_SEEPING_SHA = 103,
-    EVENT_SPLIT_PHASE = 104,
-    EVENT_SWIRL_DE = 105,
-    EVENT_SPLIT_PHASE_2 = 106,
+    EVENT_SPLIT_PHASE    = 103,
+    EVENT_SWIRL_DE       = 104,
+    EVENT_SPLIT_PHASE_2  = 105,
 };
 
 enum eImmersiusActions
 {
     ACTION_COUNT_SPLIT_PHASE = 540,
-    ACTION_REMOVE_ENERGY = 541,
+    ACTION_REMOVE_ENERGY     = 541,
 };
 
 enum eImmersiusGroups
 {
     GROUP_TEARS_OF_THE_VALE = 900, // 1ST PHASE
-    GROUP_SPLIT = 901, // 2ND PHASE
+    GROUP_SPLIT             = 901, // 2ND PHASE
 };
 
 enum eventsos
@@ -148,13 +143,13 @@ Position immersus_chest = {1440.66f, 817.257f, 246.835f, 4.679507f};
 
 enum chestsgobjectimmersus
 {
-    tregularimmersus = 221776,
-    thcimmersus = 221778,
-    tfregularimmersus = 221779,
-    tfhcimmersus = 221780,
+    tregularimmersus     = 221776,
+    thcimmersus          = 221778,
+    tfregularimmersus    = 221779,
+    tfhcimmersus         = 221780,
     tfraidfinderimmersus = 221781,
 
-    walkercho_bro_2 = 321445,
+    walkercho_bro_2      = 321445,
 };
 
 Position afterimmersius_cho_spawn_summon =
@@ -162,7 +157,7 @@ Position afterimmersius_cho_spawn_summon =
     1452.132f, 820.978f, 246.835f, 2.879340f
 };
 
-
+// Immerseus - 71543
 class boss_immersus : public CreatureScript
 {
 public:
@@ -180,13 +175,10 @@ public:
 
         Creature* target = NULL;
 
-        uint32 swirlcirculation;
         uint32 currentenergy;
-        uint32 swirlhit;
         uint32 count;
         uint32 sheepingsha;
         uint32 berserk;
-        bool swirl;
         bool split;
         bool splitphase;
         bool loot;
@@ -197,14 +189,11 @@ public:
             events.Reset();
             summons.DespawnAll();
 
-            swirl = false;
             splitphase = false;
             split = true;
             loot = false;
 
             sheepingsha = 1000;
-            swirlcirculation = 1000;
-            swirlhit = 2000;
             count = 0;
             currentenergy = 0;
             berserk = 60000 * 10;
@@ -294,7 +283,6 @@ public:
 
             // 1st phase
             events.ScheduleEvent(EVENT_SHA_BOLT, 8000, GROUP_TEARS_OF_THE_VALE);
-            events.ScheduleEvent(EVENT_SWIRL, 20000, GROUP_TEARS_OF_THE_VALE);
             events.ScheduleEvent(EVENT_CORRSIVE_BLAST, urand(12000, 14000), GROUP_TEARS_OF_THE_VALE);
         }
 
@@ -456,41 +444,6 @@ public:
             }
         }
 
-        void Swirl()
-        {
-            // SWIRL
-            if (swirl)
-            {
-                if (me->HasAura(SPELL_SWIRL_DUMMY))
-                {
-                    if (Creature* trigger = me->FindNearestCreature(254235, 100.0f, true))
-                    {
-                        me->SetFacingToObject(trigger);
-
-                        std::list<Player*> pl_list_cone;
-                        pl_list_cone.clear();
-
-                        me->GetPlayerListInGrid(pl_list_cone, 200.0f);
-
-                        if (pl_list_cone.empty())
-                            return;
-
-                        for (auto itr : pl_list_cone)
-                        {
-                            if (itr->IsWithinDistInMap(trigger, 20.0f))
-                            {
-                                itr->RemoveSpellCooldown(SPELL_SWIRL_DAMAGE, true);
-                                itr->CastSpell(itr, SPELL_SWIRL_DAMAGE, true);
-
-                                if (Aura* aura = itr->GetAura(SPELL_SWIRL_DAMAGE))
-                                    aura->SetDuration(1); // two hits per amplitude, that's bad, need to change it 400 millseconds.
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         void SeepingSha()
         {
             std::list<Player*> pl_list_cone;
@@ -530,9 +483,7 @@ public:
 						me->CastSpell(me, SPELL_SEEPING_SHA_VISUAL);
 
 						events.ScheduleEvent(EVENT_SHA_BOLT, 8000, GROUP_TEARS_OF_THE_VALE);
-						events.ScheduleEvent(EVENT_SWIRL, 20000, GROUP_TEARS_OF_THE_VALE);
 						events.ScheduleEvent(EVENT_CORRSIVE_BLAST, urand(12000, 14000), GROUP_TEARS_OF_THE_VALE);
-						events.ScheduleEvent(EVENT_SEEPING_SHA, 10000, GROUP_TEARS_OF_THE_VALE);
 
 						me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                
@@ -626,14 +577,6 @@ public:
             else
                 berserk -= diff;
 
-            if (swirlhit <= diff)
-            {
-                Swirl();
-                swirlhit = 3000;
-            }
-            else
-                swirlhit -= diff;
-
             if (sheepingsha <= diff)
             {
                 SeepingSha();
@@ -669,59 +612,12 @@ public:
 					events.ScheduleEvent(EVENT_SHA_BOLT, 10000, GROUP_TEARS_OF_THE_VALE);
 					break;
 				}
-				case EVENT_SWIRL_DE:
-					swirl = false;
-					break;
-				case EVENT_SWIRL:
-				{
-					for (int i = 0; i <= 50; i++)
-					{
-						Position pos;
-						me->GetRandomNearPosition(pos, 100.0f);
-
-						me->SummonCreature(TRIGGER_SHA_SWIRL, pos, TEMPSUMMON_TIMED_DESPAWN, 30000);
-					}
-					target = NULL;
-
-					swirl = true;
-
-					uint32 rando;
-
-					if(roll_chance_i(50))
-					{
-						rando = 1;
-					}
-					else
-					{
-						rando = 4;
-					}
-
-					DespawnCreaturesInArea(TRIGGER_SHA_SWIRL_CIRCLE, me);
-
-					Creature* trigger = me->SummonCreature(TRIGGER_SHA_SWIRL_CIRCLE, circleposition[rando], TEMPSUMMON_MANUAL_DESPAWN);
-					target = trigger;
-
-					me->CastSpell(trigger, SPELL_SWIRL_DUMMY);
-					events.ScheduleEvent(EVENT_SWIRL_DE, 10000);
-					events.ScheduleEvent(EVENT_SWIRL, 40000, GROUP_TEARS_OF_THE_VALE);
-					break;
-				}
 				case EVENT_CORRSIVE_BLAST:
 					me->SetFacingToObject(me->GetVictim());
 
 
 					me->CastSpell(me->GetVictim(), SPELL_CORROSIVE_BLAST);
 					events.ScheduleEvent(EVENT_CORRSIVE_BLAST, 42000, GROUP_TEARS_OF_THE_VALE);
-					break;
-				case EVENT_SEEPING_SHA:
-					for (int i = 0; i <= 5; i++)
-					{
-						Position pos;
-						me->GetRandomNearPosition(pos, 35.0f); // estimated?
-
-						me->SummonCreature(TRIGGER_SEEPING_SHA, pos, TEMPSUMMON_TIMED_DESPAWN, 20000);
-					}
-					events.ScheduleEvent(EVENT_SEEPING_SHA, 20000, GROUP_TEARS_OF_THE_VALE);
 					break;
 					// 2ND PHASE
 				case EVENT_SPLIT_PHASE:
@@ -769,6 +665,7 @@ public:
     }
 };
 
+// Sha Bolt - 143293
 class immersius_spell_sha_bolt_missile : public SpellScriptLoader
 {
 	public:
@@ -802,6 +699,7 @@ class immersius_spell_sha_bolt_missile : public SpellScriptLoader
 		}
 };
 
+// Split - 143020
 class immersius_spell_split : public SpellScriptLoader
 {
 	public:
@@ -831,6 +729,7 @@ class immersius_spell_split : public SpellScriptLoader
 		}
 };
 
+// Sha Pool - 71611
 class immersus_trigger_sha_pool : public CreatureScript
 {
 	public:
@@ -892,175 +791,7 @@ class immersus_trigger_sha_pool : public CreatureScript
 		}
 };
 
-class immersus_trigger_sha_swirl_circular : public CreatureScript
-{
-	public:
-		immersus_trigger_sha_swirl_circular() : CreatureScript("immersus_trigger_sha_swirl_circular") { }
-
-		struct soo_triggers : public ScriptedAI
-		{
-			soo_triggers(Creature* creature) : ScriptedAI(creature)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
-
-			InstanceScript* pInstance;
-			EventMap events;
-
-			uint32 interval;
-
-			void Reset()
-			{
-				interval = 2000;
-				me->setFaction(16);
-
-				//events.ScheduleEvent(TALK_1, 2000);
-
-				me->SetSpeed(MOVE_RUN, 3.0f);
-				me->SetReactState(REACT_PASSIVE);
-
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-				me->GetMotionMaster()->MovePoint(0, circleposition[0].GetPositionX(), circleposition[0].GetPositionY(), circleposition[0].GetPositionZ());
-			}
-			void DamageTaken(Unit* /*attacker*/, uint32& damage)
-			{
-				damage = 0;
-			}
-			void UpdateAI(uint32 diff) override
-			{
-				events.Update(diff);
-				/*
-				switch (events.ExecuteEvent())
-				{
-					case EVENT_TALK_1:
-					{
-						events.ScheduleEvent(TALK_2, 2000);
-						me->GetMotionMaster()->MovePoint(1, circleposition[1].GetPositionX(), circleposition[1].GetPositionY(), circleposition[1].GetPositionZ());         
-						break;
-					}
-					case EVENT_TALK_2:
-					{
-						events.ScheduleEvent(TALK_3, 2000);
-						me->GetMotionMaster()->MovePoint(1, circleposition[2].GetPositionX(), circleposition[2].GetPositionY(), circleposition[2].GetPositionZ());            
-						break;
-					}
-					case EVENT_TALK_3:
-					{
-						events.ScheduleEvent(TALK_4, 2000);
-						me->GetMotionMaster()->MovePoint(1, circleposition[3].GetPositionX(), circleposition[3].GetPositionY(), circleposition[3].GetPositionZ());               
-						break;
-					}
-					case EVENT_TALK_4:
-					{
-						events.ScheduleEvent(TALK_5, 2000);
-						me->GetMotionMaster()->MovePoint(1, circleposition[4].GetPositionX(), circleposition[4].GetPositionY(), circleposition[4].GetPositionZ());          
-						break;
-					}
-					case EVENT_TALK_5:
-					{
-						events.ScheduleEvent(TALK_6, 2000);
-						me->GetMotionMaster()->MovePoint(1, circleposition[5].GetPositionX(), circleposition[5].GetPositionY(), circleposition[5].GetPositionZ());        
-						break;
-					}
-				}*/
-			}
-		};
-
-		CreatureAI* GetAI(Creature* creature) const
-		{
-			return new soo_triggers(creature);
-		}
-};
-
-class immersus_trigger_swirl_circle : public CreatureScript
-{
-	public:
-		immersus_trigger_swirl_circle() : CreatureScript("immersus_trigger_swirl_circle") { }
-
-		struct soo_triggers : public ScriptedAI
-		{
-			soo_triggers(Creature* creature) : ScriptedAI(creature)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
-
-			InstanceScript* pInstance;
-			EventMap events;
-
-			uint32 interval;
-			uint32 move;
-
-			void Reset()
-			{
-				interval = 3000;
-				move = 1000;
-				me->setFaction(16);
-
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-				me->CastSpell(me, SPELL_SWIRL_CIRCLE_DUMMY);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-				me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-				me->SetReactState(REACT_PASSIVE);
-			}
-			void DamageTaken(Unit* /*attacker*/, uint32& damage)
-			{
-				damage = 0;
-			}
-			void UpdateAI(uint32 diff) override
-			{
-				if (interval <= diff)
-				{
-					me->CastSpell(me, 147181);
-
-					interval = 8000;
-				}
-				else
-					interval -= diff;
-				/*
-				// damage
-				if (interval <= diff)
-				{
-					std::list<Player*> list_players;
-					list_players.clear();
-
-					me->GetPlayerListInGrid(list_players, 1.0f);
-
-					if (list_players.empty())
-						return;
-
-					for (auto itr : list_players)
-					{
-						itr->CastSpell(itr, SPELL_SWIRL_CIRCLE_DAMAGE);
-
-						if (AuraPtr aura = itr->GetAura(SPELL_SWIRL_CIRCLE_DAMAGE))
-							aura->SetDuration(1);
-					}
-
-					interval = 1000;
-				}
-				else
-					interval -= diff;
-
-				if (move <= diff)
-				{
-					me->GetMotionMaster()->MoveRandom(30.0f);
-					move = 3500;
-				}
-				else
-					move -= diff;
-					*/
-			}
-		};
-
-		CreatureAI* GetAI(Creature* creature) const
-		{
-			return new soo_triggers(creature);
-		}
-};
-
+// Contaminated Puddle - 71604
 class immersus_creature_contaminated_puddle : public CreatureScript
 {
 	public:
@@ -1211,6 +942,7 @@ class immersus_creature_contaminated_puddle : public CreatureScript
 		}
 };
 
+// Sha Puddle - 71603
 class immersus_creature_sha_puddle : public CreatureScript
 {
 	public:
@@ -1337,6 +1069,7 @@ class immersus_creature_sha_puddle : public CreatureScript
 		}
 };
 
+// Sha Pool - 71611
 class immersus_creature_sha_pool_heroic : public CreatureScript
 {
 	public:
@@ -1406,6 +1139,7 @@ class immersus_creature_sha_pool_heroic : public CreatureScript
 		}
 };
 
+// Congealed Sha - 71642
 class immersus_creature_swelling_creature : public CreatureScript
 {
 	public:
@@ -1466,6 +1200,7 @@ class damage_bool_to_remove_boss
 		WorldObject* caster;
 };
 
+// Erupting Sha - 143498
 class spell_sha_erupting_damage : public SpellScriptLoader
 {
 	public:
@@ -1503,38 +1238,6 @@ class spell_sha_erupting_damage : public SpellScriptLoader
 		}
 };
 
-class spell_swirl_target : public SpellScriptLoader
-{
-	public:
-		spell_swirl_target() : SpellScriptLoader("spell_swirl_target") { }
-
-		class spell_swirl_target_spell_script : public SpellScript
-		{
-			PrepareSpellScript(spell_swirl_target_spell_script);
-
-			void CorrectTargets(std::list<WorldObject*>& targets)
-			{
-				if (targets.empty())
-					return;
-                
-				targets.clear();
-
-				if (Creature* trigger = GetCaster()->FindNearestCreature(254235, 300.0F, true))
-					targets.push_back(trigger);
-			}
-
-			void Register()
-			{
-				OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_swirl_target_spell_script::CorrectTargets, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
-			}
-		};
-
-		SpellScript* GetSpellScript() const
-		{
-			return new spell_swirl_target_spell_script();
-		}
-};
-
 void AddSC_boss_Immerseus()
 {
 	// boss
@@ -1546,15 +1249,11 @@ void AddSC_boss_Immerseus()
 	new immersus_creature_sha_pool_heroic();
 	new immersus_creature_swelling_creature();
 
-	new spell_swirl_target();
-	new spell_sha_erupting_damage();
-
 	// spells
 	new immersius_spell_split();
 	new immersius_spell_sha_bolt_missile();
+	new spell_sha_erupting_damage();
 
 	// triggers
-	new immersus_trigger_swirl_circle();
 	new immersus_trigger_sha_pool();
-	new immersus_trigger_sha_swirl_circular();
 }
