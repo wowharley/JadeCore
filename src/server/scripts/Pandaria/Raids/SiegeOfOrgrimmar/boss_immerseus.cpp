@@ -255,7 +255,8 @@ class boss_immerseus : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-
+				if (Creature* lorewalkerCho = pInstance->instance->GetCreature(pInstance->GetData64(DATA_LOREWALKER_CHO)))
+					lorewalkerCho->GetAI()->DoAction(ACTION_TALK_AFTER_IMMERSEUS);
             }
 
             void SummonLootChest()

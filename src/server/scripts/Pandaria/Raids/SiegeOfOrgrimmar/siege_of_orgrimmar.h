@@ -133,4 +133,9 @@ enum eCreaturesLocal
     CREATURE_HEART_OF_YSHAARAJ_MAIN = 72215,
 };
 
+enum Actions
+{
+	ACTION_TALK_AFTER_IMMERSEUS = 2, // Lorewalker cho TALK_9
+};
+
 #endif
