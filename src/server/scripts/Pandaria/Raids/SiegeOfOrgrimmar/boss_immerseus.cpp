@@ -89,6 +89,15 @@ enum eCreatures
 	CREATURE_CONTAMINATED_PUDDLE = 71604,
 };
 
+enum eChestLoot
+{
+    GO_NORMAL_10_LOOT  = 221776,
+    GO_HEROIC_10_LOOT  = 221778,
+    GO_NORMAL_25_LOOT  = 221779,
+    GO_HEROIC_25_LOOT  = 221780,
+    GO_RAIDFINDER_LOOT = 221781,
+};
+
 Position immersus_chest = {1440.66f, 817.257f, 246.835f, 4.679507f};
 
 Position circleposition[6] =
@@ -146,6 +155,7 @@ public:
         InstanceScript* pInstance;
 		uint32 puddlesKilled = 0;
 		bool split = false;
+		bool lootSpawn = false;
 
         void Reset()
         {
@@ -248,6 +258,41 @@ public:
 
         }
 
+		void SummonLootChest()
+		{
+			float posX = immersus_chest.GetPositionX();
+			float posY = immersus_chest.GetPositionY();
+			float posZ = immersus_chest.GetPositionZ();
+			float posO = immersus_chest.GetOrientation();
+
+			switch (me->GetMap()->GetDifficulty())
+			{
+				case RAID_DIFFICULTY_10MAN_NORMAL:
+				{
+					me->SummonGameObject(GO_NORMAL_10_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
+					break;
+				}
+
+				case RAID_DIFFICULTY_10MAN_HEROIC:
+				{
+					me->SummonGameObject(GO_HEROIC_10_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
+					break;
+				}
+
+				case RAID_DIFFICULTY_25MAN_NORMAL:
+				{
+					me->SummonGameObject(GO_NORMAL_25_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
+					break;
+				}
+
+				case RAID_DIFFICULTY_25MAN_HEROIC:
+				{
+					me->SummonGameObject(GO_HEROIC_25_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
+					break;
+				}
+			}
+		}
+
         void DoAction(int32 action)
         {
 			switch (action)
@@ -280,6 +325,21 @@ public:
 				case ACTION_REMOVE_ENERGY:
 				{
 					RemoveEnergy(me, 1, me->GetGUID());
+					if (me->GetPower(Powers(POWER_ENERGY)) <= 0)
+					{
+						if (me->GetDisplayId() != 49807)
+							me->SetDisplayId(49807);
+
+						me->setFaction(35);
+						me->SetFullHealth();
+
+						if (!lootSpawn)
+						{
+							SummonLootChest();
+							lootSpawn = true;
+						}
+					}
+
 					break;
 				}
 			}
