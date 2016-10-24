@@ -67,6 +67,7 @@ class npc_lorewalker_cho_SoO : public CreatureScript
             void Reset() override
             {
                 me->setFaction(35);
+				me->SetMaxHealth(738060);
 
                 me->SetSpeed(MOVE_RUN, 1.6f);
                 me->SetReactState(REACT_PASSIVE);
