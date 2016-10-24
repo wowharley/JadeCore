@@ -26,60 +26,63 @@
 enum Data
 {
     // Immerseus
-    DATA_IMMERSEUS                          = 1,
+    DATA_IMMERSEUS                    = 1,
 
     // Fallen Protectors
-    DATA_FALLEN_PROTECTORS                  = 2,
-    DATA_STONE                              = 3,
-    DATA_HU                                 = 4,
-    DATA_SUN                                = 5,
+    DATA_FALLEN_PROTECTORS            = 2,
+    DATA_STONE                        = 3,
+    DATA_HU                           = 4,
+    DATA_SUN                          = 5,
     
     // Norushen
-    DATA_AMALGAM_OF_CORRUPTION              = 6,
+    DATA_AMALGAM_OF_CORRUPTION        = 6,
 
     // Sha of Pride
-    DATA_SHA_OF_PRIDE                       = 7,
+    DATA_SHA_OF_PRIDE                 = 7,
 
     // Galakras
-    DATA_GALAKRAS                           = 8,
+    DATA_GALAKRAS                     = 8,
 
     // Iron Juggernaut
-    DATA_IRON_JUGGERNAUT                    = 9,
+    DATA_IRON_JUGGERNAUT              = 9,
 
     // Kor'kron Dark Shamans
-    DATA_DARK_SHAMANS                       = 10,
-    DATA_EARTHBREAKER_HAROMM                = 11,
-    DATA_WAVEBINDER_KARDRIS                 = 12,
+    DATA_DARK_SHAMANS                 = 10,
+    DATA_EARTHBREAKER_HAROMM          = 11,
+    DATA_WAVEBINDER_KARDRIS           = 12,
 
     // General Nazgrim
-    DATA_GENERAL_NAZGRIM                    = 13,
+    DATA_GENERAL_NAZGRIM              = 13,
 
     // Malkorok
-    DATA_MALKOROK                           = 14,
+    DATA_MALKOROK                     = 14,
 
     // Spoils of Pandaria
-    DATA_SPOILS_OF_PANDARIA                 = 15,
+    DATA_SPOILS_OF_PANDARIA           = 15,
 
     // Thok the Bloodthirsty
-    DATA_THOK_THE_BLOODTHIRSTY              = 16,
+    DATA_THOK_THE_BLOODTHIRSTY        = 16,
 
     // Siegecrafter Blackfuse
-    DATA_SIEGECRAFTER_BLACKFUSE             = 17,
+    DATA_SIEGECRAFTER_BLACKFUSE       = 17,
 
     // Paragons of the Klaxxi
-    DATA_PARAGONS_OF_THE_KLAXXI_EVENT       = 18,
-    DATA_SKEER_THE_BLOODSEEKER              = 19,
-    DATA_RIKKAL_THE_DISSECTOR               = 20,
-    DATA_HISEK_THE_SWARMKEEPER              = 21,
-    DATA_KAROZ_THE_LOCUST                   = 22,
-    DATA_KORVET_THE_PRIME                   = 23,
-    DATA_IYYOKUK_THE_LUCID                  = 24,
-    DATA_XARIL_THE_POISONED_MIND            = 25,
-    DATA_KAZTIK_THE_MANIPULATOR             = 26,
-    DATA_KILRUK_THE_WIND_REAVER             = 27,
+    DATA_PARAGONS_OF_THE_KLAXXI_EVENT = 18,
+    DATA_SKEER_THE_BLOODSEEKER        = 19,
+    DATA_RIKKAL_THE_DISSECTOR         = 20,
+    DATA_HISEK_THE_SWARMKEEPER        = 21,
+    DATA_KAROZ_THE_LOCUST             = 22,
+    DATA_KORVET_THE_PRIME             = 23,
+    DATA_IYYOKUK_THE_LUCID            = 24,
+    DATA_XARIL_THE_POISONED_MIND      = 25,
+    DATA_KAZTIK_THE_MANIPULATOR       = 26,
+    DATA_KILRUK_THE_WIND_REAVER       = 27,
 
     // Garrosh Hellscream
-    DATA_GARROSH_HELLSCREAM                 = 28,
+    DATA_GARROSH_HELLSCREAM           = 28,
+
+	// Lorewalker Cho
+	DATA_LOREWALKER_CHO               = 29,
 };
 
 enum eCreaturesLocal

@@ -121,6 +121,7 @@ set(scripts_STAT_SRCS
   Pandaria/Raids/SiegeOfOrgrimmar/boss_the_fallen_protectors.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_thok.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/boss_garrosh_hellscream.cpp
+  Pandaria/Raids/SiegeOfOrgrimmar/npc_lorewalker_cho.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/instance_siege_of_orgrimmar.cpp
   Pandaria/Raids/SiegeOfOrgrimmar/siege_of_orgrimmar.h
 
@@ -157,3 +158,5 @@ set(scripts_STAT_SRCS
 )
 
 message("  -> Prepared: Pandaria")
+
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
