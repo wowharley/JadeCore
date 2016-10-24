@@ -1042,6 +1042,33 @@ class spell_sha_bolt_missile : public SpellScriptLoader
 		}
 };
 
+// Sha Bolt Damage - 143293
+class spell_sha_bolt_damage : public SpellScriptLoader
+{
+	public:
+		spell_sha_bolt_damage() : SpellScriptLoader("spell_sha_bolt_damage") { }
+
+		class spell_sha_bolt_damage_SpellScript : public SpellScript
+		{
+			PrepareSpellScript(spell_sha_bolt_damage_SpellScript);
+
+			void HandleDamage(SpellEffIndex /*effIndex*/)
+			{
+				SetHitDamage(30000);
+			}
+
+			void Register() override
+			{
+				OnEffectHitTarget += SpellEffectFn(spell_sha_bolt_damage_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+			}
+		};
+
+		SpellScript* GetSpellScript() const override
+		{
+			return new spell_sha_bolt_damage_SpellScript();
+		}
+};
+
 void AddSC_boss_Immerseus()
 {
 	// Boss
@@ -1060,4 +1087,5 @@ void AddSC_boss_Immerseus()
 	new spell_swirl();
 	new spell_swirl_damage();
 	new spell_sha_bolt_missile();
+	new spell_sha_bolt_damage();
 }
