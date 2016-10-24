@@ -274,7 +274,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-                uint8 Creatures[9] =
+                int32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -329,7 +329,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                     m_Instance->SetBossState(DATA_EARTHBREAKER_HAROMM, FAIL);
                 }
 
-                uint8 Creatures[9] =
+                int32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -345,8 +345,13 @@ class boss_earthbreaker_haromm : public CreatureScript
                 for (int i = 0; i <= 8; i++)
                     DespawnCreaturesInArea(Creatures[i], me);
 
-                if (Creature* Darkfang = me->FindNearestCreature(CREATURE_DARKFANG, 500.0f, false))
-                    if (Creature* Bloodclaw = me->FindNearestCreature(CREATURE_BLOODCLAW, 500.0f, false))
+                int32 gobjects[1] =
+                {
+                    GOBJECT_IRON_TOMB
+                };
+
+                if (Creature* Darkfang = me->FindNearestCreature(CREATURE_DARKFANG, 500.0f, true))
+                    if (Creature* Bloodclaw = me->FindNearestCreature(CREATURE_BLOODCLAW, 500.0f, true))
                     {
                         Darkfang->AI()->Reset();
                         Darkfang->Respawn();
@@ -391,7 +396,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                     m_Instance->SetBossState(DATA_EARTHBREAKER_HAROMM, DONE);
                 }
 
-				uint8 Creatures[9] =
+                int32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -650,7 +655,7 @@ class boss_wavebinder_kardris : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-				uint8 Creatures[9] =
+                int32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -705,7 +710,7 @@ class boss_wavebinder_kardris : public CreatureScript
                     m_Instance->SetBossState(DATA_WAVEBINDER_KARDRIS, FAIL);
                 }
 
-				uint8 Creatures[9] =
+                int32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -721,8 +726,8 @@ class boss_wavebinder_kardris : public CreatureScript
                 for (int i = 0; i <= 8; i++)
                     DespawnCreaturesInArea(Creatures[i], me);
 
-                if (Creature* Darkfang = me->FindNearestCreature(CREATURE_DARKFANG, 500.0f, false))
-                    if (Creature* Bloodclaw = me->FindNearestCreature(CREATURE_BLOODCLAW, 500.0f, false))
+                if (Creature* Darkfang = me->FindNearestCreature(CREATURE_DARKFANG, 500.0f, true))
+                    if (Creature* Bloodclaw = me->FindNearestCreature(CREATURE_BLOODCLAW, 500.0f, true))
                     {
                         Darkfang->AI()->Reset();
                         Darkfang->Respawn();
@@ -763,7 +768,7 @@ class boss_wavebinder_kardris : public CreatureScript
                     m_Instance->SetBossState(DATA_WAVEBINDER_KARDRIS, DONE);
                 }
 
-				uint8 Creatures[9] =
+                int32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
