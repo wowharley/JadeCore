@@ -214,26 +214,32 @@ public:
 			events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage)
         {
             if (!me->IsInCombat())
                 return;
 
-			if (me->GetHealthPct() <= 15 && split == false)
+			if (damage > me->GetHealth())
 			{
-				me->CastStop();
-				events.Reset();
+				damage = 0;
+				me->SetHealth(1);
 
-				std::list<Creature*> shaPool;
-				me->GetCreatureListWithEntryInGrid(shaPool, CREATURE_SHA_POOL, 200.0f);
-				for (auto itr : shaPool)
+				if (!split)
 				{
-					itr->DespawnOrUnsummon(5000);
-					itr->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-				}
+					events.Reset();
+					me->CastStop();
 
-				events.ScheduleEvent(EVENT_SPLIT, 200, 0, PHASE_ONE);
-				split = true;
+					std::list<Creature*> shaPool;
+					me->GetCreatureListWithEntryInGrid(shaPool, CREATURE_SHA_POOL, 200.0f);
+					for (auto itr : shaPool)
+					{
+						itr->DespawnOrUnsummon(5000);
+						itr->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+					}
+
+					split = true;
+					events.ScheduleEvent(EVENT_SPLIT, 200, 0, PHASE_ONE);
+				}
 			}
         }
 
@@ -261,6 +267,7 @@ public:
 						uint32 newHealth = health * newEnergy;
 						me->SetHealth(newHealth);
 						me->SetDisplayId(49807);
+						split = false;
 
 						events.ScheduleEvent(EVENT_COROSIVE_BLAST, 35000, 0, PHASE_ONE);
 						events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
@@ -285,17 +292,6 @@ public:
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-			// Check for Puddles
-			if (split == true)
-			{
-				std::list<Creature*> puddle_list;
-				me->GetCreatureListWithEntryInGrid(puddle_list, CREATURE_SHA_PUDDLE, 200.0f);
-				me->GetCreatureListWithEntryInGrid(puddle_list, CREATURE_CONTAMINATED_PUDDLE, 200.0f);
-
-				if (puddle_list.empty())
-					split = false;
-			}
 
             events.Update(diff);
             

@@ -17,4 +17,4 @@ INSERT INTO `spell_script_names` VALUES (143281, 'spell_seeping_sha_damage'),
 (143020, 'spell_split'),
 (143309, 'spell_swirl'),
 (143412, 'spell_swirl_damage'),
-(129067, 'spell_sha_bolt_missile'),
+(129067, 'spell_sha_bolt_missile');
