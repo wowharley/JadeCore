@@ -2,11 +2,7 @@
 
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/JadeCore/JadeCore.svg)](http://isitmaintained.com/project/JadeCore/JadeCore "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/JadeCore/JadeCore.svg)](http://isitmaintained.com/project/JadeCore/JadeCore "Percentage of issues still open")
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/10616/badge.svg)]("https://scan.coverity.com/projects/jadecore-jadecore)
-
-5.4.8 |
-:------------: |
-[![5.4.8 Build Status](https://travis-ci.org/JadeCore/JadeCore.svg?branch=5.4.8)](https://travis-ci.org/JadeCore/JadeCore/builds) |[![5.4.8 Build status](https://ci.appveyor.com/api/projects/status/jrv4u77aw5qtjuu5/branch/5.4.8?svg=true)]
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/10616/badge.svg)]("https://scan.coverity.com/projects/jadecore-jadecore)  [![5.4.8 Build status](https://ci.appveyor.com/api/projects/status/jrv4u77aw5qtjuu5/branch/5.4.8?svg=true)](https://ci.appveyor.com/project/Bodeguero/jadecore/branch/5.4.8) [![5.4.8 Build Status](https://travis-ci.org/JadeCore/JadeCore.svg?branch=5.4.8)](https://travis-ci.org/JadeCore/JadeCore/builds)
 
 ## Introduction
 
