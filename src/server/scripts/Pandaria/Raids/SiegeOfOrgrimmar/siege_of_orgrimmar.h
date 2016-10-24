@@ -88,42 +88,49 @@ enum Data
 enum eCreaturesLocal
 {
     // Immerseus
-    BOSS_IMMERSEUS                      = 72436,
-    CREATURE_TORMENTED_INITATE          = 73349,
-    CREATURE_FALLEN_POOL_TENDER         = 73342,
-    CREATURE_AQUEOUS_DEFENDER           = 73191,
+    BOSS_IMMERSEUS                  = 72436,
+    CREATURE_TORMENTED_INITATE      = 73349,
+    CREATURE_FALLEN_POOL_TENDER     = 73342,
+    CREATURE_AQUEOUS_DEFENDER       = 73191,
 
     // Fallen Protectors
-    BOSS_STONE                          = 71475,
-    BOSS_HU                             = 71479,
-    BOSS_SUN                            = 71480,
+    BOSS_STONE                      = 71475,
+    BOSS_HU                         = 71479,
+    BOSS_SUN                        = 71480,
 
-    /// Norushen
-    BOSS_AMALGAM_OF_CORRUPTION          = 72276,
+    // Norushen
+    BOSS_AMALGAM_OF_CORRUPTION      = 72276,
 
-
-    /// Sha of Pride
-    BOSS_SHA_OF_PRIDE                   = 71734,
+    // Sha of Pride
+    BOSS_SHA_OF_PRIDE               = 71734,
 
     // Galakras
 
     // Iron Juggernaut
-    BOSS_IRON_JUGGERNAUT                = 71466,
+    BOSS_IRON_JUGGERNAUT            = 71466,
 
     // Kor'kron Dark Shamans
-    BOSS_EARTHBREAKER_HAROMM            = 71859,
-    BOSS_WAVEBINDER_KARDRIS             = 71858,
+    BOSS_EARTHBREAKER_HAROMM        = 71859,
+    BOSS_WAVEBINDER_KARDRIS         = 71858,
 
     // General Nazgrim
-    BOSS_GENERAL_NAZGRIM                = 71515,
+    BOSS_GENERAL_NAZGRIM            = 71515,
 
     // Malkorok
-    BOSS_MALKOROK                       = 71454,
+    BOSS_MALKOROK                   = 71454,
+
+	// Spoils of Pandaria
+
+	// Thok the Bloodthirsty
+
+	// Siegecrafter Blackfuse
+
+	// Paragons of the Klaxxi
 
     // Garrosh Hellscream
-    BOSS_GARROSH_HELLSCREAM             = 71865,
-    CREATURE_THRALL                     = 73483,
-    CREATURE_HEART_OF_YSHAARAJ_MAIN     = 72215,
+    BOSS_GARROSH_HELLSCREAM         = 71865,
+    CREATURE_THRALL                 = 73483,
+    CREATURE_HEART_OF_YSHAARAJ_MAIN = 72215,
 };
 
 #endif

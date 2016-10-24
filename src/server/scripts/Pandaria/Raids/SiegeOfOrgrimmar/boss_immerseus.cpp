@@ -796,14 +796,14 @@ class mob_swirl_zone : public CreatureScript
 };
 
 // Seeping Sha - 143281
-class spell_seeping_sha_damage : public SpellScriptLoader
+class spell_seeping_sha : public SpellScriptLoader
 {
 	public:
-		spell_seeping_sha_damage() : SpellScriptLoader("spell_seeping_sha_damage") { }
+		spell_seeping_sha() : SpellScriptLoader("spell_seeping_sha") { }
 
-		class spell_seeping_sha_damage_AuraScript : public AuraScript
+		class spell_seeping_sha_AuraScript : public AuraScript
 		{
-			PrepareAuraScript(spell_seeping_sha_damage_AuraScript);
+			PrepareAuraScript(spell_seeping_sha_AuraScript);
 
 			void OnUpdate(uint32 diff, AuraEffect* aurEff)
 			{
@@ -817,16 +817,42 @@ class spell_seeping_sha_damage : public SpellScriptLoader
 					for (auto itr : pl_list)
 					{
 						caster->CastSpell(itr, SPELL_SEEPING_SHA_DAMAGE);
-						
-						if (Aura* seepingSha = itr->GetAura(SPELL_SEEPING_SHA_DAMAGE))
-							SetDuration(1);
 					}
 				}
 			}
 
 			void Register() override
 			{
-				OnEffectUpdate += AuraEffectUpdateFn(spell_seeping_sha_damage_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_DUMMY);
+				OnEffectUpdate += AuraEffectUpdateFn(spell_seeping_sha_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_DUMMY);
+			}
+		};
+
+		AuraScript* GetAuraScript() const override
+		{
+			return new spell_seeping_sha_AuraScript();
+		}
+};
+
+// Seeping Sha Damage - 143286
+class spell_seeping_sha_damage : public SpellScriptLoader
+{
+	public:
+		spell_seeping_sha_damage() : SpellScriptLoader("spell_seeping_sha_damage") { }
+
+		class spell_seeping_sha_damage_AuraScript : public AuraScript
+		{
+			PrepareAuraScript(spell_seeping_sha_damage_AuraScript);
+
+			void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+			{
+				if (Unit* target = GetTarget())
+					if (Aura* seepingSha = target->GetAura(SPELL_SEEPING_SHA_DAMAGE))
+						seepingSha->SetDuration(1);
+			}
+
+			void Register() override
+			{
+				OnEffectApply += AuraEffectApplyFn(spell_seeping_sha_damage_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
 			}
 		};
 
@@ -1024,10 +1050,15 @@ class spell_sha_bolt_missile : public SpellScriptLoader
 
 			void HandleDummy(SpellEffIndex /*effIndex*/)
 			{
-				if (!GetCaster() && !GetHitUnit())
-					return;
+				if (Unit* caster = GetCaster())
+					if (Unit* target = GetHitUnit())
+					{
+						if (!caster && !target)
+							return;
 
-				GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SHA_BOLT_DAMAGE);
+						caster->CastSpell(target, SPELL_SHA_BOLT_DAMAGE);
+					}
+
 			}
 
 			void Register()
@@ -1082,6 +1113,7 @@ void AddSC_boss_Immerseus()
 	new mob_swirl_zone();
 
 	// Spells
+	new spell_seeping_sha();
 	new spell_seeping_sha_damage();
 	new spell_split();
 	new spell_swirl();
