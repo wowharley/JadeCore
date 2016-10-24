@@ -329,7 +329,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                     m_Instance->SetBossState(DATA_EARTHBREAKER_HAROMM, FAIL);
                 }
 
-				uint8 Creatures[9] =
+                uint8 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -391,7 +391,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                     m_Instance->SetBossState(DATA_EARTHBREAKER_HAROMM, DONE);
                 }
 
-				uint8 Creatures[9] =
+                uint8 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -650,7 +650,7 @@ class boss_wavebinder_kardris : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-				uint8 Creatures[9] =
+                uint8 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -705,7 +705,7 @@ class boss_wavebinder_kardris : public CreatureScript
                     m_Instance->SetBossState(DATA_WAVEBINDER_KARDRIS, FAIL);
                 }
 
-				uint8 Creatures[9] =
+                uint8 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -763,7 +763,7 @@ class boss_wavebinder_kardris : public CreatureScript
                     m_Instance->SetBossState(DATA_WAVEBINDER_KARDRIS, DONE);
                 }
 
-				uint8 Creatures[9] =
+                uint8 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -976,7 +976,7 @@ class npc_toxic_storm : public CreatureScript
             }
 
             InstanceScript* m_Instance;
-			EventMap events;
+            EventMap events;
 
             void Reset() override
             {
@@ -985,7 +985,7 @@ class npc_toxic_storm : public CreatureScript
                 me->setFaction(16);
                 me->SetInCombatWithZone();
                 me->SetSpeed(MOVE_RUN, 0.05f, true);
-				me->DespawnOrUnsummon(1000000000);
+                me->DespawnOrUnsummon(1000000000);
                 events.Reset();
                 me->CastSpell(me, SPELL_TOXIC_STORM_VISUAL);
             }
@@ -1011,7 +1011,7 @@ class npc_toxic_tornado : public CreatureScript
             }
 
             InstanceScript* m_Instance;
-			EventMap events;
+            EventMap events;
 
             void Reset() override
             {
@@ -1020,7 +1020,7 @@ class npc_toxic_tornado : public CreatureScript
                 me->setFaction(16);
                 me->SetInCombatWithZone();
                 me->SetSpeed(MOVE_RUN, 0.05f, true);
-				me->DespawnOrUnsummon(1000000000);
+                me->DespawnOrUnsummon(1000000000);
                 events.Reset();
                 me->CastSpell(me, SPELL_TOXIC_TORNADO_VISUAL);
             }
@@ -1046,7 +1046,7 @@ class npc_ash_elemental : public CreatureScript
             }
 
             InstanceScript* m_Instance;
-			EventMap events;
+            EventMap events;
 
             void Reset() override
             {
@@ -1084,7 +1084,7 @@ class npc_foul_slime : public CreatureScript
             }
 
             InstanceScript* m_Instance;
-			EventMap events;
+            EventMap events;
 
             void Reset() override
             {
@@ -1137,7 +1137,7 @@ class npc_darkfang_and_bloodclaw : public CreatureScript
             }
 
             InstanceScript* m_Instance;
-			EventMap events;
+            EventMap events;
 
             void Reset() override
             {
@@ -1276,7 +1276,7 @@ class spell_iron_prison : public SpellScriptLoader
 
             void Register()
             {
-				OnEffectHit += SpellEffectFn(spell_iron_prison_SpellScript::HandleDamage, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHit += SpellEffectFn(spell_iron_prison_SpellScript::HandleDamage, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

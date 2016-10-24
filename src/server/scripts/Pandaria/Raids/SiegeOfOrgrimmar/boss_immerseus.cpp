@@ -22,71 +22,71 @@
 
 enum eSpells
 {
-	// Split
-	SPELL_SPLIT_DUMMY               = 143020,
-	SPELL_SPLIT_SHA_PUDDLE          = 143022,
-	SPELL_SPLIT_CONTAMINATED_PUDDLE = 143024,
+    // Split
+    SPELL_SPLIT_DUMMY               = 143020,
+    SPELL_SPLIT_SHA_PUDDLE          = 143022,
+    SPELL_SPLIT_CONTAMINATED_PUDDLE = 143024,
 
-	// Seeping Sha
-	SPELL_SEEPING_SHA_VISUAL        = 143281,
-	SPELL_SEEPING_SHA_DAMAGE        = 143286,
+    // Seeping Sha
+    SPELL_SEEPING_SHA_VISUAL        = 143281,
+    SPELL_SEEPING_SHA_DAMAGE        = 143286,
 
-	// Split phase
-	SPELL_SHA_RESIDUE               = 143459,
-	SPELL_ERUPTING_SHA              = 143498,
-	SPELL_CONGEALING                = 143540,
+    // Split phase
+    SPELL_SHA_RESIDUE               = 143459,
+    SPELL_ERUPTING_SHA              = 143498,
+    SPELL_CONGEALING                = 143540,
     SPELL_PURIFIED_RESIDUE          = 143524,
 
-	// Normal phase
-	SPELL_COROSIVE_BLAST            = 143436,
-	SPELL_SHA_POOL_AURA             = 143462,
-	SPELL_SHA_POOL_DAMAGE           = 143460,
+    // Normal phase
+    SPELL_COROSIVE_BLAST            = 143436,
+    SPELL_SHA_POOL_AURA             = 143462,
+    SPELL_SHA_POOL_DAMAGE           = 143460,
 
-	// Sha Bolt
-	SPELL_SHA_BOLT_DAMAGE           = 143293,
-	SPELL_SHA_BOLT                  = 129067,
-	SPELL_SHA_BOLT_DUMMY            = 143290,
+    // Sha Bolt
+    SPELL_SHA_BOLT_DAMAGE           = 143293,
+    SPELL_SHA_BOLT                  = 129067,
+    SPELL_SHA_BOLT_DUMMY            = 143290,
 
-	// Swirl
-	SPELL_SWIRL_DUMMY               = 143309,
-	SPELL_SWIRL_DAMAGE              = 143412,
-	SPELL_SWIRL_VOID_ZONES          = 147184,
-	SPELL_SWIRL_VOID_ZONES_DAMAGE   = 143413,
+    // Swirl
+    SPELL_SWIRL_DUMMY               = 143309,
+    SPELL_SWIRL_DAMAGE              = 143412,
+    SPELL_SWIRL_VOID_ZONES          = 147184,
+    SPELL_SWIRL_VOID_ZONES_DAMAGE   = 143413,
 };
 
 enum eEvents
 {
-	EVENT_SPLIT           = 1,
-	EVENT_COROSIVE_BLAST  = 2,
-	EVENT_SHA_POOL_DAMAGE = 3,
-	EVENT_SWIRL           = 4,
-	EVENT_SHA_BOLT        = 5,
+    EVENT_SPLIT           = 1,
+    EVENT_COROSIVE_BLAST  = 2,
+    EVENT_SHA_POOL_DAMAGE = 3,
+    EVENT_SWIRL           = 4,
+    EVENT_SHA_BOLT        = 5,
 
-	EVENT_MOVE_ONE        = 6,
-	EVENT_MOVE_TWO        = 7,
-	EVENT_MOVE_THREE      = 8,
-	EVENT_MOVE_FOUR       = 9,
+    EVENT_MOVE_ONE        = 6,
+    EVENT_MOVE_TWO        = 7,
+    EVENT_MOVE_THREE      = 8,
+    EVENT_MOVE_FOUR       = 9,
 };
 
 enum eActions
 {
-	ACTION_COUNT_PUDDLES = 1,
-	ACTION_REMOVE_ENERGY = 2,
+    ACTION_COUNT_PUDDLES = 1,
+    ACTION_REMOVE_ENERGY = 2,
 };
 
 enum ePhases
 {
-	PHASE_ONE = 1,
-	PHASE_TWO = 2,
+    PHASE_ONE = 1,
+    PHASE_TWO = 2,
 };
 
 enum eCreatures
 {
-	CREATURE_SWIRL_TARGET        = 71550,
-	CREATURE_SWIRL_ZONE          = 71548,
-	CREATURE_SHA_POOL            = 71544,
-	CREATURE_SHA_PUDDLE          = 71603,
-	CREATURE_CONTAMINATED_PUDDLE = 71604,
+    CREATURE_SWIRL_TARGET        = 71550,
+    CREATURE_SWIRL_ZONE          = 71548,
+    CREATURE_SHA_POOL            = 71544,
+    CREATURE_SHA_PUDDLE          = 71603,
+    CREATURE_CONTAMINATED_PUDDLE = 71604,
 };
 
 enum eChestLoot
@@ -102,12 +102,12 @@ Position immersus_chest = {1440.66f, 817.257f, 246.835f, 4.679507f};
 
 Position circleposition[6] =
 {
-	{ 1447.89f, 828.258f, 246.835f },
-	{ 1384.38f, 799.616f, 246.784f },
-	{ 1366.21f, 726.288f, 246.834f },
-	{ 1482.72f, 682.118f, 246.836f },
-	{ 1513.86f, 780.797f, 246.835f },
-	{ 1447.89f, 828.258f, 246.835f },
+    { 1447.89f, 828.258f, 246.835f },
+    { 1384.38f, 799.616f, 246.784f },
+    { 1366.21f, 726.288f, 246.834f },
+    { 1482.72f, 682.118f, 246.836f },
+    { 1513.86f, 780.797f, 246.835f },
+    { 1447.89f, 828.258f, 246.835f },
 };
 
 Position immersusfrontdoor = { 1442.74f, 861.203f, 248.994f, 3.519956f };
@@ -117,346 +117,346 @@ Position immersusbackdoor2 = { 1442.74f, 861.203f, 248.994f, 3.519956f };
 
 void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
 {
-	std::list<Creature*> creatures;
-	GetCreatureListWithEntryInGrid(creatures, object, entry, 300.0f);
-	if (creatures.empty())
-		return;
+    std::list<Creature*> creatures;
+    GetCreatureListWithEntryInGrid(creatures, object, entry, 300.0f);
+    if (creatures.empty())
+        return;
 
-	for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-		(*iter)->DespawnOrUnsummon();
+    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
+        (*iter)->DespawnOrUnsummon();
 }
 
 void RemoveEnergy(Creature* creature, uint8 value, uint64 guid)
 {
-	if (guid == NULL)
-		return;
+    if (guid == NULL)
+        return;
 
-	if (Creature* immerseus = sObjectAccessor->GetCreature(*creature, guid))
-	{
-		uint8 power = immerseus->GetPower(Powers(POWER_ENERGY));
+    if (Creature* immerseus = sObjectAccessor->GetCreature(*creature, guid))
+    {
+        uint8 power = immerseus->GetPower(Powers(POWER_ENERGY));
 
-		immerseus->SetPower(Powers(POWER_ENERGY), power - value);
-	}
+        immerseus->SetPower(Powers(POWER_ENERGY), power - value);
+    }
 }
 
 // Immerseus - 71543
 class boss_immerseus : public CreatureScript
 {
-public:
-    boss_immerseus() : CreatureScript("boss_immerseus") { }
+    public:
+        boss_immerseus() : CreatureScript("boss_immerseus") { }
 
-    struct boss_immerseusAI : public BossAI
-    {
-        boss_immerseusAI(Creature* creature) : BossAI(creature, DATA_IMMERSEUS)
+        struct boss_immerseusAI : public BossAI
         {
-            pInstance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* pInstance;
-		uint32 puddlesKilled = 0;
-		bool split = false;
-		bool lootSpawn = false;
-
-        void Reset()
-        {
-            _Reset();
-            events.Reset();
-            summons.DespawnAll();
-
-            me->SetDisplayId(49056);
-            me->RemoveAllAuras();
-
-            me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-
-            me->SetMaxPower(POWER_ENERGY, 100);
-            me->SetInt32Value(UNIT_FIELD_MAX_POWER, 100);
-            me->SetPower(POWER_ENERGY, 100);
-            me->SetInt32Value(UNIT_FIELD_POWER, 100);
-            me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
-
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-
-            switch (me->GetMap()->GetDifficulty())
+            boss_immerseusAI(Creature* creature) : BossAI(creature, DATA_IMMERSEUS)
             {
-				case RAID_DIFFICULTY_10MAN_HEROIC:
-					me->SetMaxHealth(87000000);
-					break;
-				case RAID_DIFFICULTY_25MAN_HEROIC:
-					me->SetMaxHealth(212000000);
-					break;
-				case RAID_DIFFICULTY_25MAN_NORMAL:
-					me->SetMaxHealth(250000000);
-					break;
-				case RAID_DIFFICULTY_10MAN_NORMAL:
-					me->SetMaxHealth(62000000);
-					break;
-            }
-        }
-
-        void JustReachedHome()
-        {
-            _JustReachedHome();
-            summons.DespawnAll();
-
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);;
-            instance->SetBossState(DATA_IMMERSEUS, FAIL);
-        }
-
-        void EnterCombat(Unit* /*attacker*/)
-        {
-            if (pInstance)
-            {
-                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                DoZoneInCombat();
+                pInstance = creature->GetInstanceScript();
             }
 
-            me->SetMaxPower(POWER_ENERGY, 100);
-            me->SetInt32Value(UNIT_FIELD_MAX_POWER, 100);
-            me->SetPower(POWER_ENERGY, 100);
-            me->SetInt32Value(UNIT_FIELD_POWER, 100);
+            InstanceScript* pInstance;
+            uint32 puddlesKilled = 0;
+            bool split = false;
+            bool lootSpawn = false;
 
-			events.SetPhase(PHASE_ONE);
-			DoCast(me, SPELL_SEEPING_SHA_VISUAL);
+            void Reset()
+            {
+                _Reset();
+                events.Reset();
+                summons.DespawnAll();
 
-			events.ScheduleEvent(EVENT_COROSIVE_BLAST, 35000, 0, PHASE_ONE);
-			events.ScheduleEvent(EVENT_SWIRL, 20000, 0, PHASE_ONE);
-			events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
-        }
+                me->SetDisplayId(49056);
+                me->RemoveAllAuras();
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
-        {
-            if (!me->IsInCombat())
-                return;
+                me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
-			if (damage > me->GetHealth())
-			{
-				damage = 0;
-				me->SetHealth(1);
+                me->SetMaxPower(POWER_ENERGY, 100);
+                me->SetInt32Value(UNIT_FIELD_MAX_POWER, 100);
+                me->SetPower(POWER_ENERGY, 100);
+                me->SetInt32Value(UNIT_FIELD_POWER, 100);
+                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
 
-				if (!split)
-				{
-					events.Reset();
-					me->CastStop();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
-					std::list<Creature*> shaPool;
-					me->GetCreatureListWithEntryInGrid(shaPool, CREATURE_SHA_POOL, 200.0f);
-					for (auto itr : shaPool)
-					{
-						itr->DespawnOrUnsummon(5000);
-						itr->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-					}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case RAID_DIFFICULTY_10MAN_HEROIC:
+                        me->SetMaxHealth(87000000);
+                        break;
+                    case RAID_DIFFICULTY_25MAN_HEROIC:
+                        me->SetMaxHealth(212000000);
+                        break;
+                    case RAID_DIFFICULTY_25MAN_NORMAL:
+                        me->SetMaxHealth(250000000);
+                        break;
+                    case RAID_DIFFICULTY_10MAN_NORMAL:
+                        me->SetMaxHealth(62000000);
+                        break;
+                }
+            }
 
-					split = true;
-					events.ScheduleEvent(EVENT_SPLIT, 200, 0, PHASE_ONE);
-				}
-			}
-        }
+            void JustReachedHome()
+            {
+                _JustReachedHome();
+                summons.DespawnAll();
 
-        void JustDied(Unit* /*killer*/)
-        {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);;
+                instance->SetBossState(DATA_IMMERSEUS, FAIL);
+            }
 
-        }
+            void EnterCombat(Unit* /*attacker*/)
+            {
+                if (pInstance)
+                {
+                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                    DoZoneInCombat();
+                }
 
-		void SummonLootChest()
-		{
-			float posX = immersus_chest.GetPositionX();
-			float posY = immersus_chest.GetPositionY();
-			float posZ = immersus_chest.GetPositionZ();
-			float posO = immersus_chest.GetOrientation();
+                me->SetMaxPower(POWER_ENERGY, 100);
+                me->SetInt32Value(UNIT_FIELD_MAX_POWER, 100);
+                me->SetPower(POWER_ENERGY, 100);
+                me->SetInt32Value(UNIT_FIELD_POWER, 100);
 
-			switch (me->GetMap()->GetDifficulty())
-			{
-				case RAID_DIFFICULTY_10MAN_NORMAL:
-				{
-					me->SummonGameObject(GO_NORMAL_10_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
-					break;
-				}
+                events.SetPhase(PHASE_ONE);
+                DoCast(me, SPELL_SEEPING_SHA_VISUAL);
 
-				case RAID_DIFFICULTY_10MAN_HEROIC:
-				{
-					me->SummonGameObject(GO_HEROIC_10_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
-					break;
-				}
+                events.ScheduleEvent(EVENT_COROSIVE_BLAST, 35000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SWIRL, 20000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
+            }
 
-				case RAID_DIFFICULTY_25MAN_NORMAL:
-				{
-					me->SummonGameObject(GO_NORMAL_25_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
-					break;
-				}
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            {
+                if (!me->IsInCombat())
+                    return;
 
-				case RAID_DIFFICULTY_25MAN_HEROIC:
-				{
-					me->SummonGameObject(GO_HEROIC_25_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
-					break;
-				}
-			}
-		}
+                if (damage > me->GetHealth())
+                {
+                    damage = 0;
+                    me->SetHealth(1);
 
-        void DoAction(int32 action)
-        {
-			switch (action)
-			{
-				case ACTION_COUNT_PUDDLES:
-				{
-					puddlesKilled++;
+                    if (!split)
+                    {
+                        events.Reset();
+                        me->CastStop();
 
-					if (puddlesKilled >= 24)
-					{
-						events.Reset();
-						events.SetPhase(PHASE_ONE);
-						me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        std::list<Creature*> shaPool;
+                        me->GetCreatureListWithEntryInGrid(shaPool, CREATURE_SHA_POOL, 200.0f);
+                        for (auto itr : shaPool)
+                        {
+                            itr->DespawnOrUnsummon(5000);
+                            itr->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                        }
 
-						uint8 newEnergy = me->GetPower(Powers(POWER_ENERGY));
-						uint32 health = me->GetMaxHealth();
-						uint32 newHealth = health * newEnergy;
-						me->SetHealth(newHealth);
-						me->SetDisplayId(49807);
-						split = false;
+                        split = true;
+                        events.ScheduleEvent(EVENT_SPLIT, 200, 0, PHASE_ONE);
+                    }
+                }
+            }
 
-						events.ScheduleEvent(EVENT_COROSIVE_BLAST, 35000, 0, PHASE_ONE);
-						events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
-						events.ScheduleEvent(EVENT_SWIRL, 20000, 0, PHASE_ONE);
-					}
+            void JustDied(Unit* /*killer*/)
+            {
 
-					break;
-				}
+            }
 
-				case ACTION_REMOVE_ENERGY:
-				{
-					RemoveEnergy(me, 1, me->GetGUID());
-					if (me->GetPower(Powers(POWER_ENERGY)) <= 0)
-					{
-						if (me->GetDisplayId() != 49807)
-							me->SetDisplayId(49807);
+            void SummonLootChest()
+            {
+                float posX = immersus_chest.GetPositionX();
+                float posY = immersus_chest.GetPositionY();
+                float posZ = immersus_chest.GetPositionZ();
+                float posO = immersus_chest.GetOrientation();
 
-						me->setFaction(35);
-						me->SetFullHealth();
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case RAID_DIFFICULTY_10MAN_NORMAL:
+                    {
+                        me->SummonGameObject(GO_NORMAL_10_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
+                        break;
+                    }
 
-						if (!lootSpawn)
-						{
-							SummonLootChest();
-							lootSpawn = true;
-						}
-					}
+                    case RAID_DIFFICULTY_10MAN_HEROIC:
+                    {
+                        me->SummonGameObject(GO_HEROIC_10_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
+                        break;
+                    }
 
-					break;
-				}
-			}
-        }
+                    case RAID_DIFFICULTY_25MAN_NORMAL:
+                    {
+                        me->SummonGameObject(GO_NORMAL_25_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
+                        break;
+                    }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
+                    case RAID_DIFFICULTY_25MAN_HEROIC:
+                    {
+                        me->SummonGameObject(GO_HEROIC_25_LOOT, posX, posY, posZ, posO, 0, 0, 0, 0, 0);
+                        break;
+                    }
+                }
+            }
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+            void DoAction(int32 action)
+            {
+                switch (action)
+                {
+                    case ACTION_COUNT_PUDDLES:
+                    {
+                        puddlesKilled++;
 
-            events.Update(diff);
+                        if (puddlesKilled >= 24)
+                        {
+                            events.Reset();
+                            events.SetPhase(PHASE_ONE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+
+                            uint8 newEnergy = me->GetPower(Powers(POWER_ENERGY));
+                            uint32 health = me->GetMaxHealth();
+                            uint32 newHealth = health * newEnergy;
+                            me->SetHealth(newHealth);
+                            me->SetDisplayId(49807);
+                            split = false;
+
+                            events.ScheduleEvent(EVENT_COROSIVE_BLAST, 35000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SWIRL, 20000, 0, PHASE_ONE);
+                        }
+
+                        break;
+                    }
+
+                    case ACTION_REMOVE_ENERGY:
+                    {
+                        RemoveEnergy(me, 1, me->GetGUID());
+                        if (me->GetPower(Powers(POWER_ENERGY)) <= 0)
+                        {
+                            if (me->GetDisplayId() != 49807)
+                                me->SetDisplayId(49807);
+
+                            me->setFaction(35);
+                            me->SetFullHealth();
+
+                            if (!lootSpawn)
+                            {
+                                SummonLootChest();
+                                lootSpawn = true;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
             
-			while (uint32 eventId = events.ExecuteEvent())
-			{
-				switch (eventId)
-				{
-					case EVENT_COROSIVE_BLAST:
-					{
-						DoCastVictim(SPELL_COROSIVE_BLAST);
-						events.ScheduleEvent(EVENT_COROSIVE_BLAST, 35000, 0, PHASE_ONE);
-						break;
-					}
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_COROSIVE_BLAST:
+                        {
+                            DoCastVictim(SPELL_COROSIVE_BLAST);
+                            events.ScheduleEvent(EVENT_COROSIVE_BLAST, 35000, 0, PHASE_ONE);
+                            break;
+                        }
 
-					case EVENT_SWIRL:
-					{
-						DoCast(me, SPELL_SWIRL_DUMMY);
-						events.ScheduleEvent(EVENT_SWIRL, 20000, 0, PHASE_ONE);
-						break;
-					}
+                        case EVENT_SWIRL:
+                        {
+                            DoCast(me, SPELL_SWIRL_DUMMY);
+                            events.ScheduleEvent(EVENT_SWIRL, 20000, 0, PHASE_ONE);
+                            break;
+                        }
 
-					case EVENT_SHA_BOLT:
-					{
-						DoCast(me, SPELL_SHA_BOLT_DUMMY);
-						std::list<Player*> pl_list;
-						me->GetPlayerListInGrid(pl_list, 200.0f);
-						if (pl_list.empty())
-							return;
+                        case EVENT_SHA_BOLT:
+                        {
+                            DoCast(me, SPELL_SHA_BOLT_DUMMY);
+                            std::list<Player*> pl_list;
+                            me->GetPlayerListInGrid(pl_list, 200.0f);
+                            if (pl_list.empty())
+                                return;
 
-						for (auto itr : pl_list)
-						{
-							DoCast(itr, SPELL_SHA_BOLT);
-						}
+                            for (auto itr : pl_list)
+                            {
+                                DoCast(itr, SPELL_SHA_BOLT);
+                            }
 
-						events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
-						break;
-					}
+                            events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
+                            break;
+                        }
 
-					case EVENT_SPLIT:
-					{
-						events.SetPhase(PHASE_TWO);
-						DoCast(me, SPELL_SPLIT_DUMMY);
-						me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-						puddlesKilled = 0;
-						break;
-					}
-				}
-			}
+                        case EVENT_SPLIT:
+                        {
+                            events.SetPhase(PHASE_TWO);
+                            DoCast(me, SPELL_SPLIT_DUMMY);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            puddlesKilled = 0;
+                            break;
+                        }
+                    }
+                }
 
-            DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_immerseusAI(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_immerseusAI(creature);
-    }
 };
 
 // Sha Puddle - 71603
 class mob_sha_puddle : public CreatureScript
 {
-	public:
-		mob_sha_puddle() : CreatureScript("mob_sha_puddle") { }
+    public:
+        mob_sha_puddle() : CreatureScript("mob_sha_puddle") { }
 
-		struct mob_sha_puddleAI : public ScriptedAI
-		{
-			mob_sha_puddleAI(Creature* creature) : ScriptedAI(creature)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
+        struct mob_sha_puddleAI : public ScriptedAI
+        {
+            mob_sha_puddleAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
-			InstanceScript* pInstance;
-			EventMap events;
-			bool reached = false;
+            InstanceScript* pInstance;
+            EventMap events;
+            bool reached = false;
 
-			void Reset() override
-			{
-				me->setFaction(16);
-				me->SetSpeed(MOVE_RUN, 0.4f, true);
-				me->SetReactState(REACT_PASSIVE);
+            void Reset() override
+            {
+                me->setFaction(16);
+                me->SetSpeed(MOVE_RUN, 0.4f, true);
+                me->SetReactState(REACT_PASSIVE);
 
-				switch (me->GetMap()->GetDifficulty())
-				{
-					case RAID_DIFFICULTY_10MAN_HEROIC:
-						me->SetMaxHealth(515000);
-						break;
-					case RAID_DIFFICULTY_25MAN_HEROIC:
-						me->SetMaxHealth(1000000);
-						break;
-					case RAID_DIFFICULTY_25MAN_NORMAL:
-						me->SetMaxHealth(632000);
-						break;
-				}
-			}
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case RAID_DIFFICULTY_10MAN_HEROIC:
+                        me->SetMaxHealth(515000);
+                        break;
+                    case RAID_DIFFICULTY_25MAN_HEROIC:
+                        me->SetMaxHealth(1000000);
+                        break;
+                    case RAID_DIFFICULTY_25MAN_NORMAL:
+                        me->SetMaxHealth(632000);
+                        break;
+                }
+            }
 
-			void JustDied(Unit* /*killer*/)
-			{
-				if (Creature* immerseus = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-				{
-					immerseus->GetAI()->DoAction(ACTION_COUNT_PUDDLES);
-					immerseus->GetAI()->DoAction(ACTION_REMOVE_ENERGY);
-				}
+            void JustDied(Unit* /*killer*/)
+            {
+                if (Creature* immerseus = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
+                {
+                    immerseus->GetAI()->DoAction(ACTION_COUNT_PUDDLES);
+                    immerseus->GetAI()->DoAction(ACTION_REMOVE_ENERGY);
+                }
 
-				std::list<Player*> players;
+                std::list<Player*> players;
                 players.clear();
                 me->GetPlayerListInGrid(players, 300.0f);
                 if (players.empty())
@@ -474,650 +474,650 @@ class mob_sha_puddle : public CreatureScript
                             aura->SetStackAmount(aura->GetStackAmount() + 1);
                     }
                 }
-			}
+            }
 
-			void DamageTaken(Unit* attacker, uint32& damage)
-			{
-				if (attacker->HasAura(SPELL_SHA_RESIDUE))
-					if (Aura* shaResidue = me->GetAura(SPELL_SHA_RESIDUE))
-					{
-						uint8 stacks = shaResidue->GetStackAmount();
-						if (stacks > 1)
-							damage = damage + (damage * (0.25 * stacks));
-						else
-							damage = damage + (damage * 0.25);
-					}
-			}
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (attacker->HasAura(SPELL_SHA_RESIDUE))
+                    if (Aura* shaResidue = me->GetAura(SPELL_SHA_RESIDUE))
+                    {
+                        uint8 stacks = shaResidue->GetStackAmount();
+                        if (stacks > 1)
+                            damage = damage + (damage * (0.25 * stacks));
+                        else
+                            damage = damage + (damage * 0.25);
+                    }
+            }
 
-			void UpdateAI(uint32 diff) override
-			{
-				events.Update(diff);
-				if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-					if (immersius->IsWithinDistInMap(me, 5.0f))
-					{
-						if (reached == false)
-						{
-							me->DespawnOrUnsummon(4000);
-							immersius->AI()->DoAction(ACTION_COUNT_PUDDLES);
-							reached = true;
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
+                if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
+                    if (immersius->IsWithinDistInMap(me, 5.0f))
+                    {
+                        if (reached == false)
+                        {
+                            me->DespawnOrUnsummon(4000);
+                            immersius->AI()->DoAction(ACTION_COUNT_PUDDLES);
+                            reached = true;
 
-							if (immersius->IsInCombat())
-								immersius->CastSpell(immersius, SPELL_ERUPTING_SHA);
-						}
-					}
+                            if (immersius->IsInCombat())
+                                immersius->CastSpell(immersius, SPELL_ERUPTING_SHA);
+                        }
+                    }
 
-				if (!me->isMoving())
-					if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-						me->GetMotionMaster()->MovePoint(0, immersius->GetPositionX(), immersius->GetPositionY(), immersius->GetPositionZ());
-			}
-		};
+                if (!me->isMoving())
+                    if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
+                        me->GetMotionMaster()->MovePoint(0, immersius->GetPositionX(), immersius->GetPositionY(), immersius->GetPositionZ());
+            }
+        };
 
-		CreatureAI* GetAI(Creature* creature) const override
-		{
-			return new mob_sha_puddleAI(creature);
-		}
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_sha_puddleAI(creature);
+        }
 };
 
 // Contaminated Puddle - 71604
 class mob_contaminated_puddle : public CreatureScript
 {
-	public:
-		mob_contaminated_puddle() : CreatureScript("mob_contaminated_puddle") { }
+    public:
+        mob_contaminated_puddle() : CreatureScript("mob_contaminated_puddle") { }
 
-		struct mob_contaminated_puddleAI : public ScriptedAI
-		{
-			mob_contaminated_puddleAI(Creature* creature) : ScriptedAI(creature)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
+        struct mob_contaminated_puddleAI : public ScriptedAI
+        {
+            mob_contaminated_puddleAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
-			InstanceScript* pInstance;
-			EventMap events;
-			bool reached = false;
-			bool health = false;
+            InstanceScript* pInstance;
+            EventMap events;
+            bool reached = false;
+            bool health = false;
 
-			void UpdateAI(uint32 diff) override
-			{
-				events.Update(diff);
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
 
-				if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-					if (!immersius->IsInCombat())
-						return;
+                if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
+                    if (!immersius->IsInCombat())
+                        return;
 
-				if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-				{
-					if (immersius->IsWithinDistInMap(me, 5.0f))
-					{
-						if (!reached)
-						{
-							me->DespawnOrUnsummon(4000);
-							immersius->AI()->DoAction(ACTION_COUNT_PUDDLES);
+                if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
+                {
+                    if (immersius->IsWithinDistInMap(me, 5.0f))
+                    {
+                        if (!reached)
+                        {
+                            me->DespawnOrUnsummon(4000);
+                            immersius->AI()->DoAction(ACTION_COUNT_PUDDLES);
 
-							if (me->GetHealth() == me->GetMaxHealth())
-							{
-								immersius->AI()->DoAction(ACTION_REMOVE_ENERGY);
-							}
+                            if (me->GetHealth() == me->GetMaxHealth())
+                            {
+                                immersius->AI()->DoAction(ACTION_REMOVE_ENERGY);
+                            }
 
-							reached = true;
-						}
-					}
-				}
+                            reached = true;
+                        }
+                    }
+                }
 
-				// Congealing effect.
-				if (Aura* congealing = me->GetAura(SPELL_CONGEALING))
-				{
-					uint8 pct = float(me->GetHealthPct());
+                // Congealing effect.
+                if (Aura* congealing = me->GetAura(SPELL_CONGEALING))
+                {
+                    uint8 pct = float(me->GetHealthPct());
 
-					switch (pct)
-					{
-						case 10:
-							congealing->SetStackAmount(1);
-							break;
-						case 20:
-							congealing->SetStackAmount(2);
-							break;
-						case 30:
-							congealing->SetStackAmount(3);
-							break;
-						case 40:
-							congealing->SetStackAmount(4);
-							break;
-						case 50:
-							congealing->SetStackAmount(5);
-							break;
-						case 60:
-							congealing->SetStackAmount(6);
-							break;
-						case 70:
-							congealing->SetStackAmount(7);
-							break;
-						case 80:
-							congealing->SetStackAmount(8);
-							break;
-						case 90:
-							congealing->SetStackAmount(9);
-							break;
-					}
-				}
+                    switch (pct)
+                    {
+                        case 10:
+                            congealing->SetStackAmount(1);
+                            break;
+                        case 20:
+                            congealing->SetStackAmount(2);
+                            break;
+                        case 30:
+                            congealing->SetStackAmount(3);
+                            break;
+                        case 40:
+                            congealing->SetStackAmount(4);
+                            break;
+                        case 50:
+                            congealing->SetStackAmount(5);
+                            break;
+                        case 60:
+                            congealing->SetStackAmount(6);
+                            break;
+                        case 70:
+                            congealing->SetStackAmount(7);
+                            break;
+                        case 80:
+                            congealing->SetStackAmount(8);
+                            break;
+                        case 90:
+                            congealing->SetStackAmount(9);
+                            break;
+                    }
+                }
 
-				if (health == false)
-				{
-					if (me->GetHealth() == me->GetMaxHealth())
-					{
-						std::list<Player*> pl_list;
-						me->GetPlayerListInGrid(pl_list, 12.0f);
+                if (health == false)
+                {
+                    if (me->GetHealth() == me->GetMaxHealth())
+                    {
+                        std::list<Player*> pl_list;
+                        me->GetPlayerListInGrid(pl_list, 12.0f);
 
-						if (pl_list.empty())
-							return;
+                        if (pl_list.empty())
+                            return;
 
-						for (auto itr : pl_list)
-						{
-							itr->CastSpell(itr, SPELL_PURIFIED_RESIDUE);
-						}
+                        for (auto itr : pl_list)
+                        {
+                            itr->CastSpell(itr, SPELL_PURIFIED_RESIDUE);
+                        }
 
-						health = true;
-					}
-				}
+                        health = true;
+                    }
+                }
 
-				if (!me->isMoving())
-					if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-						me->GetMotionMaster()->MovePoint(0, immersius->GetPositionX(), immersius->GetPositionY(), immersius->GetPositionZ());
-			}
-		};
+                if (!me->isMoving())
+                    if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
+                        me->GetMotionMaster()->MovePoint(0, immersius->GetPositionX(), immersius->GetPositionY(), immersius->GetPositionZ());
+            }
+        };
 
-		CreatureAI* GetAI(Creature* creature) const override
-		{
-			return new mob_contaminated_puddleAI(creature);
-		}
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_contaminated_puddleAI(creature);
+        }
 };
 
 // Sha pool - 71544
 class mob_sha_pool : public CreatureScript
 {
-	public:
-		mob_sha_pool() : CreatureScript("mob_sha_pool") { }
+    public:
+        mob_sha_pool() : CreatureScript("mob_sha_pool") { }
 
-		struct mob_sha_poolAI : public ScriptedAI
-		{
-			mob_sha_poolAI(Creature* creature) : ScriptedAI(creature)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
+        struct mob_sha_poolAI : public ScriptedAI
+        {
+            mob_sha_poolAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
-			InstanceScript* pInstance;
-			EventMap events;
+            InstanceScript* pInstance;
+            EventMap events;
 
-			void Reset() override
-			{
-				me->setFaction(16);
-				me->CastSpell(me, SPELL_SHA_POOL_AURA);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
-				me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
-				me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-				events.ScheduleEvent(EVENT_SHA_POOL_DAMAGE, 1200);
-			}
+            void Reset() override
+            {
+                me->setFaction(16);
+                me->CastSpell(me, SPELL_SHA_POOL_AURA);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                events.ScheduleEvent(EVENT_SHA_POOL_DAMAGE, 1200);
+            }
 
-			void UpdateAI(uint32 diff) override
-			{
-				events.Update(diff);
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
 
-				while (uint8 eventId = events.ExecuteEvent())
-				{
-					switch (eventId)
-					{
-						case EVENT_SHA_POOL_DAMAGE:
-						{
-							std::list<Player*> pl_list;
-							me->GetPlayerListInGrid(pl_list, 1.0f);
-							if (pl_list.empty())
-								return;
+                while (uint8 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SHA_POOL_DAMAGE:
+                        {
+                            std::list<Player*> pl_list;
+                            me->GetPlayerListInGrid(pl_list, 1.0f);
+                            if (pl_list.empty())
+                                return;
 
-							for (auto itr : pl_list)
-							{
-								DoCast(itr, SPELL_SHA_POOL_DAMAGE);
-							}
-						}
-					}
-				}
-			}
-		};
+                            for (auto itr : pl_list)
+                            {
+                                DoCast(itr, SPELL_SHA_POOL_DAMAGE);
+                            }
+                        }
+                    }
+                }
+            }
+        };
 
-		CreatureAI* GetAI(Creature* creature) const override
-		{
-			return new mob_sha_poolAI(creature);
-		}
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_sha_poolAI(creature);
+        }
 };
 
 // Swirl Target - 71550
 class mob_swirl_target : public CreatureScript
 {
-	public:
-		mob_swirl_target() : CreatureScript("mob_swirl_target") { }
+    public:
+        mob_swirl_target() : CreatureScript("mob_swirl_target") { }
 
-		struct mob_swirl_targetAI : public ScriptedAI
-		{
-			mob_swirl_targetAI(Creature* creature) : ScriptedAI(creature)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
+        struct mob_swirl_targetAI : public ScriptedAI
+        {
+            mob_swirl_targetAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
-			InstanceScript* pInstance;
-			EventMap events;
+            InstanceScript* pInstance;
+            EventMap events;
 
-			void Reset() override
-			{
-				me->GetMotionMaster()->MovePoint(0, circleposition[1]);
-				me->setFaction(16);
+            void Reset() override
+            {
+                me->GetMotionMaster()->MovePoint(0, circleposition[1]);
+                me->setFaction(16);
 
-				me->SetSpeed(MOVE_RUN, 3.0f);
-				me->SetReactState(REACT_PASSIVE);
+                me->SetSpeed(MOVE_RUN, 3.0f);
+                me->SetReactState(REACT_PASSIVE);
 
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
-				events.ScheduleEvent(EVENT_MOVE_ONE, 2000);
-			}
+                events.ScheduleEvent(EVENT_MOVE_ONE, 2000);
+            }
 
-			void UpdateAI(uint32 diff) override
-			{
-				events.Update(diff);
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
 
-				while (uint8 eventId = events.ExecuteEvent())
-				{
-					switch (eventId)
-					{
-						case EVENT_MOVE_ONE:
-						{
-							me->GetMotionMaster()->MovePoint(0, circleposition[2]);
-							events.ScheduleEvent(EVENT_MOVE_TWO, 2000);
-							break;
-						}
+                while (uint8 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_MOVE_ONE:
+                        {
+                            me->GetMotionMaster()->MovePoint(0, circleposition[2]);
+                            events.ScheduleEvent(EVENT_MOVE_TWO, 2000);
+                            break;
+                        }
 
-						case EVENT_MOVE_TWO:
-						{
-							me->GetMotionMaster()->MovePoint(0, circleposition[3]);
-							events.ScheduleEvent(EVENT_MOVE_THREE, 2000);
-							break;
-						}
+                        case EVENT_MOVE_TWO:
+                        {
+                            me->GetMotionMaster()->MovePoint(0, circleposition[3]);
+                            events.ScheduleEvent(EVENT_MOVE_THREE, 2000);
+                            break;
+                        }
 
-						case EVENT_MOVE_THREE:
-						{
-							me->GetMotionMaster()->MovePoint(0, circleposition[4]);
-							events.ScheduleEvent(EVENT_MOVE_FOUR, 2000);
-							break;
-						}
+                        case EVENT_MOVE_THREE:
+                        {
+                            me->GetMotionMaster()->MovePoint(0, circleposition[4]);
+                            events.ScheduleEvent(EVENT_MOVE_FOUR, 2000);
+                            break;
+                        }
 
-						case EVENT_MOVE_FOUR:
-						{
-							me->GetMotionMaster()->MovePoint(0, circleposition[5]);
-							break;
-						}
-					}
-				}
-			}
-		};
+                        case EVENT_MOVE_FOUR:
+                        {
+                            me->GetMotionMaster()->MovePoint(0, circleposition[5]);
+                            break;
+                        }
+                    }
+                }
+            }
+        };
 
-		CreatureAI* GetAI(Creature* creature) const override
-		{
-			return new mob_swirl_targetAI(creature);
-		}
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_swirl_targetAI(creature);
+        }
 };
 
 // Swirl Zone - 71548
 class mob_swirl_zone : public CreatureScript
 {
-	public:
-		mob_swirl_zone() : CreatureScript("mob_swirl_zone") { }
+    public:
+        mob_swirl_zone() : CreatureScript("mob_swirl_zone") { }
 
-		struct mob_swirl_zoneAI : public ScriptedAI
-		{
-			mob_swirl_zoneAI(Creature* creature) : ScriptedAI(creature)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
+        struct mob_swirl_zoneAI : public ScriptedAI
+        {
+            mob_swirl_zoneAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
-			InstanceScript* pInstance;
+            InstanceScript* pInstance;
 
-			void Reset() override
-			{
-				// TODO
-			}
+            void Reset() override
+            {
+                // TODO
+            }
 
-			void UpdateAI(uint32 diff) override
-			{
-				// TODO
-			}
-		};
+            void UpdateAI(uint32 diff) override
+            {
+                // TODO
+            }
+        };
 
-		CreatureAI* GetAI(Creature* creature) const override
-		{
-			return new mob_swirl_zoneAI(creature);
-		}
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_swirl_zoneAI(creature);
+        }
 };
 
 // Seeping Sha - 143281
 class spell_seeping_sha : public SpellScriptLoader
 {
-	public:
-		spell_seeping_sha() : SpellScriptLoader("spell_seeping_sha") { }
+    public:
+        spell_seeping_sha() : SpellScriptLoader("spell_seeping_sha") { }
 
-		class spell_seeping_sha_AuraScript : public AuraScript
-		{
-			PrepareAuraScript(spell_seeping_sha_AuraScript);
+        class spell_seeping_sha_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_seeping_sha_AuraScript);
 
-			void OnUpdate(uint32 diff, AuraEffect* aurEff)
-			{
-				if (Unit* caster = GetCaster())
-				{
-					std::list<Player*> pl_list;
-					caster->GetPlayerListInGrid(pl_list, 15.0f);
-					if (pl_list.empty())
-						return;
+            void OnUpdate(uint32 diff, AuraEffect* aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Player*> pl_list;
+                    caster->GetPlayerListInGrid(pl_list, 15.0f);
+                    if (pl_list.empty())
+                        return;
 
-					for (auto itr : pl_list)
-					{
-						caster->CastSpell(itr, SPELL_SEEPING_SHA_DAMAGE);
-					}
-				}
-			}
+                    for (auto itr : pl_list)
+                    {
+                        caster->CastSpell(itr, SPELL_SEEPING_SHA_DAMAGE);
+                    }
+                }
+            }
 
-			void Register() override
-			{
-				OnEffectUpdate += AuraEffectUpdateFn(spell_seeping_sha_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_DUMMY);
-			}
-		};
+            void Register() override
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_seeping_sha_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
 
-		AuraScript* GetAuraScript() const override
-		{
-			return new spell_seeping_sha_AuraScript();
-		}
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_seeping_sha_AuraScript();
+        }
 };
 
 // Seeping Sha Damage - 143286
 class spell_seeping_sha_damage : public SpellScriptLoader
 {
-	public:
-		spell_seeping_sha_damage() : SpellScriptLoader("spell_seeping_sha_damage") { }
+    public:
+        spell_seeping_sha_damage() : SpellScriptLoader("spell_seeping_sha_damage") { }
 
-		class spell_seeping_sha_damage_AuraScript : public AuraScript
-		{
-			PrepareAuraScript(spell_seeping_sha_damage_AuraScript);
+        class spell_seeping_sha_damage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_seeping_sha_damage_AuraScript);
 
-			void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-			{
-				if (Unit* target = GetTarget())
-					if (Aura* seepingSha = target->GetAura(SPELL_SEEPING_SHA_DAMAGE))
-						seepingSha->SetDuration(1);
-			}
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (Aura* seepingSha = target->GetAura(SPELL_SEEPING_SHA_DAMAGE))
+                        seepingSha->SetDuration(1);
+            }
 
-			void Register() override
-			{
-				OnEffectApply += AuraEffectApplyFn(spell_seeping_sha_damage_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-			}
-		};
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_seeping_sha_damage_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
 
-		AuraScript* GetAuraScript() const override
-		{
-			return new spell_seeping_sha_damage_AuraScript();
-		}
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_seeping_sha_damage_AuraScript();
+        }
 };
 
 // Split - 143020
 class spell_split : public SpellScriptLoader
 {
-	public:
-		spell_split() : SpellScriptLoader("spell_split") { }
+    public:
+        spell_split() : SpellScriptLoader("spell_split") { }
 
-		class spell_split_SpellScript : public SpellScript
-		{
-			PrepareSpellScript(spell_split_SpellScript);
+        class spell_split_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_split_SpellScript);
 
-			void HandleAfterCast()
-			{
-				if (Unit* caster = GetCaster())
-				{
-					for (int i = 0; i <= MAX_PUDDLES; i++)
-					{
-						caster->CastSpell(caster, SPELL_SPLIT_SHA_PUDDLE);
-						caster->CastSpell(caster, SPELL_SPLIT_CONTAMINATED_PUDDLE);
-					}
-				}
-			}
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    for (int i = 0; i <= MAX_PUDDLES; i++)
+                    {
+                        caster->CastSpell(caster, SPELL_SPLIT_SHA_PUDDLE);
+                        caster->CastSpell(caster, SPELL_SPLIT_CONTAMINATED_PUDDLE);
+                    }
+                }
+            }
 
-			void HandleScript(SpellEffIndex effIndex)
-			{
-				PreventHitDefaultEffect(effIndex);
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
 
-				if (!GetCaster())
-					return;
-			}
+                if (!GetCaster())
+                    return;
+            }
 
-			void Register() override
-			{
-				AfterCast += SpellCastFn(spell_split_SpellScript::HandleAfterCast);
-				OnEffectHitTarget += SpellEffectFn(spell_split_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-			}
-		};
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_split_SpellScript::HandleAfterCast);
+                OnEffectHitTarget += SpellEffectFn(spell_split_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
 
-		SpellScript* GetSpellScript() const override
-		{
-			return new spell_split_SpellScript();
-		}
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_split_SpellScript();
+        }
 
-		class spell_split_AuraScript : public AuraScript
-		{
-			PrepareAuraScript(spell_split_AuraScript);
+        class spell_split_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_split_AuraScript);
 
-			void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-			{
-				if (Unit* target = GetTarget())
-					if (Aura* splitAura = target->GetAura(SPELL_SPLIT_DUMMY))
-						splitAura->SetDuration(500000);
+            void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (Aura* splitAura = target->GetAura(SPELL_SPLIT_DUMMY))
+                        splitAura->SetDuration(500000);
 
-				if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
-					if (Creature * immerseus = pInstance->instance->GetCreature(pInstance->GetData64(Data::DATA_IMMERSEUS)))
-						immerseus->SetDisplayId(11686);
-			}
+                if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
+                    if (Creature * immerseus = pInstance->instance->GetCreature(pInstance->GetData64(Data::DATA_IMMERSEUS)))
+                        immerseus->SetDisplayId(11686);
+            }
 
-			void Register() override
-			{
-				OnEffectApply += AuraEffectApplyFn(spell_split_AuraScript::HandleDummy, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-			}
-		};
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_split_AuraScript::HandleDummy, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
 
-		AuraScript* GetAuraScript() const override
-		{
-			return new spell_split_AuraScript();
-		}
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_split_AuraScript();
+        }
 };
 
 // Swirl - 143309
 class spell_swirl : public SpellScriptLoader
 {
-	public:
-		spell_swirl() : SpellScriptLoader("spell_swirl") { }
+    public:
+        spell_swirl() : SpellScriptLoader("spell_swirl") { }
 
-		class spell_swirl_SpellScript : public SpellScript
-		{
-			PrepareSpellScript(spell_swirl_SpellScript);
+        class spell_swirl_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_swirl_SpellScript);
 
-			void HandleOnCast()
-			{
-				if (Unit* caster = GetCaster())
-				{
-					caster->SummonCreature(CREATURE_SWIRL_TARGET, circleposition[0], TEMPSUMMON_MANUAL_DESPAWN);
-					//caster->CastSpell(caster, SPELL_SWIRL_VOID_ZONES);
-				}
-			}
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->SummonCreature(CREATURE_SWIRL_TARGET, circleposition[0], TEMPSUMMON_MANUAL_DESPAWN);
+                    //caster->CastSpell(caster, SPELL_SWIRL_VOID_ZONES);
+                }
+            }
 
-			void Register() override
-			{
-				OnCast += SpellCastFn(spell_swirl_SpellScript::HandleOnCast);
-			}
-		};
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_swirl_SpellScript::HandleOnCast);
+            }
+        };
 
-		SpellScript* GetSpellScript() const override
-		{
-			return new spell_swirl_SpellScript();
-		}
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_swirl_SpellScript();
+        }
 
-		class spell_swirl_AuraScript : public AuraScript
-		{
-			PrepareAuraScript(spell_swirl_AuraScript);
+        class spell_swirl_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_swirl_AuraScript);
 
-			void OnUpdate(uint32 diff, AuraEffect* /*aurEff*/)
-			{
-				if (Unit* caster = GetCaster())
-					if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
-						if (Creature * immerseus = pInstance->instance->GetCreature(pInstance->GetData64(Data::DATA_IMMERSEUS)))
-							if (immerseus->HasAura(SPELL_SWIRL_DUMMY))
-								if (Creature* swirlTarget = immerseus->FindNearestCreature(CREATURE_SWIRL_TARGET, 200.0f))
-								{
-									immerseus->SetFacingToObject(swirlTarget);
+            void OnUpdate(uint32 diff, AuraEffect* /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
+                        if (Creature * immerseus = pInstance->instance->GetCreature(pInstance->GetData64(Data::DATA_IMMERSEUS)))
+                            if (immerseus->HasAura(SPELL_SWIRL_DUMMY))
+                                if (Creature* swirlTarget = immerseus->FindNearestCreature(CREATURE_SWIRL_TARGET, 200.0f))
+                                {
+                                    immerseus->SetFacingToObject(swirlTarget);
 
-									std::list<Player*> pl_list;
-									immerseus->GetPlayerListInGrid(pl_list, 200.0f);
-									if (pl_list.empty())
-										return;
+                                    std::list<Player*> pl_list;
+                                    immerseus->GetPlayerListInGrid(pl_list, 200.0f);
+                                    if (pl_list.empty())
+                                        return;
 
-									for (auto itr : pl_list)
-									{
-										if (itr->IsWithinDistInMap(swirlTarget, 20.0f))
-										{
-											immerseus->CastSpell(itr, SPELL_SWIRL_DAMAGE, true);
-										}
-									}
-								}
-			}
+                                    for (auto itr : pl_list)
+                                    {
+                                        if (itr->IsWithinDistInMap(swirlTarget, 20.0f))
+                                        {
+                                            immerseus->CastSpell(itr, SPELL_SWIRL_DAMAGE, true);
+                                        }
+                                    }
+                                }
+            }
 
-			void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-			{
-				if (Unit* caster = GetCaster())
-				{
-					std::list<Creature*> swirlTarget;
-					caster->GetCreatureListWithEntryInGrid(swirlTarget, CREATURE_SWIRL_TARGET, 2000.0f);
-					if (swirlTarget.empty())
-						return;
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<Creature*> swirlTarget;
+                    caster->GetCreatureListWithEntryInGrid(swirlTarget, CREATURE_SWIRL_TARGET, 2000.0f);
+                    if (swirlTarget.empty())
+                        return;
 
-					for (auto itr : swirlTarget)
-					{
-						itr->DespawnOrUnsummon(0);
-					}
-				}
-			}
+                    for (auto itr : swirlTarget)
+                    {
+                        itr->DespawnOrUnsummon(0);
+                    }
+                }
+            }
 
-			void Register() override
-			{
-				OnEffectUpdate += AuraEffectUpdateFn(spell_swirl_AuraScript::OnUpdate, EFFECT_2, SPELL_AURA_DUMMY);
-				OnEffectRemove += AuraEffectRemoveFn(spell_swirl_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-			}
-		};
+            void Register() override
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_swirl_AuraScript::OnUpdate, EFFECT_2, SPELL_AURA_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_swirl_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
 };
 
 // Swirl Damage - 143412
 class spell_swirl_damage : public SpellScriptLoader
 {
-	public:
-		spell_swirl_damage() : SpellScriptLoader("spell_swirl_damage") { }
+    public:
+        spell_swirl_damage() : SpellScriptLoader("spell_swirl_damage") { }
 
-		class spell_swirl_damage_AuraScript : public AuraScript
-		{
-			PrepareAuraScript(spell_swirl_damage_AuraScript);
+        class spell_swirl_damage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_swirl_damage_AuraScript);
 
-			void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-			{
-				if (Unit* target = GetTarget())
-					if (Aura* swirlDamage = target->GetAura(SPELL_SWIRL_DAMAGE))
-						swirlDamage->SetDuration(1);
-			}
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (Aura* swirlDamage = target->GetAura(SPELL_SWIRL_DAMAGE))
+                        swirlDamage->SetDuration(1);
+            }
 
-			void Register() override
-			{
-				OnEffectApply += AuraEffectApplyFn(spell_swirl_damage_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-			}
-		};
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_swirl_damage_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
 };
 
 // Sha Bolt - 129067
 class spell_sha_bolt_missile : public SpellScriptLoader
 {
-	public:
-		spell_sha_bolt_missile() : SpellScriptLoader("spell_sha_bolt_missile") { }
+    public:
+        spell_sha_bolt_missile() : SpellScriptLoader("spell_sha_bolt_missile") { }
 
-		class spell_sha_bolt_missile_SpellScript : public SpellScript
-		{
-			PrepareSpellScript(spell_sha_bolt_missile_SpellScript);
+        class spell_sha_bolt_missile_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_bolt_missile_SpellScript);
 
-			void HandleDummy(SpellEffIndex /*effIndex*/)
-			{
-				if (Unit* caster = GetCaster())
-					if (Unit* target = GetHitUnit())
-					{
-						if (!caster && !target)
-							return;
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (!caster && !target)
+                            return;
 
-						caster->CastSpell(target, SPELL_SHA_BOLT_DAMAGE);
-					}
+                        caster->CastSpell(target, SPELL_SHA_BOLT_DAMAGE);
+                    }
 
-			}
+            }
 
-			void Register()
-			{
-				OnEffectHitTarget += SpellEffectFn(spell_sha_bolt_missile_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-			}
-		};
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_bolt_missile_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
 
-		SpellScript* GetSpellScript() const
-		{
-			return new spell_sha_bolt_missile_SpellScript();
-		}
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_bolt_missile_SpellScript();
+        }
 };
 
 // Sha Bolt Damage - 143293
 class spell_sha_bolt_damage : public SpellScriptLoader
 {
-	public:
-		spell_sha_bolt_damage() : SpellScriptLoader("spell_sha_bolt_damage") { }
+    public:
+        spell_sha_bolt_damage() : SpellScriptLoader("spell_sha_bolt_damage") { }
 
-		class spell_sha_bolt_damage_SpellScript : public SpellScript
-		{
-			PrepareSpellScript(spell_sha_bolt_damage_SpellScript);
+        class spell_sha_bolt_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_bolt_damage_SpellScript);
 
-			void HandleDamage(SpellEffIndex /*effIndex*/)
-			{
-				SetHitDamage(30000);
-			}
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SetHitDamage(30000);
+            }
 
-			void Register() override
-			{
-				OnEffectHitTarget += SpellEffectFn(spell_sha_bolt_damage_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-			}
-		};
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_bolt_damage_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
 
-		SpellScript* GetSpellScript() const override
-		{
-			return new spell_sha_bolt_damage_SpellScript();
-		}
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_sha_bolt_damage_SpellScript();
+        }
 };
 
 void AddSC_boss_Immerseus()
 {
-	// Boss
-	new boss_immerseus();
+    // Boss
+    new boss_immerseus();
 
-	// Adds
-	new mob_sha_puddle();
-	new mob_contaminated_puddle();
-	new mob_sha_pool();
-	new mob_swirl_target();
-	new mob_swirl_zone();
+    // Adds
+    new mob_sha_puddle();
+    new mob_contaminated_puddle();
+    new mob_sha_pool();
+    new mob_swirl_target();
+    new mob_swirl_zone();
 
-	// Spells
-	new spell_seeping_sha();
-	new spell_seeping_sha_damage();
-	new spell_split();
-	new spell_swirl();
-	new spell_swirl_damage();
-	new spell_sha_bolt_missile();
-	new spell_sha_bolt_damage();
+    // Spells
+    new spell_seeping_sha();
+    new spell_seeping_sha_damage();
+    new spell_split();
+    new spell_swirl();
+    new spell_swirl_damage();
+    new spell_sha_bolt_missile();
+    new spell_sha_bolt_damage();
 }
