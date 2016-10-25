@@ -355,7 +355,6 @@ struct ScriptedAI : public CreatureAI
 
 	protected:
 		EventMap events;
-		InstanceScript* const instance;
 };
 
 struct Scripted_NoMovementAI : public ScriptedAI

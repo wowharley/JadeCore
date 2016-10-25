@@ -410,6 +410,7 @@ class mob_sha_puddle : public CreatureScript
             
             }
 
+            InstanceScript* instance;
             bool reached = false;
 
             void Reset() override
@@ -531,6 +532,7 @@ class mob_contaminated_puddle : public CreatureScript
 
             }
 
+            InstanceScript* instance;
             bool reached = false;
             bool health = false;
 
