@@ -1843,34 +1843,63 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_SAVE");
 
-    uint64 setGuid;
-    recvData.readPackGUID(setGuid);
-
+    ObjectGuid setGuid;
+    ObjectGuid itemGuid[EQUIPMENT_SLOT_END];
     uint32 index;
+    EquipmentSet eqSet;
+    uint8 iconNameLen, setNameLen;
+
     recvData >> index;
+
     if (index >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
         return;
 
-    std::string name;
-    recvData >> name;
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        itemGuid[i][5] = recvData.ReadBit();
+        itemGuid[i][0] = recvData.ReadBit();
+        itemGuid[i][1] = recvData.ReadBit();
+        itemGuid[i][4] = recvData.ReadBit();
+        itemGuid[i][6] = recvData.ReadBit();
+        itemGuid[i][3] = recvData.ReadBit();
+        itemGuid[i][7] = recvData.ReadBit();
+        itemGuid[i][2] = recvData.ReadBit();
+    }
 
-    std::string iconName;
-    recvData >> iconName;
+    setGuid[7] = recvData.ReadBit();
+    setGuid[1] = recvData.ReadBit();
+    setGuid[5] = recvData.ReadBit();
+    setGuid[2] = recvData.ReadBit();
+    setGuid[3] = recvData.ReadBit();
+    setGuid[0] = recvData.ReadBit();
 
-    EquipmentSet eqSet;
+    setNameLen = recvData.ReadBits(8);
+    setGuid[6] = recvData.ReadBit();
+    iconNameLen = recvData.ReadBits(8);
 
-    eqSet.Guid      = setGuid;
-    eqSet.Name      = name;
-    eqSet.IconName  = iconName;
-    eqSet.state     = EQUIPMENT_SET_NEW;
+    setGuid[4] = recvData.ReadBit();
+
+    bool pair = recvData.ReadBit();
+
+    if (pair)
+        iconNameLen++;
+
+    recvData.ReadByteSeq(setGuid[4]);
+    recvData.ReadByteSeq(setGuid[0]);
 
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        uint64 itemGuid;
-        recvData.readPackGUID(itemGuid);
+        recvData.ReadByteSeq(itemGuid[i][1]);
+        recvData.ReadByteSeq(itemGuid[i][0]);
+        recvData.ReadByteSeq(itemGuid[i][7]);
+        recvData.ReadByteSeq(itemGuid[i][3]);
+        recvData.ReadByteSeq(itemGuid[i][6]);
+        recvData.ReadByteSeq(itemGuid[i][2]);
+        recvData.ReadByteSeq(itemGuid[i][4]);
+        recvData.ReadByteSeq(itemGuid[i][5]);
 
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid == 1)
+        if (itemGuid[i] == 1)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
             eqSet.IgnoreMask |= 1 << i;
@@ -1879,14 +1908,31 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
         Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
-        if (!item && itemGuid)                               // cheating check 1
+        if (!item && itemGuid[i])                               // cheating check 1
             return;
 
-        if (item && item->GetGUID() != itemGuid)             // cheating check 2
+        if (item && item->GetGUID() != itemGuid[i])             // cheating check 2
             return;
 
-        eqSet.Items[i] = GUID_LOPART(itemGuid);
+        eqSet.Items[i] = GUID_LOPART(itemGuid[i]);
     }
+
+    std::string iconName = recvData.ReadString(iconNameLen);
+
+    recvData.ReadByteSeq(setGuid[7]);
+    recvData.ReadByteSeq(setGuid[2]);
+
+    std::string name = recvData.ReadString(setNameLen);
+
+    recvData.ReadByteSeq(setGuid[6]);
+    recvData.ReadByteSeq(setGuid[1]);
+    recvData.ReadByteSeq(setGuid[5]);
+    recvData.ReadByteSeq(setGuid[3]);
+
+    eqSet.Guid = setGuid;
+    eqSet.Name = name;
+    eqSet.IconName = iconName;
+    eqSet.state = EQUIPMENT_SET_NEW;
 
     _player->SetEquipmentSet(index, eqSet);
 }

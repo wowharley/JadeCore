@@ -67,6 +67,7 @@ class npc_lorewalker_cho_SoO : public CreatureScript
             void Reset() override
             {
                 me->setFaction(35);
+                me->SetMaxHealth(738060);
 
                 me->SetSpeed(MOVE_RUN, 1.6f);
                 me->SetReactState(REACT_PASSIVE);
@@ -90,10 +91,7 @@ class npc_lorewalker_cho_SoO : public CreatureScript
                         if (Immersus->IsWithinDistInMap(who, 60.0f))
                         {
                             introBoss = true;
-                            Immersus->DespawnOrUnsummon(25000);
-
-                            if (Immersus->GetAI())
-                                Immersus->GetAI()->DoAction(ACTION_TALK_BEFORE_IMMERSEUS);
+                            Immersus->GetAI()->DoAction(ACTION_TALK_BEFORE_IMMERSEUS);
                         }
                     }
                 }
@@ -123,12 +121,8 @@ class npc_lorewalker_cho_SoO : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 if (!me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE))
-                {
                     if (Player* nearest = me->FindNearestPlayer(60.0f, true))
-                    {
                         me->GetMotionMaster()->MovePoint(0, nearest->GetPositionX() + 3, nearest->GetPositionY() + 5, nearest->GetPositionZ());
-                    }
-                }
 
                 events.Update(diff);
 

@@ -157,7 +157,7 @@ class boss_immerseus : public CreatureScript
             bool split = false;
             bool lootSpawn = false;
 
-            void Reset()
+            void Reset() override
             {
                 _Reset();
                 events.Reset();
@@ -255,8 +255,8 @@ class boss_immerseus : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-				if (Creature* lorewalkerCho = pInstance->instance->GetCreature(pInstance->GetData64(DATA_LOREWALKER_CHO)))
-					lorewalkerCho->GetAI()->DoAction(ACTION_TALK_AFTER_IMMERSEUS);
+                if (Creature* lorewalkerCho = pInstance->instance->GetCreature(pInstance->GetData64(DATA_LOREWALKER_CHO)))
+                    lorewalkerCho->GetAI()->DoAction(ACTION_TALK_AFTER_IMMERSEUS);
             }
 
             void SummonLootChest()
@@ -406,7 +406,7 @@ class boss_immerseus : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_immerseusAI(creature);
         }
@@ -1013,6 +1013,11 @@ class spell_swirl : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_swirl_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_swirl_AuraScript();
+        }
 };
 
 // Swirl Damage - 143412
@@ -1037,6 +1042,11 @@ class spell_swirl_damage : public SpellScriptLoader
                 OnEffectApply += AuraEffectApplyFn(spell_swirl_damage_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_swirl_damage_AuraScript();
+        }
 };
 
 // Sha Bolt - 129067
@@ -1111,7 +1121,7 @@ void AddSC_boss_Immerseus()
     new mob_contaminated_puddle();
     new mob_sha_pool();
     new mob_swirl_target();
-    new mob_swirl_zone();
+    // new mob_swirl_zone();
 
     // Spells
     new spell_seeping_sha();
