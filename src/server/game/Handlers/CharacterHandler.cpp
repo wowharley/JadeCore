@@ -1875,11 +1875,11 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
     setNameLen = recvData.ReadBits(8);
     setGuid[6] = recvData.ReadBit();
-    iconNameLen = recvData.ReadBits(8);
+    iconNameLen = recvData.ReadBits(9);
 
     setGuid[4] = recvData.ReadBit();
 
-    bool pair = recvData.ReadBit();
+    bool pair = recvData.ReadBit(4);
 
     if (pair)
         iconNameLen++;
