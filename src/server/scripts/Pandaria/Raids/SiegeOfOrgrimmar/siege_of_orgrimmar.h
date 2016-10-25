@@ -81,8 +81,8 @@ enum Data
     // Garrosh Hellscream
     DATA_GARROSH_HELLSCREAM           = 28,
 
-	// Lorewalker Cho
-	DATA_LOREWALKER_CHO               = 29,
+    // Lorewalker Cho
+    DATA_LOREWALKER_CHO               = 29,
 };
 
 enum eCreaturesLocal
@@ -119,13 +119,13 @@ enum eCreaturesLocal
     // Malkorok
     BOSS_MALKOROK                   = 71454,
 
-	// Spoils of Pandaria
+    // Spoils of Pandaria
 
-	// Thok the Bloodthirsty
+    // Thok the Bloodthirsty
 
-	// Siegecrafter Blackfuse
+    // Siegecrafter Blackfuse
 
-	// Paragons of the Klaxxi
+    // Paragons of the Klaxxi
 
     // Garrosh Hellscream
     BOSS_GARROSH_HELLSCREAM         = 71865,
@@ -135,7 +135,7 @@ enum eCreaturesLocal
 
 enum Actions
 {
-	ACTION_TALK_AFTER_IMMERSEUS = 2, // Lorewalker cho TALK_9
+    ACTION_TALK_AFTER_IMMERSEUS = 2, // Lorewalker cho TALK_9
 };
 
 #endif

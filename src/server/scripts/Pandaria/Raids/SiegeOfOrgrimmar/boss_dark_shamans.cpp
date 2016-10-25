@@ -231,6 +231,8 @@ enum Gameobjects
     GOBJECT_IRON_TOMB  = 220864,
 };
 
+#define HOSTILE_FACTION 16
+
 static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
 {
     std::list<Creature*> creatures;
@@ -274,7 +276,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-                uint8 Creatures[9] =
+                uint32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -308,7 +310,7 @@ class boss_earthbreaker_haromm : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
                 DoCast(me, SPELL_SPIRIT_LINK_HAROMM);
             }
 
@@ -329,7 +331,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                     m_Instance->SetBossState(DATA_EARTHBREAKER_HAROMM, FAIL);
                 }
 
-                uint8 Creatures[9] =
+                uint32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -391,7 +393,7 @@ class boss_earthbreaker_haromm : public CreatureScript
                     m_Instance->SetBossState(DATA_EARTHBREAKER_HAROMM, DONE);
                 }
 
-                uint8 Creatures[9] =
+                uint32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -650,7 +652,7 @@ class boss_wavebinder_kardris : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-                uint8 Creatures[9] =
+                uint32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -684,7 +686,7 @@ class boss_wavebinder_kardris : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
                 DoCast(me, SPELL_SPIRIT_LINK_KARDRIS);
             }
 
@@ -705,7 +707,7 @@ class boss_wavebinder_kardris : public CreatureScript
                     m_Instance->SetBossState(DATA_WAVEBINDER_KARDRIS, FAIL);
                 }
 
-                uint8 Creatures[9] =
+                uint32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -763,7 +765,7 @@ class boss_wavebinder_kardris : public CreatureScript
                     m_Instance->SetBossState(DATA_WAVEBINDER_KARDRIS, DONE);
                 }
 
-                uint8 Creatures[9] =
+                uint32 Creatures[9] =
                 {
                     CREATURE_TOXIC_STORM,
                     CREATURE_TOXIC_TORNADO,
@@ -982,7 +984,7 @@ class npc_toxic_storm : public CreatureScript
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetVisible(true);
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
                 me->SetInCombatWithZone();
                 me->SetSpeed(MOVE_RUN, 0.05f, true);
                 me->DespawnOrUnsummon(1000000000);
@@ -1017,7 +1019,7 @@ class npc_toxic_tornado : public CreatureScript
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetVisible(true);
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
                 me->SetInCombatWithZone();
                 me->SetSpeed(MOVE_RUN, 0.05f, true);
                 me->DespawnOrUnsummon(1000000000);
@@ -1054,7 +1056,7 @@ class npc_ash_elemental : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                 me->SetInCombatWithZone();
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1105,7 +1107,7 @@ class npc_foul_slime : public CreatureScript
                 }
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
 
                 DoCast(me, SPELL_FOULNESS);
             }
@@ -1156,7 +1158,7 @@ class npc_darkfang_and_bloodclaw : public CreatureScript
                         me->SetMaxHealth(189000000);
                         break;
                 }
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                 events.Reset();
                 events.ScheduleEvent(EVENT_SWIPE, urand(5000, 10000));
@@ -1217,6 +1219,7 @@ class npc_totems : public CreatureScript
 
             void Reset() override
             {
+                me->setFaction(HOSTILE_FACTION);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
             }
