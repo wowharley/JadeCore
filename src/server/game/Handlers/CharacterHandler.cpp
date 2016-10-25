@@ -2625,3 +2625,4 @@ void Player::XPGainAborted()
 
     GetSession()->SendPacket(&data);
 }
+
