@@ -44,7 +44,6 @@ enum eSpells
 
     // Sha Bolt
     SPELL_SHA_BOLT_DAMAGE           = 143293,
-    SPELL_SHA_BOLT                  = 129067,
     SPELL_SHA_BOLT_DUMMY            = 143290,
 
     // Swirl
@@ -61,17 +60,18 @@ enum eEvents
     EVENT_SHA_POOL_DAMAGE = 3,
     EVENT_SWIRL           = 4,
     EVENT_SHA_BOLT        = 5,
+    EVENT_FIRST_PHASE     = 6,
 
-    EVENT_MOVE_ONE        = 6,
-    EVENT_MOVE_TWO        = 7,
-    EVENT_MOVE_THREE      = 8,
-    EVENT_MOVE_FOUR       = 9,
+    EVENT_MOVE_ONE        = 7,
+    EVENT_MOVE_TWO        = 8,
+    EVENT_MOVE_THREE      = 9,
+    EVENT_MOVE_FOUR       = 10,
+    EVENT_TEARS_OF_VALE   = 11,
 };
 
 enum eActions
 {
-    ACTION_COUNT_PUDDLES = 1,
-    ACTION_REMOVE_ENERGY = 2,
+    ACTION_REMOVE_ENERGY = 1,
 };
 
 enum ePhases
@@ -87,6 +87,7 @@ enum eCreatures
     CREATURE_SHA_POOL            = 71544,
     CREATURE_SHA_PUDDLE          = 71603,
     CREATURE_CONTAMINATED_PUDDLE = 71604,
+    CREATURE_TEARS_OF_VALE       = 73638,
 };
 
 enum eChestLoot
@@ -114,6 +115,8 @@ Position immersusfrontdoor = { 1442.74f, 861.203f, 248.994f, 3.519956f };
 Position immersusbackdoor2 = { 1442.74f, 861.203f, 248.994f, 3.519956f };
 
 #define MAX_PUDDLES 12
+#define FRENDLY_FACTION 35
+#define HOSTILE_FACTION 16
 
 void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
 {
@@ -128,9 +131,6 @@ void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
 
 void RemoveEnergy(Creature* creature, uint8 value, uint64 guid)
 {
-    if (guid == NULL)
-        return;
-
     if (Creature* immerseus = sObjectAccessor->GetCreature(*creature, guid))
     {
         uint8 power = immerseus->GetPower(Powers(POWER_ENERGY));
@@ -147,12 +147,8 @@ class boss_immerseus : public CreatureScript
 
         struct boss_immerseusAI : public BossAI
         {
-            boss_immerseusAI(Creature* creature) : BossAI(creature, DATA_IMMERSEUS)
-            {
-                pInstance = creature->GetInstanceScript();
-            }
+            boss_immerseusAI(Creature* creature) : BossAI(creature, DATA_IMMERSEUS) { }
 
-            InstanceScript* pInstance;
             uint32 puddlesKilled = 0;
             bool split = false;
             bool lootSpawn = false;
@@ -165,6 +161,7 @@ class boss_immerseus : public CreatureScript
 
                 me->SetDisplayId(49056);
                 me->RemoveAllAuras();
+                me->setFaction(HOSTILE_FACTION);
 
                 me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
@@ -183,10 +180,10 @@ class boss_immerseus : public CreatureScript
                         me->SetMaxHealth(87000000);
                         break;
                     case RAID_DIFFICULTY_25MAN_HEROIC:
-                        me->SetMaxHealth(212000000);
+                        me->SetMaxHealth(250000000);
                         break;
                     case RAID_DIFFICULTY_25MAN_NORMAL:
-                        me->SetMaxHealth(250000000);
+                        me->SetMaxHealth(212000000);
                         break;
                     case RAID_DIFFICULTY_10MAN_NORMAL:
                         me->SetMaxHealth(62000000);
@@ -199,17 +196,14 @@ class boss_immerseus : public CreatureScript
                 _JustReachedHome();
                 summons.DespawnAll();
 
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);;
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 instance->SetBossState(DATA_IMMERSEUS, FAIL);
             }
 
             void EnterCombat(Unit* /*attacker*/)
             {
-                if (pInstance)
-                {
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                    DoZoneInCombat();
-                }
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                DoZoneInCombat();
 
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->SetInt32Value(UNIT_FIELD_MAX_POWER, 100);
@@ -234,7 +228,7 @@ class boss_immerseus : public CreatureScript
                     damage = 0;
                     me->SetHealth(1);
 
-                    if (!split)
+                    if (events.IsInPhase(PHASE_ONE))
                     {
                         events.Reset();
                         me->CastStop();
@@ -247,16 +241,10 @@ class boss_immerseus : public CreatureScript
                             itr->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                         }
 
-                        split = true;
-                        events.ScheduleEvent(EVENT_SPLIT, 200, 0, PHASE_ONE);
+                        events.SetPhase(PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SPLIT, 1000, 0, PHASE_TWO);
                     }
                 }
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (Creature* lorewalkerCho = pInstance->instance->GetCreature(pInstance->GetData64(DATA_LOREWALKER_CHO)))
-                    lorewalkerCho->GetAI()->DoAction(ACTION_TALK_AFTER_IMMERSEUS);
             }
 
             void SummonLootChest()
@@ -298,31 +286,6 @@ class boss_immerseus : public CreatureScript
             {
                 switch (action)
                 {
-                    case ACTION_COUNT_PUDDLES:
-                    {
-                        puddlesKilled++;
-
-                        if (puddlesKilled >= 24)
-                        {
-                            events.Reset();
-                            events.SetPhase(PHASE_ONE);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-
-                            uint8 newEnergy = me->GetPower(Powers(POWER_ENERGY));
-                            uint32 health = me->GetMaxHealth();
-                            uint32 newHealth = health * newEnergy;
-                            me->SetHealth(newHealth);
-                            me->SetDisplayId(49807);
-                            split = false;
-
-                            events.ScheduleEvent(EVENT_COROSIVE_BLAST, 35000, 0, PHASE_ONE);
-                            events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
-                            events.ScheduleEvent(EVENT_SWIRL, 20000, 0, PHASE_ONE);
-                        }
-
-                        break;
-                    }
-
                     case ACTION_REMOVE_ENERGY:
                     {
                         RemoveEnergy(me, 1, me->GetGUID());
@@ -331,8 +294,11 @@ class boss_immerseus : public CreatureScript
                             if (me->GetDisplayId() != 49807)
                                 me->SetDisplayId(49807);
 
-                            me->setFaction(35);
+                            me->setFaction(FRENDLY_FACTION);
                             me->SetFullHealth();
+
+                            if (Creature* lorewalkerCho = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_LOREWALKER_CHO)))
+                                lorewalkerCho->GetAI()->DoAction(ACTION_TALK_AFTER_IMMERSEUS);
 
                             if (!lootSpawn)
                             {
@@ -369,14 +335,14 @@ class boss_immerseus : public CreatureScript
 
                         case EVENT_SWIRL:
                         {
-                            DoCast(me, SPELL_SWIRL_DUMMY);
+                            DoCastSelf(SPELL_SWIRL_DUMMY);
                             events.ScheduleEvent(EVENT_SWIRL, 20000, 0, PHASE_ONE);
                             break;
                         }
 
                         case EVENT_SHA_BOLT:
                         {
-                            DoCast(me, SPELL_SHA_BOLT_DUMMY);
+                            DoCastSelf(SPELL_SHA_BOLT_DUMMY);
                             std::list<Player*> pl_list;
                             me->GetPlayerListInGrid(pl_list, 200.0f);
                             if (pl_list.empty())
@@ -384,7 +350,7 @@ class boss_immerseus : public CreatureScript
 
                             for (auto itr : pl_list)
                             {
-                                DoCast(itr, SPELL_SHA_BOLT);
+                                DoCast(itr, SPELL_SHA_BOLT_DAMAGE);
                             }
 
                             events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
@@ -394,10 +360,29 @@ class boss_immerseus : public CreatureScript
                         case EVENT_SPLIT:
                         {
                             events.SetPhase(PHASE_TWO);
-                            DoCast(me, SPELL_SPLIT_DUMMY);
+                            DoCastSelf(SPELL_SPLIT_DUMMY);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             puddlesKilled = 0;
+                            events.ScheduleEvent(EVENT_FIRST_PHASE, 30000, 0, PHASE_TWO);
                             break;
+                        }
+
+                        case EVENT_FIRST_PHASE:
+                        {
+                            events.Reset();
+                            events.SetPhase(PHASE_ONE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+
+                            int8 newEnergy = me->GetPower(Powers(POWER_ENERGY));
+                            uint32 health = me->GetMaxHealth();
+                            uint32 newHealth = health * newEnergy;
+                            me->SetHealth(newHealth);
+                            me->SetDisplayId(49807);
+                            split = false;
+
+                            events.ScheduleEvent(EVENT_COROSIVE_BLAST, 35000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SWIRL, 20000, 0, PHASE_ONE);
                         }
                     }
                 }
@@ -422,16 +407,14 @@ class mob_sha_puddle : public CreatureScript
         {
             mob_sha_puddleAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+            
             }
 
-            InstanceScript* pInstance;
-            EventMap events;
             bool reached = false;
 
             void Reset() override
             {
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
                 me->SetSpeed(MOVE_RUN, 0.4f, true);
                 me->SetReactState(REACT_PASSIVE);
 
@@ -451,11 +434,8 @@ class mob_sha_puddle : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (Creature* immerseus = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-                {
-                    immerseus->GetAI()->DoAction(ACTION_COUNT_PUDDLES);
+                if (Creature* immerseus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IMMERSEUS)))
                     immerseus->GetAI()->DoAction(ACTION_REMOVE_ENERGY);
-                }
 
                 std::list<Player*> players;
                 players.clear();
@@ -469,9 +449,7 @@ class mob_sha_puddle : public CreatureScript
                         itr->AddAura(SPELL_SHA_RESIDUE, itr);
                     else
                     {
-                        Aura* aura = itr->GetAura(SPELL_SHA_RESIDUE);
-
-                        if (aura)
+                        if (Aura* aura = itr->GetAura(SPELL_SHA_RESIDUE))
                             aura->SetStackAmount(aura->GetStackAmount() + 1);
                     }
                 }
@@ -493,23 +471,44 @@ class mob_sha_puddle : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
-                if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-                    if (immersius->IsWithinDistInMap(me, 5.0f))
+
+                if (Creature* immerseus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IMMERSEUS)))
+                    if (immerseus->IsWithinDistInMap(me, 5.0f))
                     {
                         if (reached == false)
                         {
                             me->DespawnOrUnsummon(4000);
-                            immersius->AI()->DoAction(ACTION_COUNT_PUDDLES);
                             reached = true;
 
-                            if (immersius->IsInCombat())
-                                immersius->CastSpell(immersius, SPELL_ERUPTING_SHA);
+                            immerseus->CastSpell(immerseus, SPELL_ERUPTING_SHA);
                         }
                     }
 
                 if (!me->isMoving())
-                    if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-                        me->GetMotionMaster()->MovePoint(0, immersius->GetPositionX(), immersius->GetPositionY(), immersius->GetPositionZ());
+                    if (Creature* immerseus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IMMERSEUS)))
+                        me->GetMotionMaster()->MovePoint(0, immerseus->GetPositionX(), immerseus->GetPositionY(), immerseus->GetPositionZ());
+
+                if (Creature* immerseus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IMMERSEUS)))
+                    if (!immerseus->HasAura(SPELL_SPLIT_DUMMY))
+                        events.ScheduleEvent(EVENT_TEARS_OF_VALE, 1000);
+
+                while (uint8 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_TEARS_OF_VALE:
+                        {
+                            float posX = me->GetPositionX();
+                            float posY = me->GetPositionY();
+                            float posZ = me->GetPositionZ();
+                            float posO = me->GetOrientation();
+                            Position pos = { posX, posY, posZ, posO };
+
+                            me->SummonCreature(CREATURE_TEARS_OF_VALE, pos, TEMPSUMMON_MANUAL_DESPAWN);
+                            me->DespawnOrUnsummon(0);
+                        }
+                    }
+                }
             }
         };
 
@@ -529,34 +528,57 @@ class mob_contaminated_puddle : public CreatureScript
         {
             mob_contaminated_puddleAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+
             }
 
-            InstanceScript* pInstance;
-            EventMap events;
             bool reached = false;
             bool health = false;
+
+            void Reset() override
+            {
+                me->setFaction(FRENDLY_FACTION);
+                me->SetSpeed(MOVE_RUN, 0.4f, true);
+
+                me->SetReactState(REACT_PASSIVE);
+                reached = false;
+                health = false;
+
+                switch (me->GetMap()->GetDifficulty())
+                {
+                    case RAID_DIFFICULTY_10MAN_HEROIC:
+                        me->SetMaxHealth(515000);
+                        break;
+                    case RAID_DIFFICULTY_25MAN_HEROIC:
+                        me->SetMaxHealth(1000000);
+                        break;
+                    case RAID_DIFFICULTY_25MAN_NORMAL:
+                        me->SetMaxHealth(632000);
+                        break;
+                }
+
+                me->SetHealth(me->GetMaxHealth() * 0.10);
+            }
 
             void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
 
-                if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
-                    if (!immersius->IsInCombat())
+                if (Creature* immerseus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IMMERSEUS)))
+                    if (!immerseus->IsInCombat())
                         return;
 
-                if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
+                if (Creature* immerseus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IMMERSEUS)))
                 {
-                    if (immersius->IsWithinDistInMap(me, 5.0f))
+                    if (immerseus->IsWithinDistInMap(me, 15.0f))
                     {
                         if (!reached)
                         {
                             me->DespawnOrUnsummon(4000);
-                            immersius->AI()->DoAction(ACTION_COUNT_PUDDLES);
+                            immerseus->CastSpell(immerseus, SPELL_ERUPTING_SHA);
 
                             if (me->GetHealth() == me->GetMaxHealth())
                             {
-                                immersius->AI()->DoAction(ACTION_REMOVE_ENERGY);
+                                immerseus->AI()->DoAction(ACTION_REMOVE_ENERGY);
                             }
 
                             reached = true;
@@ -621,7 +643,7 @@ class mob_contaminated_puddle : public CreatureScript
                 }
 
                 if (!me->isMoving())
-                    if (Creature* immersius = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IMMERSEUS)))
+                    if (Creature* immersius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IMMERSEUS)))
                         me->GetMotionMaster()->MovePoint(0, immersius->GetPositionX(), immersius->GetPositionY(), immersius->GetPositionZ());
             }
         };
@@ -642,15 +664,12 @@ class mob_sha_pool : public CreatureScript
         {
             mob_sha_poolAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
-            }
 
-            InstanceScript* pInstance;
-            EventMap events;
+            }
 
             void Reset() override
             {
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
                 me->CastSpell(me, SPELL_SHA_POOL_AURA);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
@@ -699,16 +718,13 @@ class mob_swirl_target : public CreatureScript
         {
             mob_swirl_targetAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
-            }
 
-            InstanceScript* pInstance;
-            EventMap events;
+            }
 
             void Reset() override
             {
                 me->GetMotionMaster()->MovePoint(0, circleposition[1]);
-                me->setFaction(16);
+                me->setFaction(HOSTILE_FACTION);
 
                 me->SetSpeed(MOVE_RUN, 3.0f);
                 me->SetReactState(REACT_PASSIVE);
@@ -774,10 +790,8 @@ class mob_swirl_zone : public CreatureScript
         {
             mob_swirl_zoneAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
-            }
 
-            InstanceScript* pInstance;
+            }
 
             void Reset() override
             {
@@ -793,6 +807,26 @@ class mob_swirl_zone : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new mob_swirl_zoneAI(creature);
+        }
+};
+
+// Tears of the Vale - 73638
+class mob_tears_of_the_vale : public CreatureScript
+{
+    public:
+        mob_tears_of_the_vale() : CreatureScript("mob_tears_of_the_vale") { }
+
+        struct mob_tears_of_the_valeAI : public ScriptedAI
+        {
+            mob_tears_of_the_valeAI(Creature* creature) : ScriptedAI(creature)
+            {
+
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new mob_tears_of_the_valeAI(creature);
         }
 };
 
@@ -915,9 +949,10 @@ class spell_split : public SpellScriptLoader
                     if (Aura* splitAura = target->GetAura(SPELL_SPLIT_DUMMY))
                         splitAura->SetDuration(500000);
 
-                if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
-                    if (Creature * immerseus = pInstance->instance->GetCreature(pInstance->GetData64(Data::DATA_IMMERSEUS)))
-                        immerseus->SetDisplayId(11686);
+                if (Unit* caster = GetCaster())
+                    if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
+                        if (Creature * immerseus = ObjectAccessor::GetCreature(*caster, pInstance->GetData64(DATA_IMMERSEUS)))
+                            immerseus->SetDisplayId(11686);
             }
 
             void Register() override
@@ -970,7 +1005,7 @@ class spell_swirl : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
-                        if (Creature * immerseus = pInstance->instance->GetCreature(pInstance->GetData64(Data::DATA_IMMERSEUS)))
+                        if (Creature * immerseus = ObjectAccessor::GetCreature(*caster, pInstance->GetData64(DATA_IMMERSEUS)))
                             if (immerseus->HasAura(SPELL_SWIRL_DUMMY))
                                 if (Creature* swirlTarget = immerseus->FindNearestCreature(CREATURE_SWIRL_TARGET, 200.0f))
                                 {
@@ -1049,41 +1084,6 @@ class spell_swirl_damage : public SpellScriptLoader
         }
 };
 
-// Sha Bolt - 129067
-class spell_sha_bolt_missile : public SpellScriptLoader
-{
-    public:
-        spell_sha_bolt_missile() : SpellScriptLoader("spell_sha_bolt_missile") { }
-
-        class spell_sha_bolt_missile_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_bolt_missile_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (!caster && !target)
-                            return;
-
-                        caster->CastSpell(target, SPELL_SHA_BOLT_DAMAGE);
-                    }
-
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_bolt_missile_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_bolt_missile_SpellScript();
-        }
-};
-
 // Sha Bolt Damage - 143293
 class spell_sha_bolt_damage : public SpellScriptLoader
 {
@@ -1129,6 +1129,5 @@ void AddSC_boss_Immerseus()
     new spell_split();
     new spell_swirl();
     new spell_swirl_damage();
-    new spell_sha_bolt_missile();
     new spell_sha_bolt_damage();
 }
