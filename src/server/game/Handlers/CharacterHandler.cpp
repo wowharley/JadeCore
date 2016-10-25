@@ -1879,7 +1879,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
     setGuid[4] = recvData.ReadBit();
 
-    bool pair = recvData.ReadBit(4);
+    bool pair = recvData.ReadBit();
 
     if (pair)
         iconNameLen++;
