@@ -215,7 +215,6 @@ class instance_SiegeOfOrgrimmar : public InstanceMapScript
                         return ImmerseusGuid;
                         break;
 
-
                     // Fallen Protectors
                     case DATA_STONE:
                         return StoneGuid;

@@ -352,6 +352,10 @@ struct ScriptedAI : public CreatureAI
         uint32 _evadeCheckCooldown;
         bool _isCombatMovementAllowed;
         bool _isHeroic;
+
+	protected:
+		EventMap events;
+		InstanceScript* const instance;
 };
 
 struct Scripted_NoMovementAI : public ScriptedAI
