@@ -1963,24 +1963,55 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_EQUIPMENT_SET_USE");
 
+    uint8 srcbag[EQUIPMENT_SLOT_END];
+    uint8 srcslot[EQUIPMENT_SLOT_END];
+
+    ObjectGuid itemGuid[EQUIPMENT_SLOT_END];
+
+    EquipmentSlots startSlot = _player->IsInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
+
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        recvData >> srcbag[i] >> srcslot[i];
+
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        uint64 itemGuid;
-        recvData.readPackGUID(itemGuid);
+        itemGuid[i][2] = recvData.ReadBit();
+        itemGuid[i][0] = recvData.ReadBit();
+        itemGuid[i][6] = recvData.ReadBit();
+        itemGuid[i][3] = recvData.ReadBit();
+        itemGuid[i][4] = recvData.ReadBit();
+        itemGuid[i][5] = recvData.ReadBit();
+        itemGuid[i][7] = recvData.ReadBit();
+        itemGuid[i][1] = recvData.ReadBit();
+    }
 
-        uint8 srcbag, srcslot;
-        recvData >> srcbag >> srcslot;
+    uint8 InvItemCounter = recvData.ReadBits(2);
 
-        TC_LOG_DEBUG("entities.player.items", "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid, srcbag, srcslot);
+    for (uint8 i = 0; i < InvItemCounter; i++)
+    {
+        recvData.ReadBit(); // Container Slot
+        recvData.ReadBit(); // Slot
+    }
 
-        // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid == 1)
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        recvData.ReadByteSeq(itemGuid[i][3]);
+        recvData.ReadByteSeq(itemGuid[i][0]);
+        recvData.ReadByteSeq(itemGuid[i][7]);
+        recvData.ReadByteSeq(itemGuid[i][4]);
+        recvData.ReadByteSeq(itemGuid[i][5]);
+        recvData.ReadByteSeq(itemGuid[i][2]);
+        recvData.ReadByteSeq(itemGuid[i][6]);
+        recvData.ReadByteSeq(itemGuid[i][1]);
+
+        if (i < uint32(startSlot))
             continue;
 
-		if (_player->IsInCombat() && i != EQUIPMENT_SLOT_MAINHAND && i != EQUIPMENT_SLOT_OFFHAND && i != EQUIPMENT_SLOT_RANGED)
-			continue;
+        // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
+        if (itemGuid[i] == 1)
+            continue;
 
-        Item* item = _player->GetItemByGuid(itemGuid);
+        Item* item = _player->GetItemByGuid(itemGuid[i]);
 
         uint16 dstpos = i | (INVENTORY_SLOT_BAG_0 << 8);
 
@@ -2009,8 +2040,10 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         _player->SwapItem(item->GetPos(), dstpos);
     }
 
-    WorldPacket data(SMSG_EQUIPMENT_SET_USE_RESULT, 1);
-    data << uint8(0);                                       // 4 - equipment swap failed - inventory is full
+    uint8 Reason = 0;
+    WorldPacket data(SMSG_USE_EQUIPMENT_SET_RESULT, 1);
+    data << uint8(Reason);                                   // 4 - equipment swap failed - inventory is full
+
     SendPacket(&data);
 }
 
