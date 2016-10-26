@@ -147,17 +147,14 @@ class boss_immerseus : public CreatureScript
 
         struct boss_immerseusAI : public BossAI
         {
-            boss_immerseusAI(Creature* creature) : BossAI(creature, DATA_IMMERSEUS) { }
-
-            uint32 puddlesKilled = 0;
-            bool split = false;
-            bool lootSpawn = false;
+            boss_immerseusAI(Creature* creature) : BossAI(creature, DATA_IMMERSEUS)
+            {
+            
+            }
 
             void Reset() override
             {
                 _Reset();
-                events.Reset();
-                summons.DespawnAll();
 
                 me->SetDisplayId(49056);
                 me->RemoveAllAuras();
@@ -173,22 +170,6 @@ class boss_immerseus : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-
-                switch (me->GetMap()->GetDifficulty())
-                {
-                    case RAID_DIFFICULTY_10MAN_HEROIC:
-                        me->SetMaxHealth(87000000);
-                        break;
-                    case RAID_DIFFICULTY_25MAN_HEROIC:
-                        me->SetMaxHealth(250000000);
-                        break;
-                    case RAID_DIFFICULTY_25MAN_NORMAL:
-                        me->SetMaxHealth(212000000);
-                        break;
-                    case RAID_DIFFICULTY_10MAN_NORMAL:
-                        me->SetMaxHealth(62000000);
-                        break;
-                }
             }
 
             void JustReachedHome()
@@ -197,13 +178,12 @@ class boss_immerseus : public CreatureScript
                 summons.DespawnAll();
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                instance->SetBossState(DATA_IMMERSEUS, FAIL);
             }
 
             void EnterCombat(Unit* /*attacker*/)
             {
+                _EnterCombat();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                DoZoneInCombat();
 
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->SetInt32Value(UNIT_FIELD_MAX_POWER, 100);
@@ -218,7 +198,7 @@ class boss_immerseus : public CreatureScript
                 events.ScheduleEvent(EVENT_SHA_BOLT, 8000, 0, PHASE_ONE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (!me->IsInCombat())
                     return;
@@ -282,7 +262,7 @@ class boss_immerseus : public CreatureScript
                 }
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -309,6 +289,9 @@ class boss_immerseus : public CreatureScript
 
                         break;
                     }
+
+                    default:
+                        break;
                 }
             }
 
@@ -389,6 +372,11 @@ class boss_immerseus : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                uint32 puddlesKilled = 0;
+                bool split = false;
+                bool lootSpawn = false;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -418,19 +406,6 @@ class mob_sha_puddle : public CreatureScript
                 me->setFaction(HOSTILE_FACTION);
                 me->SetSpeed(MOVE_RUN, 0.4f, true);
                 me->SetReactState(REACT_PASSIVE);
-
-                switch (me->GetMap()->GetDifficulty())
-                {
-                    case RAID_DIFFICULTY_10MAN_HEROIC:
-                        me->SetMaxHealth(515000);
-                        break;
-                    case RAID_DIFFICULTY_25MAN_HEROIC:
-                        me->SetMaxHealth(1000000);
-                        break;
-                    case RAID_DIFFICULTY_25MAN_NORMAL:
-                        me->SetMaxHealth(632000);
-                        break;
-                }
             }
 
             void JustDied(Unit* /*killer*/)
@@ -456,7 +431,7 @@ class mob_sha_puddle : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage) override
             {
                 if (attacker->HasAura(SPELL_SHA_RESIDUE))
                     if (Aura* shaResidue = me->GetAura(SPELL_SHA_RESIDUE))
@@ -507,7 +482,11 @@ class mob_sha_puddle : public CreatureScript
 
                             me->SummonCreature(CREATURE_TEARS_OF_VALE, pos, TEMPSUMMON_MANUAL_DESPAWN);
                             me->DespawnOrUnsummon(0);
+                            break;
                         }
+
+                        default:
+                            break;
                     }
                 }
             }
@@ -532,10 +511,6 @@ class mob_contaminated_puddle : public CreatureScript
 
             }
 
-            InstanceScript* instance;
-            bool reached = false;
-            bool health = false;
-
             void Reset() override
             {
                 me->setFaction(FRENDLY_FACTION);
@@ -544,19 +519,6 @@ class mob_contaminated_puddle : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 reached = false;
                 health = false;
-
-                switch (me->GetMap()->GetDifficulty())
-                {
-                    case RAID_DIFFICULTY_10MAN_HEROIC:
-                        me->SetMaxHealth(515000);
-                        break;
-                    case RAID_DIFFICULTY_25MAN_HEROIC:
-                        me->SetMaxHealth(1000000);
-                        break;
-                    case RAID_DIFFICULTY_25MAN_NORMAL:
-                        me->SetMaxHealth(632000);
-                        break;
-                }
 
                 me->SetHealth(me->GetMaxHealth() * 0.10);
             }
@@ -622,6 +584,8 @@ class mob_contaminated_puddle : public CreatureScript
                         case 90:
                             congealing->SetStackAmount(9);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -648,6 +612,11 @@ class mob_contaminated_puddle : public CreatureScript
                     if (Creature* immersius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IMMERSEUS)))
                         me->GetMotionMaster()->MovePoint(0, immersius->GetPositionX(), immersius->GetPositionY(), immersius->GetPositionZ());
             }
+
+            private:
+                InstanceScript* instance;
+                bool reached = false;
+                bool health = false;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -698,7 +667,12 @@ class mob_sha_pool : public CreatureScript
                             {
                                 DoCast(itr, SPELL_SHA_POOL_DAMAGE);
                             }
+
+                            break;
                         }
+
+                        default:
+                            break;
                     }
                 }
             }
@@ -771,6 +745,9 @@ class mob_swirl_target : public CreatureScript
                             me->GetMotionMaster()->MovePoint(0, circleposition[5]);
                             break;
                         }
+
+                        default:
+                            break;
                     }
                 }
             }
