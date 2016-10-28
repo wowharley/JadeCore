@@ -939,7 +939,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
-    pCurrChar->SendFeatureSystemStatus();
+    bool feedbackSystem = sWorld->getBoolConfig(CONFIG_TICKETS_FEEDBACK_SYSTEM_ENABLED);
+    bool excessiveWarning = false;
 
     // Send MOTD
     {
