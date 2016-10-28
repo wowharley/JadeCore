@@ -166,7 +166,7 @@ public:
     //reload commands
     static bool HandleReloadGMTicketsCommand(ChatHandler* /*handler*/, const char* /*args*/)
     {
-        sTicketMgr->LoadTickets();
+        sTicketMgr->LoadGmTickets();
         return true;
     }
 
