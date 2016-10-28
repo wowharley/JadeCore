@@ -691,8 +691,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SUPPORT_BUG_VIEW                       = 785,
     RBAC_PERM_COMMAND_SUPPORT_BUG_RESET                      = 786,
     RBAC_PERM_COMMAND_RESET_SPEC                             = 787,
-	RBAC_PERM_COMMAND_GUILD_GIVEXP							 = 788,
-	RBAC_PERM_COMMAND_GUILD_LEVELUP							 = 789,
+    RBAC_PERM_COMMAND_GUILD_GIVEXP							 = 788,
+    RBAC_PERM_COMMAND_GUILD_LEVELUP							 = 789,
 
     // custom permissions 1006+
     RBAC_PERM_COMMAND_QUESTCOMPLETER                         = 1002,
