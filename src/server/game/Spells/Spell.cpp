@@ -4878,13 +4878,14 @@ void Spell::SendChannelUpdate(uint32 time)
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
-    WorldPacket data(SMSG_CHANNEL_UPDATE, 8 + 4);
-    ObjectGuid guid = m_caster->GetGUID();
-    data.WriteGuidMask(guid, 0, 3, 4, 1, 5, 2, 6, 7);
+    ObjectGuid CasterGUID = m_caster->GetGUID();
+
+    WorldPacket data(SMSG_SPELL_CHANNEL_UPDATE, 8 + 4);
+    data.WriteGuidMask(CasterGUID, 0, 3, 4, 1, 5, 2, 6, 7);
     
-    data.WriteGuidBytes(guid, 4, 7, 1, 2, 6, 5);
+    data.WriteGuidBytes(CasterGUID, 4, 7, 1, 2, 6, 5);
     data << uint32(time);
-    data.WriteGuidBytes(guid, 0, 3);
+    data.WriteGuidBytes(CasterGUID, 0, 3);
 
     m_caster->SendMessageToSet(&data, true);
 }
@@ -4896,10 +4897,13 @@ void Spell::SendChannelStart(uint32 duration)
         if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   // this is for TARGET_SELECT_CATEGORY_NEARBY
             channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
 
-    WorldPacket data(SMSG_CHANNEL_START, (8+4+4));
-    ObjectGuid guid = m_caster->GetGUID();
+    uint32 SchoolImmunityMask = m_caster->GetSchoolImmunityMask();
+    uint32 MechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+    ObjectGuid CasterGUID = m_caster->GetGUID();
+
+    WorldPacket data(SMSG_SPELL_CHANNEL_START, (8 + 4 + 4/*+8+4+1+8*/));
     
-    data.WriteGuidMask(guid, 7, 5, 4, 1);
+    data.WriteGuidMask(CasterGUID, 7, 5, 4, 1);
     
     data.WriteBit(0); // healPrediction
     
@@ -4919,9 +4923,12 @@ void Spell::SendChannelStart(uint32 duration)
     }
     */
 
-    data.WriteGuidMask(guid, 3, 2, 0, 6);
+    data.WriteGuidMask(CasterGUID, 3, 2, 0, 6);
     
-    data.WriteBit(0); // immunity
+    if (SchoolImmunityMask || MechanicImmunityMask)
+        data.WriteBit(1);
+    else
+        data.WriteBit(0);
    
     /*
     if (healPrediction)
@@ -4948,17 +4955,16 @@ void Spell::SendChannelStart(uint32 duration)
         packet.WriteGuid("Guid2", guid2);
     }
     */
-    /*
-    if (immunity)
+ 
+    if (SchoolImmunityMask || MechanicImmunityMask)
     {
-        data << uint32(); // CastSchoolImmunities
-        data << uint32(); // CastImmunities
+        data << uint32(SchoolImmunityMask);                       // SchoolImmunityMask
+        data << uint32(MechanicImmunityMask);                     // MechanicImmunityMask
     }
-    */
     
-    data.WriteGuidBytes(guid, 6, 7, 3, 1, 0);
+    data.WriteGuidBytes(CasterGUID, 6, 7, 3, 1, 0);
     data << uint32(duration);
-    data.WriteGuidBytes(guid, 5, 4, 2);
+    data.WriteGuidBytes(CasterGUID, 5, 4, 2);
     data << uint32(m_spellInfo->Id);
 
     m_caster->SendMessageToSet(&data, true);

@@ -1491,7 +1491,7 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
         return;
     }
 
-    GetPlayer()->SendRefundInfo(item);
+    GetPlayer()->RefundItem(item);
 }
 
 void WorldSession::HandleItemRefund(WorldPacket &recvData)
