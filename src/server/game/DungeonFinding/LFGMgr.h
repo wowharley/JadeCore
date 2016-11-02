@@ -141,6 +141,7 @@ typedef std::pair<LfgRewardContainer::const_iterator, LfgRewardContainer::const_
 typedef std::map<uint8, LfgDungeonSet> LfgCachedDungeonContainer;
 typedef std::map<uint64, LfgAnswer> LfgAnswerContainer;
 typedef std::map<uint64, LfgRoleCheck> LfgRoleCheckContainer;
+typedef std::map<uint64, LfgQueueInfo> LfgQueueInfoContainer;
 typedef std::map<uint32, LfgProposal> LfgProposalContainer;
 typedef std::map<uint64, LfgProposalPlayer> LfgProposalPlayerContainer;
 typedef std::map<uint64, LfgPlayerBoot> LfgPlayerBootContainer;
@@ -214,6 +215,19 @@ struct LfgReward
     uint32 maxLevel;
     uint32 firstQuest;
     uint32 otherQuest;
+};
+
+struct LfgQueueInfo
+{
+    LfgQueueInfo() : joinTime(0), tanks(LFG_TANKS_NEEDED), healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED) {};
+    time_t joinTime;                                       ///< Player queue join time (to calculate wait times)
+    uint8 tanks;                                           ///< Tanks needed
+    uint8 healers;                                         ///< Healers needed
+    uint8 dps;                                             ///< Dps needed
+    LfgDungeonSet dungeons;                                ///< Selected Player/Group Dungeon/s
+    LfgRolesMap roles;                                     ///< Selected Player Role/s
+    uint8 type;
+    uint8 category;
 };
 
 /// Stores player data related to proposal to join
