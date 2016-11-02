@@ -1610,7 +1610,7 @@ void Guild::HandleQuery(WorldSession* session)
 
 void Guild::SendGuildRankInfo(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_RANK, 100);
+    WorldPacket data(SMSG_GUILD_RANKS, 100);
 
     data.WriteBits(_GetRanksSize(), 17);
 
@@ -1638,7 +1638,7 @@ void Guild::SendGuildRankInfo(WorldSession* session) const
     }
 
     session->SendPacket(&data);
-    TC_LOG_DEBUG("guild", "SMSG_GUILD_RANK [%s]", session->GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("guild", "SMSG_GUILD_RANKS [%s]", session->GetPlayerInfo().c_str());
 }
 
 void Guild::HandleSetMOTD(WorldSession* session, std::string const& motd)
@@ -2619,7 +2619,7 @@ void Guild::SendLoginInfo(WorldSession* session)
     /*
         Login sequence:
           SMSG_GUILD_EVENT - GE_MOTD
-          SMSG_GUILD_RANK
+          SMSG_GUILD_RANKS
           SMSG_GUILD_EVENT - GE_SIGNED_ON
           -- learn perks
           SMSG_GUILD_REPUTATION_WEEKLY_CAP

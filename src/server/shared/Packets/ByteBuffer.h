@@ -723,7 +723,7 @@ class ByteBuffer
             WriteBits(buffer._curbitval >> buffer._bitpos, 8 - buffer._bitpos);
         }
 
-        // can be used in SMSG_MONSTER_MOVE opcode
+        // can be used in SMSG_ON_MONSTER_MOVE opcode
         void appendPackXYZ(float x, float y, float z)
         {
             uint32 packed = 0;
